@@ -1,0 +1,5 @@
+setwd('/Users/Jacolien/itsadug/')
+library(devtools)
+dectools::build()
+devtools::build()
+devtools::build()

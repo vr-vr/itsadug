@@ -1,0 +1,11 @@
+year <- sub("-.*", "", meta$Date)
+note <- sprintf("R package version %s (development version)", meta$Version)
+
+bibentry(bibtype = "Misc",
+	 title = "{itsadug}: Interpreting Time Series, Autocorrelated Data Using GAMMs",
+	 author = c(person("Jacolien","van Rij"),
+	     person("R. Harald","Baayen"),
+	     person("Martijn", "Wieling"),
+	     person("Hedderik", "van Rijn")),
+	 year = year,
+	 note = note)
