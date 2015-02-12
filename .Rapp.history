@@ -1,5 +1,14 @@
-system("pdflatex --version")
-library('devtools')
-setwd('/Users/Jacolien/itsadug/')
+library(devtools)
+setwd('/Users/Jacolien/R Packages/itsadug/')
 devtools::document()
-devtools::build()
+devtools::load_all()
+help(plot_diff2)
+data(simdat)#
+## Not run: #
+m1 <- bam(Y ~ Group + te(Time, Trial, by=Group),#
+    data=simdat)
+plot_diff2(m1, view=c('Time', 'Trial'),#
+    comp=list(Group=c("Children", "Adults")))
+plot_diff2(m1, view=c('Time', 'Trial'),#
+    comp=list(Group=c("Children", "Adults")))
+gradientLegend(c(-5,9), side=1)

@@ -123,7 +123,10 @@ resid_gam <- function(model, AR_start = NULL, incl_na = F, return_all = F) {
         na.res <- rep(NA, nrow(tmpdat)+length(missing))
         if(length(missing)>0){
             na.res[-missing] <- res
+        }else{
+            na.res <- res
         }
+
         return(na.res)
     } else {
         return(res[!is.na(res)])

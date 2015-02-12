@@ -5,24 +5,19 @@
 \alias{plot_diff2}
 \title{Plot difference surface based on model predictions.}
 \usage{
-plot_diff2(model, xvar, yvar, by_predictor, comp_levels = NULL, plotCI = F,
-  color = "topo", nCol = 100, col = NULL, add.color.legend = TRUE,
-  n.grid = 30, nlevels = 10, zlim = NULL, main = NULL)
+plot_diff2(model, view, comp, plotCI = F, color = "topo", nCol = 100,
+  col = NULL, add.color.legend = TRUE, n.grid = 30, nlevels = 10,
+  zlim = NULL, main = NULL)
 }
 \arguments{
 \item{model}{A GAMM model, resulting from the functions
 \code{\link[mgcv]{gam}} or \code{\link[mgcv]{bam}}.}
 
-\item{xvar}{Name of continuous predictor that should be plotted on the x-
-axis.}
+\item{view}{Name of continuous predictors that should be plotted on the x-
+and y-axes. Vector of two values.}
 
-\item{yvar}{Name of continuous predictor that should be plotted on the y-
-axis.}
-
-\item{by_predictor}{Name of the grouping predictor (categorical variable).}
-
-\item{comp_levels}{Two levels of \code{by_predictor} to calculate the
-difference for.}
+\item{comp}{Named list with the grouping predictor (categorical variable)
+and the 2 levels to calculate the difference for.}
 
 \item{plotCI}{Logical: whether or not to plot confidence intervals.}
 
@@ -54,6 +49,13 @@ over the estimate (\code{se.est}) and the x-values (\code{x}) is returned.
 Plot difference surface based on model predictions.
 }
 \examples{
+data(simdat)
+\dontrun{
+m1 <- bam(Y ~ Group + te(Time, Trial, by=Group),
+    data=simdat)
+plot_diff2(m1, view=c('Time', 'Trial'),
+    comp=list(Group=c("Children", "Adults")))
+}
 # see the vignette for examples:
 vignette("plotfunctions", package="itsadug")
 }

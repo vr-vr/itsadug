@@ -4,11 +4,10 @@
 #' @aliases plotDiff
 #' @param model A GAMM model, resulting from the functions
 #' \code{\link[mgcv]{gam}} or \code{\link[mgcv]{bam}}.
-#' @param  xvar Name of continuous predictor that should be plotted on the x-
+#' @param  view Name of continuous predictor that should be plotted on the x-
 #' axis.
-#' @param by_predictor Name of the grouping predictor (categorical variable).
-#' @param comp_levels Two levels of \code{by_predictor} to calculate the 
-#' difference for.
+#' @param comp Named list with the grouping predictor (categorical variable)
+#' and the 2 levels to calculate the difference for.
 #' @param eegAxis Logical: whether or not to reverse the y-axis, plotting 
 #' negative values upwards. Default is FALSE.
 #' @param ylim Range of y-axis. If not specified, the function automatically 
@@ -29,14 +28,13 @@
 #' \dontrun{
 #' m1 <- bam(Y ~ Group + te(Time, Trial, by=Group),
 #'     data=simdat)
-#' plot_diff(m1, xvar='Time', by_predictor='Group', 
-#'     comp_levels=c("Children", "Adults"))
+#' plot_diff(m1, view='Time', comp=list(Group=c("Children", "Adults")))
 #' # Reversed y-axis (for EEG data):
-#' plot_diff(m1, xvar='Time', by_predictor='Group', 
-#'     comp_levels=c("Children", "Adults"), eegAxis=TRUE)
+#' plot_diff(m1, view='Time', comp=list(Group=c("Children", "Adults")), 
+#'     eegAxis=TRUE)
 #' # retrieving plot values...
-#' out <- plot_diff(m1, xvar='Time', by_predictor='Group', 
-#'     comp_levels=c("Children", "Adults"), plot=FALSE)
+#' out <- plot_diff(m1, view='Time', comp=list(Group=c("Children", "Adults")), 
+#'    plot=FALSE)
 #' #... which might be used for indicating differences:
 #' x <- find_difference(out$est, out$se, f=1.96, xVals=out$xVals)
 #' # add lines:
@@ -49,9 +47,26 @@
 
 # plots difference curve
 # set binary=T if you have a by-variable occurring multiple times 
-plot_diff <- function(model, xvar, by_predictor, comp_levels=NULL, eegAxis=F, 
+plot_diff <- function(model, view, comp, eegAxis=F, 
 	ylim=NULL, ylab=NULL, main=NULL, plot=TRUE, ...) { 
 	dat = model$model
+
+	by_predictor <- NULL
+	comp_levels <- NULL
+	if(length(view) > 1){
+		warning('Only first element of view will be used.')
+		view <- view[1]
+	}
+	if(names(comp)[1] %in% colnames(dat)){
+		if(length(comp[[1]]) < 2){
+			stop(sprintf('Provide two levels for %s to calculate difference.', names(comp)[1]))
+		}else{
+			by_predictor <- names(comp)[1]
+			comp_levels <- comp[[1]][1:2]
+		}
+	}else{
+		stop(sprintf('Grouping predictor %s not found in model.', names(comp)[1]))
+	}
 
 	if (is.null(ylab)) { 
 		ylab = as.character(model$formula[2])
@@ -62,7 +77,7 @@ plot_diff <- function(model, xvar, by_predictor, comp_levels=NULL, eegAxis=F,
 			
 	yvals <- sort(convert*ylim, decreasing=F)
 	
-	rngX = max(na.exclude(dat[,xvar])) - min(na.exclude(dat[,xvar]))
+	rngX = max(na.exclude(dat[,view])) - min(na.exclude(dat[,view]))
 	
 	np = 100
 
@@ -74,17 +89,17 @@ plot_diff <- function(model, xvar, by_predictor, comp_levels=NULL, eegAxis=F,
 
 	grp1 <- dat[which(is.na(dat[,by_predictor])), ] 
 	grp1[1:np,] = dat[1,]
-	grp1[,xvar] = seq(min(na.exclude(dat[,xvar])),max(na.exclude(dat[,xvar])), by=rngX/(np-1))
+	grp1[,view] = seq(min(na.exclude(dat[,view])),max(na.exclude(dat[,view])), by=rngX/(np-1))
 	
 	grp1[,by_predictor] = vals[1]
 
-	#pred1 = predict.onlyInclude(model,grp1,onlyInclude=c(xvar,paste(by_predictor,vals[1],sep='')))
+	#pred1 = predict.onlyInclude(model,grp1,onlyInclude=c(view,paste(by_predictor,vals[1],sep='')))
 	pred1 = predict(model,grp1,type='lpmatrix')
 
 	grp2 = grp1
 	grp2[,by_predictor] = vals[2]
 
-	#pred2 = predict.onlyInclude(model,grp2,onlyInclude=c(xvar,paste(by_predictor,vals[2],sep='')))
+	#pred2 = predict.onlyInclude(model,grp2,onlyInclude=c(view,paste(by_predictor,vals[2],sep='')))
 	pred2 = mgcv::predict.gam(model,grp2,type='lpmatrix')
 
 	res1 = grp1
@@ -93,7 +108,7 @@ plot_diff <- function(model, xvar, by_predictor, comp_levels=NULL, eegAxis=F,
 	res1$diff <- res1$Xp%*%coef(model)
 	
 
-	res1$XXX = res1[,xvar]
+	res1$XXX = res1[,view]
 		
 	if (is.null(main)) {
 		mn = paste('Difference between',vals[1],'and',vals[2])
@@ -111,7 +126,7 @@ plot_diff <- function(model, xvar, by_predictor, comp_levels=NULL, eegAxis=F,
 		res1$ll99 <- res1$diff - 2.58 * se.diff
 
 		if (is.null(ylim)) yvals <- sort(c(convert*min(res1$ll),convert*max(res1$ul)),decreasing=F)
-		plot(res1$XXX,convert*res1$diff,type='l',xlab=xvar, main=mn, ylab=ylab, ylim=yvals, axes=F,...)
+		plot(res1$XXX,convert*res1$diff,type='l',xlab=view, main=mn, ylab=ylab, ylim=yvals, axes=F,...)
 		box()
 		axis(1)
 		axis(2, at=axTicks(2), labels=convert*axTicks(2))
@@ -133,13 +148,10 @@ plot_diff <- function(model, xvar, by_predictor, comp_levels=NULL, eegAxis=F,
 #' @aliases plotDiff2D
 #' @param model A GAMM model, resulting from the functions
 #' \code{\link[mgcv]{gam}} or \code{\link[mgcv]{bam}}.
-#' @param  xvar Name of continuous predictor that should be plotted on the x-
-#' axis.
-#' @param  yvar Name of continuous predictor that should be plotted on the y-
-#' axis.
-#' @param by_predictor Name of the grouping predictor (categorical variable).
-#' @param comp_levels Two levels of \code{by_predictor} to calculate the 
-#' difference for.
+#' @param  view Name of continuous predictors that should be plotted on the x-
+#'  and y-axes. Vector of two values.
+#' @param comp Named list with the grouping predictor (categorical variable)
+#' and the 2 levels to calculate the difference for.
 #' @param plotCI Logical: whether or not to plot confidence intervals.
 #' @param color Colorpalette
 #' @param nCol Range of colors of background of contour plot.
@@ -158,16 +170,42 @@ plot_diff <- function(model, xvar, by_predictor, comp_levels=NULL, eegAxis=F,
 #' @author Martijn Wieling
 #'
 #' @examples
+#' data(simdat)
+#' \dontrun{
+#' m1 <- bam(Y ~ Group + te(Time, Trial, by=Group),
+#'     data=simdat)
+#' plot_diff2(m1, view=c('Time', 'Trial'), 
+#'     comp=list(Group=c("Children", "Adults")))
+#' }
 #' # see the vignette for examples:
 #' vignette("plotfunctions", package="itsadug")
 #' @family functions for interpreting nonlinear effects
 
 # plots differences in 2D plot
-plot_diff2 <- function(model,xvar,yvar,by_predictor,comp_levels=NULL,plotCI=F, 
+plot_diff2 <- function(model,view, comp, plotCI=F, 
 	color='topo', nCol=100, col=NULL, add.color.legend=TRUE,
 	n.grid=30, nlevels=10, zlim=NULL, main=NULL) { 
 
 	dat = model$model
+
+	by_predictor <- NULL
+	comp_levels <- NULL
+	if(length(view) < 2){
+		stop('Provide predictors for x- and y-axes in view.')
+	}
+	if(names(comp)[1] %in% colnames(dat)){
+		if(length(comp[[1]]) < 2){
+			stop(sprintf('Provide two levels for %s to calculate difference.', names(comp)[1]))
+		}else{
+			by_predictor <- names(comp)[1]
+			comp_levels <- comp[[1]][1:2]
+		}
+	}else{
+		stop(sprintf('Grouping predictor %s not found in model.', names(comp)[1]))
+	}
+
+	xvar <- view[1]
+	yvar <- view[2]
 	
 	nX = n.grid
 	nY = n.grid

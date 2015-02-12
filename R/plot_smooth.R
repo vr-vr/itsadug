@@ -111,7 +111,7 @@ plot_smooth <- function(x, view = NULL, cond = list(), rm.ranef=NULL,
     if(!is.null(cond)){
         cn <- names(cond)
         test <- sapply(cn, function(x){
-            if(length(unique(cond[[cn]]))>1){
+            if(length(unique(cond[[x]]))>1){
                 stop("Do not specify more than 1 value for conditions listed in the argument cond.")
             }else{
                 TRUE
@@ -144,7 +144,7 @@ plot_smooth <- function(x, view = NULL, cond = list(), rm.ranef=NULL,
     if(add==FALSE){
         emptyPlot(range(newd[,view[1]]), ylim,
             main=main, xlab=xlab, ylab=ylab,
-            h0=h0, v0=v0, ...)
+            h0=h0, v0=v0, eegAxis=eegAxis, ...)
     }
 
     if(rug==TRUE){

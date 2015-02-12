@@ -5,20 +5,18 @@
 \alias{plot_diff}
 \title{Plot difference curve based on model predictions.}
 \usage{
-plot_diff(model, xvar, by_predictor, comp_levels = NULL, eegAxis = F,
-  ylim = NULL, ylab = NULL, main = NULL, plot = TRUE, ...)
+plot_diff(model, view, comp, eegAxis = F, ylim = NULL, ylab = NULL,
+  main = NULL, plot = TRUE, ...)
 }
 \arguments{
 \item{model}{A GAMM model, resulting from the functions
 \code{\link[mgcv]{gam}} or \code{\link[mgcv]{bam}}.}
 
-\item{xvar}{Name of continuous predictor that should be plotted on the x-
+\item{view}{Name of continuous predictor that should be plotted on the x-
 axis.}
 
-\item{by_predictor}{Name of the grouping predictor (categorical variable).}
-
-\item{comp_levels}{Two levels of \code{by_predictor} to calculate the
-difference for.}
+\item{comp}{Named list with the grouping predictor (categorical variable)
+and the 2 levels to calculate the difference for.}
 
 \item{eegAxis}{Logical: whether or not to reverse the y-axis, plotting
 negative values upwards. Default is FALSE.}
@@ -50,14 +48,13 @@ data(simdat)
 \dontrun{
 m1 <- bam(Y ~ Group + te(Time, Trial, by=Group),
     data=simdat)
-plot_diff(m1, xvar='Time', by_predictor='Group',
-    comp_levels=c("Children", "Adults"))
+plot_diff(m1, view='Time', comp=list(Group=c("Children", "Adults")))
 # Reversed y-axis (for EEG data):
-plot_diff(m1, xvar='Time', by_predictor='Group',
-    comp_levels=c("Children", "Adults"), eegAxis=TRUE)
+plot_diff(m1, view='Time', comp=list(Group=c("Children", "Adults")),
+    eegAxis=TRUE)
 # retrieving plot values...
-out <- plot_diff(m1, xvar='Time', by_predictor='Group',
-    comp_levels=c("Children", "Adults"), plot=FALSE)
+out <- plot_diff(m1, view='Time', comp=list(Group=c("Children", "Adults")),
+   plot=FALSE)
 #... which might be used for indicating differences:
 x <- find_difference(out$est, out$se, f=1.96, xVals=out$xVals)
 # add lines:

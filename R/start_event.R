@@ -38,11 +38,11 @@ start_event <- function(data, column="Time", event="Event", label="start.event",
 		column <- column[1]
 	}
 	if(label %in% names(data)){
-		warning(sprintf("Column %s already exists, will be overwritten.", ))
+		warning(sprintf("Column %s already exists, will be overwritten.", label))
 	}
 	if(!is.null(label.event)){
 		if(label.event %in% names(data)){
-			warning(sprintf("Column %s already exists, will be overwritten.", ))
+			warning(sprintf("Column %s already exists, will be overwritten.", label.event))
 		}
 	}
 	tmp <- NULL

@@ -105,12 +105,14 @@ check_resid <- function(model, AR_start = NULL, split_by=NULL){
 		}
 		if(!is.null(model$AR1.rho)){
 			if(model$AR1.rho > 0){
-				suppressWarnings( res.rho <- resid_gam(model, AR_start=AR_start, incl_na=TRUE) )
+				suppressWarnings( res.rho <- resid_gam(model, incl_na=TRUE) )
 			}
 		}
 		if(!is.null(split_by)){
 			if(length(split_by[[1]]) > length(res)){
-				suppressWarnings( split_by <- lapply(split_by, function(x){x[-el.narm]}) )
+				if(length(el.narm) > 0){
+					suppressWarnings( split_by <- lapply(split_by, function(x){x[-el.narm]}) )
+				}				
 			}
 		}
 

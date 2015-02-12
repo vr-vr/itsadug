@@ -104,7 +104,7 @@ fvisgam <- function(x, view = NULL, cond = list(),
     if(!is.null(cond)){
         cn <- names(cond)
         test <- sapply(cn, function(x){
-            if(length(unique(cond[[cn]]))>1){
+            if(length(unique(cond[[x]]))>1){
                 stop("Do not specify more than 1 value for conditions listed in the argument cond.")
             }else{
                 TRUE

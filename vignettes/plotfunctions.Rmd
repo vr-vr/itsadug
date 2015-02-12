@@ -299,14 +299,12 @@ The differences in the *Time* by *Trial* interaction between the adult participa
 
 ```{r,plotdiff, echo=TRUE, fig.width=8, fig.height=4, include=TRUE, fig.cap="<b>Figure 8.</b> Difference surface for <code>Group</code> plotted with <code>plot_diff2</code>.",fig.show='hold'}
 par(mfrow=c(1,2))
-plot_diff2(m1, xvar="Time", yvar="Trial", 
-        by_predictor="Group", 
-        comp_levels=c("Adults", "Children"),
+plot_diff2(m1, view=c("Time","Trial"), 
+        comp=list(Group=c("Adults", "Children")),
         zlim=c(-7.5,5),
         main='Difference Adults-Children')
-plot_diff(m1, xvar="Time",         
-        by_predictor="Group", 
-        comp_levels=c("Adults", "Children"),
+plot_diff(m1, view="Time",         
+        comp=list(Group=c("Adults", "Children")),
         main='Time difference Adults-Children')
 ```
 

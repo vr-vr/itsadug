@@ -257,7 +257,7 @@ gradientLegend <- function(valRange, color='topo', nCol=30,
     im <- as.raster(mycolors[matrix(1:length(mycolors), ncol=1)])
 
     if(side%%2==1){
-        rasterImage(t(rev(im)), loc[1],loc[2], loc[3], loc[4], col=mycolors, xpd=T)
+        rasterImage(t(im), loc[1],loc[2], loc[3], loc[4], col=mycolors, xpd=T)
         rect(loc[1],loc[2], loc[3], loc[4], border=border.col, xpd=T)
         ticks <- seq(loc[1],loc[3], length=n.seg)
         text(y=loc[4], x=ticks, 

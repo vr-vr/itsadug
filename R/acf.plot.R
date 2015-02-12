@@ -87,7 +87,7 @@ acf_plot <- function(x, split_by = NULL, max_lag = NULL, plot = TRUE, fun = mean
                 if (length(split_by[[i]]) != length(x)) {
                   name_split_i <- ifelse(!is.null(names(split_by)[i]), names(split_by)[i], sprintf("split_by[[%d]]", i))
                   errormessage <- sprintf("Split factor %s is not of same length as %s: %s has %d elements, %s has %d elements.\n
-                    See help(acf.plot) for examples how to avoid this error.", 
+                    See help(acf_plot) for examples how to avoid this error.", 
                     name_split_i, 
                     deparse(substitute(x)), 
                     deparse(substitute(x)), 
