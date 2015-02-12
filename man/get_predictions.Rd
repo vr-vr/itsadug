@@ -29,8 +29,15 @@ name of the random effect(s) to remove.}
 \item{print.summary}{Logical: whether or not to print a summary of the
 values selected for each predictor. Defaults to TRUE.}
 }
+\value{
+A data frame with estimates and optinally errors.
+}
 \description{
 Get model predictions for specific conditions.
+}
+\examples{
+# see the vignette for examples:
+vignette("plotfunctions", package="itsadug")
 }
 \author{
 Jacolien van Rij

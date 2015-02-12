@@ -53,6 +53,10 @@ over the estimate (\code{se.est}) and the x-values (\code{x}) is returned.
 \description{
 Plot difference surface based on model predictions.
 }
+\examples{
+# see the vignette for examples:
+vignette("plotfunctions", package="itsadug")
+}
 \author{
 Martijn Wieling
 }

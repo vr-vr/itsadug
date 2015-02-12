@@ -29,15 +29,22 @@
 #' in the data.
 #' @examples
 #' data(simdat)
+#' # Separate ACF for each time series:
 #' acf_n_plots(simdat$Y, split_by=list(simdat$Subject, simdat$Trial))
+#' # Average ACF per participant:
 #' acf_n_plots(simdat$Y, split_by=list(simdat$Subject))
+#' \dontrun{
+#' # Data treated as single time series. Plot is added to current window.
+#' # Note: 1 time series results in 1 plot.
 #' acf_n_plots(simdat$Y, add=TRUE)
-#' acf_n_plots(simdat$Y, add=TRUE, n=1)
-#' acf_n_plots(simdat$Y, add=TRUE, n=1, random=TRUE)
+#' # Plot 4 ACF plots doesn't work without splitting data:
+#' acf_n_plots(simdat$Y, add=TRUE, n=4)
+#' }
+#' # Plot ACFs of 4 randomly selected time series:
 #' acf_n_plots(simdat$Y, random=TRUE, n=4, add=TRUE, 
 #'     split_by=list(simdat$Subject, simdat$Trial))
-#' # see also the vignette plotfunctions for an example:
-#' vignette(topic="plotfunctions")
+#' # See also the vignette for an example:
+#' vignette(topic="plotfunctions", package="itsadug")
 #' 
 #' #---------------------------------------------
 #' # When using model residuals

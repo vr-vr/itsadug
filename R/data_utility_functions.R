@@ -5,6 +5,12 @@
 #' or the index (TRUE).
 #' @return The value or index of the element closest to zero (absolute 
 #' minimum).
+#' @examples
+#' (test <- seq(-25,25, by=3))
+#' min(test[test>0])
+#' max(test[test<0])
+#' min(abs(test))
+#' findAbsMin(test)
 #' @author Jacolien van Rij
 #' @family Data utility functions
 
@@ -25,6 +31,20 @@ findAbsMin <- function(x, element = FALSE) {
 #' need to be selected.
 #' @param max The maximum value of the returned elements.
 #' @return A vector with the elements of x surrounded by n points.
+#' @examples
+#' vectorIndices <- 1:1000
+#' indOutliers <- c(2,10, 473, 359, 717, 519)
+#' fn3 <- find_n_neighbors(indOutliers, n=3, max=max(vectorIndices))
+#' fn20 <- find_n_neighbors(indOutliers, n=20, max=max(vectorIndices))
+#'
+#' # check fn3:
+#' print(fn3)
+#'
+#' # Plot:
+#' emptyPlot(c(-10,1000), c(-1,1), h0=0, v0=indOutliers)
+#' points(fn3, rep(.5, length(fn3)), pch='*')
+#' points(fn20, rep(-.5, length(fn20)), pch='*')
+#'
 #' @author Jacolien van Rij
 #' @family Data utility functions
 
@@ -49,6 +69,18 @@ find_n_neighbors <- function(el, n, max) {
 #' @param na_value The value to replace the empty cells with (e.g., the first 
 #' or last points). Defaults to NA.
 #' @return A vector with the same length of \code{x}, all moved \code{n} steps.
+#' @examples
+#' data(simdat)
+#' (test <- simdat[1:20,])
+#' test$Y.prev <- move_n_point(test$Y)
+#' test$change <- test$Y - test$Y.prev
+#' test$Y.post5 <- move_n_point(test$Y, n=-5)
+#'
+#' emptyPlot(nrow(test), range(test$Y))
+#' lines(test$Y)
+#' lines(test$Y.prev, col='red')
+#' lines(test$Y.post5, col='blue')
+#'
 #' @author Jacolien van Rij
 #' @family Data utility functions
 

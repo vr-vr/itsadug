@@ -10,12 +10,41 @@ check_resid(model, AR_start = NULL, split_by = NULL)
 \item{model}{A GAMM model, resulting from the functions
 \code{\link[mgcv]{gam}} or \code{\link[mgcv]{bam}}.}
 
-\item{AR_start}{ADD DESCRIPTION}
+\item{AR_start}{Defaults to NULL.
+Only use this when the model was run in an old versions of package
+\code{mgcv} and the function cannot retrieve the used AR.start values from
+the \code{model}. When an error is shown with newer versions of
+\code{mgcv}, please check the column provided as values of AR.start.
+when using old versions of package \code{mgcv}.
+Function will give error when it cannot find AR.start.}
 
-\item{split_by}{ADD DESCRIPTION}
+\item{split_by}{A names list indicating time series in the data.}
 }
 \description{
 Inspect residuals of regression models.
+}
+\section{Note}{
+
+In the ACF plots, black lines indicate ACF of standard residuals, red
+vertical lines indicate the ACF for the residuals corrected for the AR1
+model included.
+}
+\examples{
+data(simdat)
+
+\dontrun{
+# Add start event column:
+simdat <- start_event(simdat, event=c("Subject", "Trial"))
+head(simdat)
+# bam model with AR1 model (toy example, not serious model):
+m1 <- bam(Y ~ Group + te(Time, Trial, by=Group),
+   data=simdat, rho=.5, AR.start=simdat$start.event)
+# No time series specified:
+check_resid(m1)
+# Time series specified:
+check_resid(m1, split_by=list(Subject=simdat$Subject, Trial=simdat$Trial))
+# Note: not very good residuals.
+}
 }
 \author{
 Jacolien van Rij

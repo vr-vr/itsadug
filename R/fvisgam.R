@@ -44,6 +44,23 @@
 #' @param ... other options to pass on to persp, image or contour. In 
 #' particular ticktype="detailed" will add proper axes labeling to the plots.
 #'
+#' @examples
+#' data(simdat)
+#' 
+#' \dontrun{
+#' # Model with random effect and interactions:
+#' m1 <- bam(Y ~ te(Time, Trial)+s(Time, Subject, bs='fs', m=1),
+#'     data=simdat)
+#'
+#' # Plot summed effects:
+#' vis.gam(m1, view=c("Time", "Trial"), plot.type='contour', color='topo')
+#' # Same plot:
+#' fvisgam(m1, view=c("Time", "Trial"), rm.ranef=FALSE)
+#' # Without random effects included:
+#' fvisgam(m1, view=c("Time", "Trial"), rm.ranef=TRUE)
+#' }
+#' # see the vignette for examples:
+#' vignette("plotfunctions", package="itsadug")
 #' @author Jacolien van Rij and Martijn Wieling. 
 #' Modification of \code{\link[mgcv]{vis.gam}} from 
 #' package \code{\link[mgcv]{mgcv}} of Simon N. Wood.
@@ -153,7 +170,7 @@ fvisgam <- function(x, view = NULL, cond = list(),
             con.col <- 2
         } else if (color == "bpy") {
             if (requireNamespace("sp", quietly = TRUE)) {
-                pal <- bpy.colors(nCol)
+                pal <- sp::bpy.colors(nCol)
                 con.col <- 1
             } else {
                 warning("Package 'sp' needed for bpy color palette. Using topo.colors instead (default).")

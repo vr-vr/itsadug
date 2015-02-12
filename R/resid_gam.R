@@ -14,6 +14,45 @@
 #' corrected residuals, and the value of rho.
 #' @return Corrected residuals.
 #' @author Jacolien van Rij
+#' @examples
+#' data(simdat)
+#' 
+#' \dontrun{
+#' # Add start event column:
+#' simdat <- start_event(simdat, event=c("Subject", "Trial"))
+#' head(simdat)
+#' # bam model with AR1 model (toy example, not serious model):
+#' m1 <- bam(Y ~ Group + te(Time, Trial, by=Group), 
+#'    data=simdat, rho=.5, AR.start=simdat$start.event)
+#' # Standard residuals:
+#' acf(resid(m1))
+#' # Corrected residuals:
+#' acf(resid_gam(m1))
+#'
+#' # Without AR.start included in the model, resid_gam returns an error:
+#' m2 <- bam(Y ~ Group + te(Time, Trial, by=Group), 
+#'    data=simdat)
+#' acf(resid_gam(m2))
+#' # Use resid(m2) instead!
+#' # Alternatively, this also works, essentially the same as resid(m2):
+#' acf(resid_gam(m2, AR_start=simdat$start.event))
+#'
+#' ### MISSING VALUES ###
+#' # Note that corrected residuals cannot be calculated for the last 
+#' # point of each time series. These missing values are by default
+#' # excluded.
+#'
+#' # Therefore, this will result in an error...
+#' simdat$res <- resid_gam(m1)
+#' # ... and this will give an error too:
+#' simdat$res <- NA
+#' simdat[!is.na(simdat$Y),] <- resid_gam(m1)
+#' # ... but this works:
+#' simdat$res <- resid_gam(m1, incl_na=TRUE)
+#' 
+#' # The parameter incl_na will also add missing values
+#' # for missing values in the data.
+#' }
 #' @seealso \code{\link[stats]{resid}}
 #' @family functions for model criticism
 
@@ -80,7 +119,12 @@ resid_gam <- function(model, AR_start = NULL, incl_na = F, return_all = F) {
     if (return_all) {
         return(list(res = tmpdat$RES, norm_res = res, AR1_rho = model$AR1.rho))
     } else if (incl_na) {
-        return(res)
+        missing <- missing_est(model)
+        na.res <- rep(NA, nrow(tmpdat)+length(missing))
+        if(length(missing)>0){
+            na.res[-missing] <- res
+        }
+        return(na.res)
     } else {
         return(res[!is.na(res)])
     }

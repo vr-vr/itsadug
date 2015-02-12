@@ -16,6 +16,10 @@
 #' name of the random effect(s) to remove.
 #' @param print.summary Logical: whether or not to print a summary of the 
 #' values selected for each predictor. Defaults to TRUE.
+#' @return A data frame with estimates and optinally errors.
+#' @examples
+#' # see the vignette for examples:
+#' vignette("plotfunctions", package="itsadug")
 #' @author Jacolien van Rij
 #' @family functions for model predictions
 
@@ -130,6 +134,9 @@ get_predictions <- function(model, cond=NULL, se=TRUE, f=1.96, rm.ranef=NULL,
 #' @param print.summary Logical: whether or not to print a summary of the 
 #' values selected for each predictor. Defaults to TRUE.
 #' @return A data frame with estimates for random effects.
+#' @examples
+#' # see the vignette for examples:
+#' vignette("plotfunctions", package="itsadug")
 #' @author Jacolien van Rij
 #' @family functions for model predictions
 

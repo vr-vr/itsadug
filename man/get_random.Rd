@@ -29,6 +29,10 @@ A data frame with estimates for random effects.
 \description{
 Get model predictions for the random effects.
 }
+\examples{
+# see the vignette for examples:
+vignette("plotfunctions", package="itsadug")
+}
 \author{
 Jacolien van Rij
 }

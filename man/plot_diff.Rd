@@ -45,6 +45,27 @@ over the estimate (\code{se.est}) and the x-values (\code{x}) is returned.
 \description{
 Plot difference curve based on model predictions.
 }
+\examples{
+data(simdat)
+\dontrun{
+m1 <- bam(Y ~ Group + te(Time, Trial, by=Group),
+    data=simdat)
+plot_diff(m1, xvar='Time', by_predictor='Group',
+    comp_levels=c("Children", "Adults"))
+# Reversed y-axis (for EEG data):
+plot_diff(m1, xvar='Time', by_predictor='Group',
+    comp_levels=c("Children", "Adults"), eegAxis=TRUE)
+# retrieving plot values...
+out <- plot_diff(m1, xvar='Time', by_predictor='Group',
+    comp_levels=c("Children", "Adults"), plot=FALSE)
+#... which might be used for indicating differences:
+x <- find_difference(out$est, out$se, f=1.96, xVals=out$xVals)
+# add lines:
+arrows(x0=x$start, x1=x$end, y0=0, y1=0,code=3, length=.1, col='red')
+}
+# see the vignette for examples:
+vignette("plotfunctions", package="itsadug")
+}
 \author{
 Martijn Wieling
 }

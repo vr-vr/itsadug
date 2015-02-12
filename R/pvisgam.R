@@ -57,7 +57,27 @@
 #' @section Warnings:
 #' In contrast to vis.gam, do not specify other predictors in \code{cond} that 
 #' are not to be plotted.
+#' @examples
+#' data(simdat)
+#' 
+#' \dontrun{
+#' # Model with random effect and interactions:
+#' m1 <- bam(Y ~ te(Time, Trial)+s(Time, Subject, bs='fs', m=1),
+#'     data=simdat)
 #'
+#' # Plot summed effects:
+#' vis.gam(m1, view=c("Time", "Trial"), plot.type='contour', color='topo')
+#' # Partial effect of interaction:
+#' pvisgam(m1, view=c("Time", "Trial"), select=1)
+#' # Same:
+#' plot(m1, select=1, scheme=2)
+#' plot(m1, select=1)
+#' # Alternatives:
+#' pvisgam(m1, view=c("Trial", "Time"), select=1)
+#' pvisgam(m1, view=c("Trial", "Time"), select=1, zlim=c(-20,20))
+#' }
+#' # see the vignette for examples:
+#' vignette("plotfunctions", package="itsadug")
 #' @author Jacolien van Rij. Modification of \code{\link[mgcv]{vis.gam}} from 
 #' package \code{\link[mgcv]{mgcv}} of Simon N. Wood.
 #' @seealso \code{\link[mgcv]{vis.gam}}, \code{\link[mgcv]{plot.gam}} 
@@ -298,7 +318,7 @@ pvisgam <- function(x, view = NULL, select = NULL, cond = list(), n.grid = 30,
             con.col <- 2
         } else if (color == "bpy") {
             if (requireNamespace("sp", quietly = TRUE)) {
-                pal <- bpy.colors(nCol)
+                pal <- sp::bpy.colors(nCol)
                 con.col <- 1
             } else {
                 warning("Package 'sp' needed for bpy color palette. Using topo.colors instead (default).")

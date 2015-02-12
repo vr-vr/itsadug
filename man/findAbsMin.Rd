@@ -19,6 +19,13 @@ minimum).
 \description{
 Utility function.
 }
+\examples{
+(test <- seq(-25,25, by=3))
+min(test[test>0])
+max(test[test<0])
+min(abs(test))
+findAbsMin(test)
+}
 \author{
 Jacolien van Rij
 }

@@ -22,6 +22,15 @@
 #' This function is useful for markdown documents using the package 
 #' \code{knitr} to integrate R code with Latex and Sweave. This 
 #' function requires the package \code{xtable}.
+#' @examples
+#' data(simdat)
+#' \dontrun{
+#' # Model with random effect and interactions:
+#' m1 <- bam(Y ~ Group+te(Time, Trial, by=Group),
+#'     data=simdat)
+#' summary(m1)
+#' gamtabs(m1, caption='Summary of m1')
+#' }
 #' @seealso \code{\link[mgcv]{summary.gam}}, \code{\link[mgcv]{gam}}, 
 #' \code{\link[mgcv]{bam}}.
 # help function

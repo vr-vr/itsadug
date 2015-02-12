@@ -69,6 +69,24 @@ predictions of the additive effects interactions.
 The code is based on the script for \code{\link[mgcv]{vis.gam}},
 but allows to cancel random effects.
 }
+\examples{
+data(simdat)
+
+\dontrun{
+# Model with random effect and interactions:
+m1 <- bam(Y ~ te(Time, Trial)+s(Time, Subject, bs='fs', m=1),
+    data=simdat)
+
+# Plot summed effects:
+vis.gam(m1, view=c("Time", "Trial"), plot.type='contour', color='topo')
+# Same plot:
+fvisgam(m1, view=c("Time", "Trial"), rm.ranef=FALSE)
+# Without random effects included:
+fvisgam(m1, view=c("Time", "Trial"), rm.ranef=TRUE)
+}
+# see the vignette for examples:
+vignette("plotfunctions", package="itsadug")
+}
 \author{
 Jacolien van Rij and Martijn Wieling.
 Modification of \code{\link[mgcv]{vis.gam}} from

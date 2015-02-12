@@ -8,7 +8,21 @@
 #' \code{\link[grDevices]{xy.coords}} object.
 #' @param legend.label Text string, label for plotted data distribution.
 #' @param ... Optional arguments for the lines. See \code{\link{par}}.
-#'
+#' @section Note:
+#' Assumes centered data as input.
+#' @examples
+#' set.seed(123)
+#' # normal distribution:
+#' test <- rnorm(1000)
+#' check_normaldist(test)
+#' # t-distribution:
+#' test <- rt(1000, df=5)
+#' check_normaldist(test)
+#' # skewed data, e.g., reaction times:
+#' test <- exp(rnorm(1000, mean=.500, sd=.25))
+#' check_normaldist(test)
+#' # center first:
+#' check_normaldist(scale(test))
 #' @family functions for model criticism
 #' @author Jacolien van Rij
 
@@ -46,8 +60,34 @@ check_normaldist <- function(res, col='red', col.normal='black',
 #' @export
 #' @param model A GAMM model, resulting from the functions
 #' \code{\link[mgcv]{gam}} or \code{\link[mgcv]{bam}}.
-#' @param  AR_start ADD DESCRIPTION
-#' @param split_by ADD DESCRIPTION
+#' @param  AR_start Defaults to NULL. 
+#' Only use this when the model was run in an old versions of package 
+#' \code{mgcv} and the function cannot retrieve the used AR.start values from 
+#' the \code{model}. When an error is shown with newer versions of 
+#' \code{mgcv}, please check the column provided as values of AR.start.
+#' when using old versions of package \code{mgcv}.
+#' Function will give error when it cannot find AR.start. 
+#' @param split_by A names list indicating time series in the data.
+#' @section Note:
+#' In the ACF plots, black lines indicate ACF of standard residuals, red 
+#' vertical lines indicate the ACF for the residuals corrected for the AR1 
+#' model included.
+#' @examples
+#' data(simdat)
+#'
+#' \dontrun{
+#' # Add start event column:
+#' simdat <- start_event(simdat, event=c("Subject", "Trial"))
+#' head(simdat)
+#' # bam model with AR1 model (toy example, not serious model):
+#' m1 <- bam(Y ~ Group + te(Time, Trial, by=Group), 
+#'    data=simdat, rho=.5, AR.start=simdat$start.event)
+#' # No time series specified:
+#' check_resid(m1)
+#' # Time series specified:
+#' check_resid(m1, split_by=list(Subject=simdat$Subject, Trial=simdat$Trial))
+#' # Note: not very good residuals.
+#' }
 #' @author Jacolien van Rij
 
 check_resid <- function(model, AR_start = NULL, split_by=NULL){

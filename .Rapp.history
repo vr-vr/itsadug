@@ -1,5 +1,5 @@
+system("pdflatex --version")
+library('devtools')
 setwd('/Users/Jacolien/itsadug/')
-library(devtools)
-dectools::build()
-devtools::build()
+devtools::document()
 devtools::build()

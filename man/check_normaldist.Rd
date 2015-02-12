@@ -24,6 +24,24 @@ check_normaldist(res, col = "red", col.normal = "black",
 \description{
 Compare distribution of data with normal distribution.
 }
+\section{Note}{
+
+Assumes centered data as input.
+}
+\examples{
+set.seed(123)
+# normal distribution:
+test <- rnorm(1000)
+check_normaldist(test)
+# t-distribution:
+test <- rt(1000, df=5)
+check_normaldist(test)
+# skewed data, e.g., reaction times:
+test <- exp(rnorm(1000, mean=.500, sd=.25))
+check_normaldist(test)
+# center first:
+check_normaldist(scale(test))
+}
 \author{
 Jacolien van Rij
 }

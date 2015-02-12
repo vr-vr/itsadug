@@ -59,6 +59,27 @@ considered as parametric terms. If \code{cond} does not specify a value for
 these continuous predictors, the closes value to the mean is automatically
 selected.
 }
+\examples{
+data(simdat)
+\dontrun{
+m1 <- bam(Y ~ Group + te(Time, Trial, by=Group)
+    + s(Time, Subject, bs='fs', m=1), data=simdat)
+plot_parametric(m1, pred=list(Group=c('Adults', 'Children')))
+# Note the summary that is printed.
+
+# use rm.ranef to cancel random effects:
+plot_parametric(m1, pred=list(Group=c('Adults', 'Children')),
+    rm.ranef = TRUE)
+
+# It is possible to get estimates that do not make sense:
+out <- plot_parametric(m1,
+    pred=list(Group=c('Adults', 'Children'), Subject=c('a01', 'a02', 'c01')))
+print(out)
+}
+
+# see the vignette for examples:
+vignette("plotfunctions", package="itsadug")
+}
 \author{
 Jacolien van Rij, based on a function of Fabian Tomaschek
 }

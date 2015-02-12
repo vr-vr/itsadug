@@ -35,8 +35,8 @@ Model comparison is only implemented for the methods GCV, fREML, REML, and ML.
 \examples{
 data(simdat)
 
-# some arbitrary models:
 \dontrun{
+# some arbitrary models:
 m1 <- bam(Y~Group + s(Time, by=Group), method="fREML", data=simdat)
 m2 <- bam(Y~Group + s(Time), method="fREML", data=simdat)
 

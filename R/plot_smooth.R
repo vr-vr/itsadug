@@ -49,6 +49,36 @@
 #' @param ... other options to pass on to lines and plot, 
 #' see \code{\link[graphics]{par}}
 #'
+#' @examples
+#' data(simdat)
+#' 
+#' \dontrun{
+#' # Model with random effect and interactions:
+#' m1 <- bam(Y ~ te(Time, Trial)+s(Time, Subject, bs='fs', m=1),
+#'     data=simdat)
+#'
+#' # Default plot produces only surface of Time x Trial:
+#' plot(m1, select=1)
+#' # Only the Time component:
+#' plot_smooth(m1, view="Time")
+#' # Note the summary that is printed.
+#'
+#' # without random effects:
+#' plot_smooth(m1, view="Time", rm.ranef=TRUE)
+#' 
+#' # Plot summed effects:
+#' dev.new(width=8, height=4) # use x11(,8,4) on Linux
+#' par(mfrow=c(1,2))
+#' fvisgam(m1, view=c("Time", "Trial"), 
+#'     plot.type='contour', color='topo', main='interaction',
+#'     rm.ranef=TRUE)
+#' arrows(x0=0, x1=2200, y0=-5, y1=-5, col='red', 
+#'     code=2, length=.1, lwd=2, xpd=TRUE)
+#' plot_smooth(m1, view='Time', cond=list(Trial=-5),
+#'     main='Trial=-5', rm.ranef=TRUE)
+#' }
+#' # see the vignette for examples:
+#' vignette("plotfunctions", package="itsadug")
 #' @author Jacolien van Rij and Martijn Wieling. 
 #' @seealso \code{\link[mgcv]{plot.gam}}, \code{\link{plot_diff}} 
 #'

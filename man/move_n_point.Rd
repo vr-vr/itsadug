@@ -21,6 +21,18 @@ A vector with the same length of \code{x}, all moved \code{n} steps.
 \description{
 Utility function.
 }
+\examples{
+data(simdat)
+(test <- simdat[1:20,])
+test$Y.prev <- move_n_point(test$Y)
+test$change <- test$Y - test$Y.prev
+test$Y.post5 <- move_n_point(test$Y, n=-5)
+
+emptyPlot(nrow(test), range(test$Y))
+lines(test$Y)
+lines(test$Y.prev, col='red')
+lines(test$Y.post5, col='blue')
+}
 \author{
 Jacolien van Rij
 }
