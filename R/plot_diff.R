@@ -14,6 +14,9 @@
 #' generates an appropriate y-axis.
 #' @param ylab Text string, alternative label for y-axis. 
 #' @param main Text string, alternative title for plot.
+#' @param f A number to scale the standard error. Defaults to 1.96, resulting 
+#' in 95\% confidence intervals. For 99\% confidence intervals use a value of 
+#' 2.58.
 #' @param plot Logical: whether or not to plot the difference. If FALSE, then 
 #' the output is returned as a list, with the estimated difference 
 #' (\code{est}) and the standard error over the estimate (\code{se.est}) and 
@@ -47,7 +50,7 @@
 
 # plots difference curve
 # set binary=T if you have a by-variable occurring multiple times 
-plot_diff <- function(model, view, comp, eegAxis=F, 
+plot_diff <- function(model, view, comp, eegAxis=F, f=1.96, 
 	ylim=NULL, ylab=NULL, main=NULL, plot=TRUE, ...) { 
 	dat = model$model
 
@@ -120,10 +123,8 @@ plot_diff <- function(model, view, comp, eegAxis=F,
 	se.diff <- sqrt(rowSums((res1$Xp%*%vcov(model))*res1$Xp))
 
 	if(plot){	
-		res1$ul <- res1$diff + 1.96 * se.diff
-		res1$ll <- res1$diff - 1.96 * se.diff
-		res1$ul99 <- res1$diff + 2.58 * se.diff
-		res1$ll99 <- res1$diff - 2.58 * se.diff
+		res1$ul <- res1$diff + f * se.diff
+		res1$ll <- res1$diff - f * se.diff
 
 		if (is.null(ylim)) yvals <- sort(c(convert*min(res1$ll),convert*max(res1$ul)),decreasing=F)
 		plot(res1$XXX,convert*res1$diff,type='l',xlab=view, main=mn, ylab=ylab, ylim=yvals, axes=F,...)
@@ -152,6 +153,8 @@ plot_diff <- function(model, view, comp, eegAxis=F,
 #'  and y-axes. Vector of two values.
 #' @param comp Named list with the grouping predictor (categorical variable)
 #' and the 2 levels to calculate the difference for.
+#' @param cond Named list of the values to use for the other predictor terms 
+#' (not in view). 
 #' @param plotCI Logical: whether or not to plot confidence intervals.
 #' @param color Colorpalette
 #' @param nCol Range of colors of background of contour plot.
@@ -164,10 +167,14 @@ plot_diff <- function(model, view, comp, eegAxis=F,
 #' @param zlim A two item array giving the lower and upper limits for the z-
 #' axis scale. NULL to choose automatically.
 #' @param main Title of plot.
+#' @param f A number to scale the standard error. Defaults to 1.96, resulting 
+#' in 95\% confidence intervals. For 99\% confidence intervals use a value of 
+#' 2.58.
+#' @param suppressMessages Logical: whether or not to print messages.
 #' @return If the result is not being plotted, a list is 
 #' returned with the estimated difference (\code{est}) and the standard error 
 #' over the estimate (\code{se.est}) and the x-values (\code{x}) is returned.
-#' @author Martijn Wieling
+#' @author Martijn Wieling, adjusted by Jacolien van Rij
 #'
 #' @examples
 #' data(simdat)
@@ -182,75 +189,112 @@ plot_diff <- function(model, view, comp, eegAxis=F,
 #' @family functions for interpreting nonlinear effects
 
 # plots differences in 2D plot
-plot_diff2 <- function(model,view, comp, plotCI=F, 
+plot_diff2 <- function(model,view, comp, cond=NULL, plotCI=FALSE, f=1.96, 
 	color='topo', nCol=100, col=NULL, add.color.legend=TRUE,
-	n.grid=30, nlevels=10, zlim=NULL, main=NULL) { 
+	n.grid=30, nlevels=10, zlim=NULL, main=NULL,
+	suppressMessages=FALSE) { 
 
 	dat = model$model
 
+	xvar <- NULL
+	yvar <- NULL
 	by_predictor <- NULL
 	comp_levels <- NULL
+
+	# check view
 	if(length(view) < 2){
 		stop('Provide predictors for x- and y-axes in view.')
+	}else{
+		xvar <- view[1]
+		yvar <- view[2]
+
+		if(xvar %in% names(cond)){
+			warning(sprintf('Predictor %s specified in view and cond. Values in cond being used, rather than the whole range of %s.', xvar, xvar))
+		}else{
+			cond[[xvar]] <- seq(min(na.exclude(dat[,xvar])), max(na.exclude(dat[,xvar])), length=n.grid)
+		}
+		if(yvar %in% names(cond)){
+			warning(sprintf('Predictor %s specified in view and cond. Values in cond being used, rather than the whole range of %s.', yvar, yvar))
+			cond[[yvar]] <- NULL
+		}else{
+			cond[[yvar]] <- seq(min(na.exclude(dat[,yvar])), max(na.exclude(dat[,yvar])), length=n.grid)
+		}
 	}
+
+	# check comp
 	if(names(comp)[1] %in% colnames(dat)){
 		if(length(comp[[1]]) < 2){
 			stop(sprintf('Provide two levels for %s to calculate difference.', names(comp)[1]))
 		}else{
-			by_predictor <- names(comp)[1]
 			comp_levels <- comp[[1]][1:2]
 		}
 	}else{
 		stop(sprintf('Grouping predictor %s not found in model.', names(comp)[1]))
 	}
 
-	xvar <- view[1]
-	yvar <- view[2]
-	
-	nX = n.grid
-	nY = n.grid
-	rngX = max(na.exclude(dat[,xvar])) - min(na.exclude(dat[,xvar]))
-	rngY = max(na.exclude(dat[,yvar])) - min(na.exclude(dat[,yvar]))
-	
-	np = nX * nY
 
-	if (is.null(comp_levels)) { 
-		vals = sort(unique(dat[,by_predictor]))
-	} else { 
-		vals = comp_levels
+
+	# generating prediction matrix:
+	newd <- NULL
+	su <- model$var.summary
+
+	if(any(names(cond) %in% names(comp)[1])){
+		for(i in names(cond)[names(cond) %in% names(comp)[1]] ){
+			cond[[i]] <- NULL
+		}
+		warning(sprintf('Predictor %s specified in comp and cond.', i))
 	}
 
-	# datasets maken, waarbij je alleen de variabele van interest varieert, om verschilcurves te kunnen maken
-	grp1 <- dat[which(is.na(dat[,by_predictor])), ] # get same columns
-	grp1[1:np,] = dat[1,]
-	grp1[,xvar] = rep(seq(min(na.exclude(dat[,xvar])),max(na.exclude(dat[,xvar])), length=nX ),nY)
-	grp1$nr = as.numeric(rownames(grp1))-1
-	grp1[,yvar] = min(na.exclude(dat[,yvar])) + floor(grp1$nr / nX)*(rngY / (nY-1))
-	
-	grp1[,by_predictor] = vals[1]
+	new.cond1 <- list()
+	new.cond2 <- list()
 
-	#pred1 = predict.onlyInclude(model,grp1,onlyInclude=c(xvar,yvar,paste(by_predictor,vals[1],sep='')))
-	pred1 = mgcv::predict.gam(model,grp1,type='lpmatrix')
+	for(i in names(su)){
+		if(i %in% names(comp)[1]){
+			new.cond1[[i]] <- comp[[1]][1]
+			new.cond2[[i]] <- comp[[1]][2]
+		}else if(i %in% names(cond)){
+			new.cond1[[i]] <- new.cond2[[i]] <- cond[[i]]
+		}else{
+			if(class(su[[i]])=="factor"){
+				new.cond1[[i]] <- as.character(su[[i]][1])
+				new.cond2[[i]] <- as.character(su[[i]][1])
+			}else if(class(su[[i]])=="numeric"){
+				new.cond1[[i]] <- su[[i]][2]
+				new.cond2[[i]] <- su[[i]][2]
+			}
+		}
+	}
 
-	grp2 = grp1
-	grp2[,by_predictor] = vals[2]
+	newd1 <- expand.grid(new.cond1)
+	newd2 <- expand.grid(new.cond2)
 
-	#pred2 = predict.onlyInclude(model,grp2,onlyInclude=c(xvar,yvar,paste(by_predictor,vals[2],sep='')))
-	pred2 = mgcv::predict.gam(model,grp2,type='lpmatrix')
+	p1 <- mgcv::predict.gam(model, newd1, type='lpmatrix') 
+	p2 <- mgcv::predict.gam(model, newd2, type='lpmatrix')
+	p <- p1 - p2
 
-	res1 = grp1
-	res1$Xp <- pred2 - pred1
-	res1$diff <- res1$Xp%*%coef(model)
+	newd <- as.data.frame(newd1[,!names(newd1) %in% names(comp)])
+	if(!suppressMessages){
+		summary_data(newd)
+	}
+	newd$diff <- as.vector(p %*% coef(model))
+
+	if(plotCI){
+		newd$CI95 <- f*sqrt(rowSums((p%*%vcov(model))*p))
+	}
+
+	m1 = cond[[xvar]]
+	m2 = cond[[yvar]]
+	nX <- length(m1)
+	nY <- length(m2)
+
+	newd <- newd[order(newd[,xvar], newd[,yvar]),]
+	diff <- as.vector(unlist(newd$diff))
+	zval <- matrix(diff, byrow=TRUE, nrow=nX, ncol=nY)
 
 
-	res1$XXX = res1[,xvar]
-	res1$YYY = res1[,yvar]
-	z = matrix(res1$diff, nX, nY)
-	m1 = seq(min(na.exclude(dat[,xvar])), max(na.exclude(dat[,xvar])), length=nX)
-	m2 = seq(min(na.exclude(dat[,yvar])), max(na.exclude(dat[,yvar])), length=nY)
 	
 	if (is.null(main)) {
-		mn = paste('Difference between',vals[1],'and',vals[2])
+		mn = paste('Difference between',xvar,'and',yvar)
 	} else { 
 		mn = main
 	}
@@ -288,25 +332,24 @@ plot_diff2 <- function(model,view, comp, plotCI=F,
         if (length(zlim) != 2 || zlim[1] >= zlim[2]) 
             stop("Something wrong with zlim")
     } else {
-        zlim <- c(min(z, na.rm = TRUE), max(z, na.rm = TRUE))
+        zlim <- c(min(zval, na.rm = TRUE), max(zval, na.rm = TRUE))
     }
 
-	image(m1,m2,z,col=pal,main=mn,xlab=xvar,ylab=yvar, zlim=zlim)
-	contour(m1,m2,z,col=ifelse(is.null(col), con.col, col),nlevels=nlevels,add=T)
+	image(m1,m2,zval,col=pal,main=mn,xlab=xvar,ylab=yvar, zlim=zlim)
+	contour(m1,m2,zval,col=ifelse(is.null(col), con.col, col),nlevels=nlevels,add=T)
 
     if(add.color.legend){
         gradientLegend(round(c(min(zlim), max(zlim)), 3), n.seg=3, pos=.875, color=pal)
     }
 
 	if (plotCI) { 
-		se.diff <- sqrt(rowSums((res1$Xp%*%vcov(model))*res1$Xp))
-		res1$ul <- res1$diff + 1.96 * se.diff
-		res1$ll <- res1$diff - 1.96 * se.diff
-		res1$ul99 <- res1$diff + 2.58 * se.diff
-		res1$ll99 <- res1$diff - 2.58 * se.diff
-		zu = matrix(res1$ul, nX, nY)
+		newd$ul <- with(newd, diff+CI95)
+		newd$ll <- with(newd, diff-CI95)
+		
+		newd <- newd[order(newd[,xvar], newd[,yvar]),]
+		zu = matrix(newd$ul, byrow=TRUE, nrow=nX, ncol=nY)
 		contour(m1,m2,zu,col='red',nlevels=nlevels,add=T,lty=2)
-		zl = matrix(res1$ll, nX, nY)
+		zl = matrix(newd$ll, byrow=TRUE, nrow=nX, ncol=nY)
 		contour(m1,m2,zl,col='green',nlevels=nlevels,add=T,lty=2)
 	}
 }

@@ -16,11 +16,12 @@ transparent) to 1 (not transparent).}
 Wrapper around \code{\link[grDevices]{adjustcolor}}.
 }
 \seealso{
-Other Utility functions for plotting: \code{\link{alphaPalette}};
-  \code{\link{dotplot_error}}; \code{\link{emptyPlot}};
-  \code{\link{errorBars}}; \code{\link{fadeRug}};
-  \code{\link{fill_area}}; \code{\link{find_difference}};
-  \code{\link{getCoords}}; \code{\link{gradientLegend}};
-  \code{\link{horiz_error}}; \code{\link{plot_error}}
+Other Utility functions for plotting: \code{\link{addInterval}};
+  \code{\link{alphaPalette}}; \code{\link{dotplot_error}};
+  \code{\link{emptyPlot}}; \code{\link{errorBars}};
+  \code{\link{fadeRug}}; \code{\link{fill_area}};
+  \code{\link{find_difference}}; \code{\link{getCoords}};
+  \code{\link{gradientLegend}}; \code{\link{horiz_error}};
+  \code{\link{plot_error}}
 }
 

@@ -45,11 +45,12 @@ Jacolien van Rij
 \code{\link[grDevices]{palette}}, \code{\link[grDevices]{colorRampPalette}},
 \code{\link[grDevices]{adjustcolor}}, \code{\link[grDevices]{convertColor}}
 
-Other Utility functions for plotting: \code{\link{alpha}};
-  \code{\link{dotplot_error}}; \code{\link{emptyPlot}};
-  \code{\link{errorBars}}; \code{\link{fadeRug}};
-  \code{\link{fill_area}}; \code{\link{find_difference}};
-  \code{\link{getCoords}}; \code{\link{gradientLegend}};
-  \code{\link{horiz_error}}; \code{\link{plot_error}}
+Other Utility functions for plotting: \code{\link{addInterval}};
+  \code{\link{alpha}}; \code{\link{dotplot_error}};
+  \code{\link{emptyPlot}}; \code{\link{errorBars}};
+  \code{\link{fadeRug}}; \code{\link{fill_area}};
+  \code{\link{find_difference}}; \code{\link{getCoords}};
+  \code{\link{gradientLegend}}; \code{\link{horiz_error}};
+  \code{\link{plot_error}}
 }
 

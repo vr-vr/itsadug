@@ -32,6 +32,6 @@ Jacolien van Rij
 \seealso{
 Other Data utility functions: \code{\link{find_n_neighbors}};
   \code{\link{group_sort}}; \code{\link{move_n_point}};
-  \code{\link{summary_data}}
+  \code{\link{print_summary}}; \code{\link{summary_data}}
 }
 

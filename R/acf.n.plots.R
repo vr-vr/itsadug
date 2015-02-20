@@ -70,22 +70,26 @@
 #' 
 #' @family functions for model criticism
 
-acf_n_plots <- function(x, n = 5, split_by = NULL, max_lag = NULL, fun = mean, 
-    random = F, mfrow = NULL, add=FALSE, ...) {
+acf_n_plots <- function(x, n = 5, split_by = NULL, max_lag = NULL, 
+    fun = mean, random = F, mfrow = NULL, add=FALSE, ...) {
     
     # get acf data:
     suppressWarnings( acfdat <- acf_plot(x, split_by = split_by, 
         max_lag = max_lag, fun = fun, plot = F, return_all = T) )
 
     if (!nrow(acfdat$acf_split) >= n) {
-        warning(sprintf("Number of time series in the data (%d) is smaller than n (%d).\n", nrow(acfdat$acf_split), n))
+        warning(sprintf("Number of time series in the data (%d) is smaller than n (%d). N is reduced to %d.\n", 
+            nrow(acfdat$acf_split), n, nrow(acfdat$acf_split)))
+        n <- nrow(acfdat$acf_split)
     }
 
-    # get lag 1A vector:
-    lag1 <- acfdat$acf_split$"1"
-    lag1 <- lag1[!is.na(lag1)]
+    # get lag 1A vector: 
+    lag1.all <- acfdat$acf_split$"1"
+    rn <- rownames(acfdat$acf_split)
+    lag1 <- lag1.all[!is.na(lag1.all)]
     
     findNum <- rep(1, n)
+    out <- list()
     
     if (random) {
         findNum <- sample(nrow(acfdat$acf_split), size = n)
@@ -103,9 +107,19 @@ acf_n_plots <- function(x, n = 5, split_by = NULL, max_lag = NULL, fun = mean,
         }
         
         findNum <- c()
-        for (i in q) {
-            findNum <- c(findNum, findClosestElement(i, lag1))
-        }
+
+
+        for (i in 1:n) {
+            findNum <- c(findNum, findClosestElement(q[i], lag1))
+            if(i > 1){
+                out[[i-1]] <- list(quantile=c(q[i-1], q[i]),
+                    elements = 
+                        data.frame(event=rn[which(lag1.all >= q[i-1] &lag1.all < q[i])],
+                            lag1 = lag1.all[which(lag1.all >= q[i-1] &lag1.all < q[i])],
+                            stringsAsFactors=FALSE) )
+            }
+         }
+        out[['quantiles']] <- q
         cat("Quantiles to be plotted:\n")
         print(q)
     }
@@ -170,5 +184,9 @@ acf_n_plots <- function(x, n = 5, split_by = NULL, max_lag = NULL, fun = mean,
             main=main, xlab=xlab, ylab=ylab, ylim = ylim, %s)", other)))
         abline(h = 0)
     }
+
+    invisible(out)
+
+
     
 } 

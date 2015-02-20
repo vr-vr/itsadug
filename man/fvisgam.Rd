@@ -8,7 +8,7 @@
 fvisgam(x, view = NULL, cond = list(), n.grid = 30, too.far = 0,
   col = NA, color = "topo", contour.col = NULL, add.color.legend = TRUE,
   se = -1, plot.type = "contour", zlim = NULL, nCol = 50,
-  rm.ranef = TRUE, suppressMessages = FALSE, ...)
+  rm.ranef = NULL, suppressMessages = FALSE, ...)
 }
 \arguments{
 \item{x}{A gam object, produced by \code{\link[mgcv]{gam}} or

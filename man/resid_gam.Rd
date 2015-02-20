@@ -76,6 +76,7 @@ Jacolien van Rij
 
 Other functions for model criticism: \code{\link{acf.n.plots}},
   \code{\link{acf_n_plots}}; \code{\link{acf.plot}},
-  \code{\link{acf_plot}}; \code{\link{check_normaldist}}
+  \code{\link{acf_plot}}; \code{\link{acf_resid}};
+  \code{\link{check_normaldist}}
 }
 

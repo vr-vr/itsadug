@@ -58,24 +58,23 @@ get_predictions <- function(model, cond=NULL, se=TRUE, f=1.96, rm.ranef=NULL,
 		}
 
 		newd <- expand.grid(new.cond)
-
-		# print summary of chosen values
-		if(print.summary){
-			summary_data(newd)
-		}
-		
+		mysummary <- summary_data(newd, print=FALSE)		
 
 		p <- mgcv::predict.gam(model, newd, type='lpmatrix')
 
-		if(!is.null(rm.ranef)){		
-			smoothlabels <- do.call('rbind', 
+		if(!is.null(rm.ranef)){	
+
+			# get random effects columns:
+			smoothlabels <- as.data.frame( do.call('rbind', 
 				lapply(model$smooth, 
 					function(x){
 						data.frame(Label=x[['label']], 
 							Dim=x[['null.space.dim']], 
+							Class = attr(x, "class")[1],
 							stringsAsFactors=FALSE)
-					} ) )
-			smoothlabels <- as.character(smoothlabels[smoothlabels$Dim==0,"Label"])
+					} ) ) )
+			# smoothlabels <- smoothlabels[smoothlabels$Dim==0,c("Label", "Class")]
+			smoothlabels <- as.vector( smoothlabels[smoothlabels$Class %in% c("random.effect","fs.interaction"), "Label"] )
 
 			if(class(rm.ranef)=="logical"){
 				if(rm.ranef==TRUE){
@@ -84,28 +83,43 @@ get_predictions <- function(model, cond=NULL, se=TRUE, f=1.96, rm.ranef=NULL,
 					rm.ranef <- ""
 				}
 			}
-
 			rm.col <- unlist(lapply(rm.ranef, 
 				function(x){
 					colnames(p)[grepl(x, colnames(p), fixed=TRUE)]
 				}))
-
 			rm.col <- unlist(lapply(smoothlabels,
 				function(x){
 					rm.col[grepl(x, rm.col, fixed=TRUE)]
 				}))
-			
+
+			# cancel random effects
 			p[,rm.col] <- 0
 
+			# find terms that only occur in random effects:
+			predictors <- do.call('rbind',
+				lapply(model$smooth, 
+					function(x){
+						data.frame(Label=x[['label']],
+							Terms=x[['term']])
+					} )) 	
+			test <- table(predictors$Terms) - table(predictors[predictors$Label %in% rm.ranef,]$Terms)
+			for(pred in names(test[test==0])){
+				mysummary[[pred]] <- paste(mysummary[[pred]], "(Canceled as random effect.)")
+			}
+
 			if(length(rm.col)>0){
-				cat(sprintf("The following random effects columns are canceled: %s\n", 
-				paste(smoothlabels, collapse=",")))
+				mysummary[['NOTE']] =  sprintf("The following random effects columns are canceled: %s\n", 
+				paste(smoothlabels, collapse=","))
 			}else{
 				warning("No random effects to cancel.\n")				
 			}
 
 		}
 
+		if(print.summary){
+			print_summary(mysummary)
+		}
+		
 		newd$fit <- p %*% coef(model)
 		if(se){
 			newd$CI <- f*sqrt(rowSums((p%*%vcov(model))*p))
@@ -147,14 +161,17 @@ get_random <- function(model, fun=NULL, cond=NULL, n.grid=30, print.summary=TRUE
 	}else{
 
 		# find random effects:
-		smoothlabels <- do.call('rbind', 
+		smoothlabels <- as.data.frame( do.call('rbind', 
 			lapply(model$smooth, 
 				function(x){
 					data.frame(Label=x[['label']], 
 						Dim=x[['null.space.dim']], 
+						Class = attr(x, "class")[1],
 						stringsAsFactors=FALSE)
-				} ) )
-		smoothlabels <- as.character(smoothlabels[smoothlabels$Dim==0,"Label"])
+				} ) ) )
+		# smoothlabels <- smoothlabels[smoothlabels$Dim==0,c("Label", "Class")]
+		smoothlabels <- as.vector( smoothlabels[smoothlabels$Class %in% c("random.effect","fs.interaction"), "Label"] )
+
 
 
 		if(length(smoothlabels) == 0){

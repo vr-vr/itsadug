@@ -4,10 +4,15 @@
 \alias{summary_data}
 \title{Utility function.}
 \usage{
-summary_data(data)
+summary_data(data, print = TRUE)
 }
 \arguments{
 \item{data}{A data frame.}
+
+\item{print}{Logical: whether or not to print the summary.}
+}
+\value{
+Optionally returns a named list with info.
 }
 \description{
 The function prints a summary of the data.
@@ -23,6 +28,6 @@ Jacolien van Rij
 \seealso{
 Other Data utility functions: \code{\link{findAbsMin}};
   \code{\link{find_n_neighbors}}; \code{\link{group_sort}};
-  \code{\link{move_n_point}}
+  \code{\link{move_n_point}}; \code{\link{print_summary}}
 }
 

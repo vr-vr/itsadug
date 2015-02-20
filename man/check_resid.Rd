@@ -7,8 +7,9 @@
 check_resid(model, AR_start = NULL, split_by = NULL)
 }
 \arguments{
-\item{model}{A GAMM model, resulting from the functions
-\code{\link[mgcv]{gam}} or \code{\link[mgcv]{bam}}.}
+\item{model}{A regression model, resulting from the functions
+\code{\link[mgcv]{gam}} or \code{\link[mgcv]{bam}}, or \code{lm},
+\code{glm}, \code{lmer}, or \code{glmer}.}
 
 \item{AR_start}{Defaults to NULL.
 Only use this when the model was run in an old versions of package
@@ -43,7 +44,12 @@ m1 <- bam(Y ~ Group + te(Time, Trial, by=Group),
 check_resid(m1)
 # Time series specified:
 check_resid(m1, split_by=list(Subject=simdat$Subject, Trial=simdat$Trial))
-# Note: not very good residuals.
+# Note: residuals do not look very good.
+
+# This does not work (see acf_resid for similar examples):
+check_resid(m1, split_by=c("Subject", "Trial"))
+# However, it does work for included predictors:
+check_resid(m1, split_by=c("Group"))
 }
 }
 \author{

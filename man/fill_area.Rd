@@ -47,11 +47,12 @@ Jacolien van Rij
 \seealso{
 \code{\link{check_normaldist}}
 
-Other Utility functions for plotting: \code{\link{alphaPalette}};
-  \code{\link{alpha}}; \code{\link{dotplot_error}};
-  \code{\link{emptyPlot}}; \code{\link{errorBars}};
-  \code{\link{fadeRug}}; \code{\link{find_difference}};
-  \code{\link{getCoords}}; \code{\link{gradientLegend}};
-  \code{\link{horiz_error}}; \code{\link{plot_error}}
+Other Utility functions for plotting: \code{\link{addInterval}};
+  \code{\link{alphaPalette}}; \code{\link{alpha}};
+  \code{\link{dotplot_error}}; \code{\link{emptyPlot}};
+  \code{\link{errorBars}}; \code{\link{fadeRug}};
+  \code{\link{find_difference}}; \code{\link{getCoords}};
+  \code{\link{gradientLegend}}; \code{\link{horiz_error}};
+  \code{\link{plot_error}}
 }
 

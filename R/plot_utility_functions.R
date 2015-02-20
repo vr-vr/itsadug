@@ -57,6 +57,8 @@ alphaPalette <- function(x, f.seq, n=NULL) {
             n <- length(f.seq)
             warning("Argument n will be ignored.")
         }
+    }else{
+    	n <- length(f.seq)
     }
     if (length(x) == length(f.seq)) {
         out <- x
@@ -81,10 +83,13 @@ alphaPalette <- function(x, f.seq, n=NULL) {
 #' 
 #' @param x Observations on x-axis.
 #' @param y Observations on y-axis.
-#' @param xlim Range of x-axis, two-number vector.
-#' @param ylim Range of y-axis, two-number vector.
 #' @param n.grid Resolution of Rug. Defaults to 30, 
 #' which means that the x- and y-axis are divided in 30 bins.
+#' @param gradual Logical: whether or not to use the number of 
+#' observations in an area, i.e., more transparent equals more 
+#' observations. Default is FALSE, which means that the function only 
+#' distinguishes between observations in a certain region or not, 
+#' regardless how many observations.
 #' @param max.alpha Maximum of transparency, number between 0 (completely 
 #' transparent) and 1 (non-transparent). Defaults to .75.
 #' @param col Color value. Defaults to "white".
@@ -100,11 +105,17 @@ alphaPalette <- function(x, f.seq, n=NULL) {
 #'
 #' @family Utility functions for plotting
 
-fadeRug <- function(x, y, xlim, ylim, n.grid = 30, max.alpha = 0.75, col='white') {
+fadeRug <- function(x, y, n.grid = 30, gradual=FALSE, max.alpha = 0.75, col='white') {
+    xlim <- c(par()$usr[1], par()$usr[2])
+    ylim <- c(par()$usr[3], par()$usr[4])
     x.step <- length(xlim[1]:xlim[2])/n.grid
     y.step <- length(ylim[1]:ylim[2])/n.grid
+
     im <- matrix(table(factor(round((x - xlim[1])/x.step), levels = 1:n.grid), factor(round((y - ylim[1])/y.step), levels = 1:n.grid)))
-    fadecols <- alphaPalette(col, f.seq = c(max.alpha, 0, length = max(im) + 1))
+    if(gradual==FALSE){
+        im[im > 0] <- 1 
+    }
+    fadecols <- alphaPalette(col, f.seq = seq(max.alpha, 0, length = max(im) + 1))
     im <- matrix(fadecols[im + 1], byrow = TRUE, ncol = n.grid)
     rasterImage(as.raster(im), xleft = xlim[1], xright = xlim[2], ybottom = ylim[2], ytop = ylim[1], interpolate = FALSE)
 }
@@ -363,3 +374,154 @@ horiz_error <- function(y, mean, se, minmax=NULL, ...){
         arrows(x0=cl, x1=cr, y0=y, y1=y,...)
     }        
 }
+
+
+#' Utility function.
+#'
+#' @description Add horizontal or vertical interval indications. 
+#' This function can also be used to plot asymmetric (non-parametric)
+#' error bars or confidence intervals. Basically a wrapper around arrows.
+#' 
+#' @param pos Vector with x- or y-values (depending on \code{horizontal}).
+#' @param lowVals Vector with low values, .
+#' @param highVals Vector with errors or confidence bands.
+#' @param horiz Logical: whether or not to plot the intervals horizontally.
+#' Defaults to TRUE (horizontal intervals).
+#' @param minmax Optional argument, vector with two values indicating the 
+#' minimum and maximum value for the error bars. If NULL (default) the error 
+#' bars are not corrected.
+#' @param length Number, size of the edges in inches.
+#' @param ... Optional graphical parameters (see \code{\link[graphics]{par}})
+#' to be forwarded to the function \code{\link[graphics]{arrows}}.
+#' @author Jacolien van Rij
+#' @examples
+#' emptyPlot(1000,5, xlab='Time', ylab='Y')
+#' # add interval indication for Time=200 to Time=750:
+#' addInterval(1, 200, 750, lwd=2, col='red')
+#'
+#' # zero-length intervals also should work:
+#' addInterval(pos=521, lowVals=c(1.35, 1.5, 4.33), highVals=c(1.15,1.5, 4.05),
+#'     horiz=FALSE, length=.1, lwd=4)
+#'
+#' # combine with getCoords for consistent positions with different axes:
+#' par(mfrow=c(2,2))
+#' # 1st plot:
+#' emptyPlot(1000,c(-1,5), h0=0)
+#' addInterval(getCoords(.1,side=2), 200,800, 
+#'     col='red', lwd=2)
+#' addInterval(getCoords(.5,side=1), 1,4, horiz=FALSE,
+#'     col='blue', length=.15, angle=100, lwd=4)
+#' abline(h=getCoords(.1, side=2), lty=3, col='red', xpd=TRUE)
+#' abline(v=getCoords(.5, side=1), lty=3, col='blue', xpd=TRUE)
+#' # 2nd plot:
+#' emptyPlot(1000,c(-250, 120), h0=0)
+#' addInterval(getCoords(.1,side=2), 750,1200, 
+#'     col='red', lwd=2, minmax=c(0,1000))
+#' abline(h=getCoords(.1, side=2), lty=3, col='red', xpd=TRUE)
+#' # 3rd plot:
+#' emptyPlot(c(-50,50),c(20,120), h0=0)
+#' addInterval(getCoords(.5,side=1), 80,120, horiz=FALSE,
+#'     col='blue', code=2, length=.15, lwd=4, lend=1)
+#' abline(v=getCoords(.5, side=1), lty=3, col='blue', xpd=TRUE)
+#'
+#' # Plot boxplot hinges with medians:
+#' data(simdat)
+#' b <- boxplot(simdat$Y ~ simdat$Condition, plot=FALSE)$stats
+#' emptyPlot(c(1,6), range(b[c(2,4),]), h0=0)
+#' addInterval(1:6,b[2,], b[4,], horiz=FALSE)
+#' # reset
+#' par(mfrow=c(1,1))
+#' @family Utility functions for plotting
+
+
+addInterval <- function(pos, lowVals, highVals, horiz=TRUE, minmax=NULL, length=.05,...){
+    convert2num <- function(x){  
+        if(!any(c("numeric", "integer") %in% class(x))){
+            if("factor" %in% class(x)){
+                return( as.numeric( as.character(x)) )
+            }else{
+                return( as.vector(unlist(x)) )
+            }
+        }else{
+            return(x)
+        }
+    }
+
+    pos <- convert2num(pos)
+    lowVals <- convert2num(lowVals)
+    highVals <- convert2num(highVals)
+
+    if(!is.null(minmax)){
+        lowVals[!is.na(lowVals) & lowVals < minmax[1]] <- minmax[1]
+        highVals[!is.na(highVals) & highVals > minmax[2]] <- minmax[2]
+    }
+    if(length(lowVals) != length(highVals)){
+        if(length(lowVals)==1){
+            lowVals <- rep(lowVals, length(highVals))
+        }else if(length(highVals)==1){
+            highVals <- rep(highVals, length(lowVals))          
+        }else{
+            stop('Vectors lowVals and highVals do not have same length.')
+        }
+    }
+    if(length(pos)==1){
+        pos <- rep(pos, length(lowVals))
+    }else if(length(pos) != length(lowVals)){
+        stop('Vector pos should be of the same length as lowVals and highVals.')
+    }
+
+    dnm <- names(list(...))
+    pars <- list()
+
+    if(!"angle" %in% dnm){
+        pars[["angle"]] <- 90
+    }
+    if(!"code" %in% dnm){
+        pars[["code"]] <- 3
+    }
+
+    if(length(pars) > 0){
+        pars <- paste(paste(names(pars),pars, sep='='), collapse=',')
+    }else{
+        pars <- NULL
+    }
+
+    len.check <- highVals - lowVals
+    len.check <- which(len.check == 0)
+
+    if(length(len.check)>0){
+        usr <- par()$usr
+        pin <- par()$pin
+        
+        if(horiz){
+            len <- ((usr[4]-usr[3])*length) / pin[2]
+            segments(x0=lowVals[len.check], x1=lowVals[len.check], y0=pos-len, y1=pos+len, ...)
+        }else{
+            len <- ((usr[2]-usr[1])*length) / pin[1]
+            segments(y0=lowVals[len.check], y1=lowVals[len.check], x0=pos-len, x1=pos+len, ...)
+        }
+
+        pos <- pos[-len.check]
+        lowVals <- lowVals[-len.check]
+        highVals <- highVals[-len.check]
+    }
+
+    if(horiz){
+        if(is.null(pars)){
+            arrows(x0=lowVals, x1=highVals, y0=pos, y1=pos, length=length, ...)
+        }else{
+            eval(parse(text=paste('arrows(x0=lowVals, x1=highVals, y0=pos, y1=pos,length=length,', pars ,',...)', sep='')))
+        }
+    }else{
+        if(is.null(pars)){
+            arrows(y0=lowVals, y1=highVals, x0=pos, x1=pos, length=length, ...)
+        }else{
+            eval(parse(text=paste('arrows(y0=lowVals, y1=highVals, x0=pos, x1=pos, length=length,', pars ,',...)', sep='')))
+        }        
+    }
+}
+
+
+
+
+

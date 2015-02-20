@@ -4,19 +4,22 @@
 \alias{fadeRug}
 \title{Utility function.}
 \usage{
-fadeRug(x, y, xlim, ylim, n.grid = 30, max.alpha = 0.75, col = "white")
+fadeRug(x, y, n.grid = 30, gradual = FALSE, max.alpha = 0.75,
+  col = "white")
 }
 \arguments{
 \item{x}{Observations on x-axis.}
 
 \item{y}{Observations on y-axis.}
 
-\item{xlim}{Range of x-axis, two-number vector.}
-
-\item{ylim}{Range of y-axis, two-number vector.}
-
 \item{n.grid}{Resolution of Rug. Defaults to 30,
 which means that the x- and y-axis are divided in 30 bins.}
+
+\item{gradual}{Logical: whether or not to use the number of
+observations in an area, i.e., more transparent equals more
+observations. Default is FALSE, which means that the function only
+distinguishes between observations in a certain region or not,
+regardless how many observations.}
 
 \item{max.alpha}{Maximum of transparency, number between 0 (completely
 transparent) and 1 (non-transparent). Defaults to .75.}
@@ -42,11 +45,12 @@ Jacolien van Rij
 \code{\link[graphics]{rug}}, \code{\link[graphics]{contour}},
 \code{\link[graphics]{image}}
 
-Other Utility functions for plotting: \code{\link{alphaPalette}};
-  \code{\link{alpha}}; \code{\link{dotplot_error}};
-  \code{\link{emptyPlot}}; \code{\link{errorBars}};
-  \code{\link{fill_area}}; \code{\link{find_difference}};
-  \code{\link{getCoords}}; \code{\link{gradientLegend}};
-  \code{\link{horiz_error}}; \code{\link{plot_error}}
+Other Utility functions for plotting: \code{\link{addInterval}};
+  \code{\link{alphaPalette}}; \code{\link{alpha}};
+  \code{\link{dotplot_error}}; \code{\link{emptyPlot}};
+  \code{\link{errorBars}}; \code{\link{fill_area}};
+  \code{\link{find_difference}}; \code{\link{getCoords}};
+  \code{\link{gradientLegend}}; \code{\link{horiz_error}};
+  \code{\link{plot_error}}
 }
 

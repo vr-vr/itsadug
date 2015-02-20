@@ -20,11 +20,11 @@ coordinates.
 Jacolien van Rij
 }
 \seealso{
-Other Utility functions for plotting: \code{\link{alphaPalette}};
-  \code{\link{alpha}}; \code{\link{dotplot_error}};
-  \code{\link{emptyPlot}}; \code{\link{errorBars}};
-  \code{\link{fadeRug}}; \code{\link{fill_area}};
-  \code{\link{find_difference}};
+Other Utility functions for plotting: \code{\link{addInterval}};
+  \code{\link{alphaPalette}}; \code{\link{alpha}};
+  \code{\link{dotplot_error}}; \code{\link{emptyPlot}};
+  \code{\link{errorBars}}; \code{\link{fadeRug}};
+  \code{\link{fill_area}}; \code{\link{find_difference}};
   \code{\link{gradientLegend}}; \code{\link{horiz_error}};
   \code{\link{plot_error}}
 }

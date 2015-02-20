@@ -5,8 +5,8 @@
 \alias{plot_diff}
 \title{Plot difference curve based on model predictions.}
 \usage{
-plot_diff(model, view, comp, eegAxis = F, ylim = NULL, ylab = NULL,
-  main = NULL, plot = TRUE, ...)
+plot_diff(model, view, comp, eegAxis = F, f = 1.96, ylim = NULL,
+  ylab = NULL, main = NULL, plot = TRUE, ...)
 }
 \arguments{
 \item{model}{A GAMM model, resulting from the functions
@@ -20,6 +20,10 @@ and the 2 levels to calculate the difference for.}
 
 \item{eegAxis}{Logical: whether or not to reverse the y-axis, plotting
 negative values upwards. Default is FALSE.}
+
+\item{f}{A number to scale the standard error. Defaults to 1.96, resulting
+in 95\% confidence intervals. For 99\% confidence intervals use a value of
+2.58.}
 
 \item{ylim}{Range of y-axis. If not specified, the function automatically
 generates an appropriate y-axis.}

@@ -1,14 +1,8 @@
 library(devtools)
-setwd('/Users/Jacolien/R Packages/itsadug/')
+setwd('R Packages/itsadug/')
 devtools::document()
 devtools::load_all()
-help(plot_diff2)
-data(simdat)#
-## Not run: #
-m1 <- bam(Y ~ Group + te(Time, Trial, by=Group),#
-    data=simdat)
-plot_diff2(m1, view=c('Time', 'Trial'),#
-    comp=list(Group=c("Children", "Adults")))
-plot_diff2(m1, view=c('Time', 'Trial'),#
-    comp=list(Group=c("Children", "Adults")))
-gradientLegend(c(-5,9), side=1)
+dat <- readRDS('Data/sharedata_S1.rds')#
+dat$TrailTime <- dat$Time#
+dat$Time <- dat$Time - dat$Anafoor#
+dat <- dat[dat$Time >=-3000 & dat$Time < 3000,]

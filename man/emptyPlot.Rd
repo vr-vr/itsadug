@@ -75,11 +75,12 @@ for plotting the data;
 use \code{\link[graphics]{legend}} for adding a legend.
 and \code{\link{acf_n_plots}} for inspection of individual time series.
 
-Other Utility functions for plotting: \code{\link{alphaPalette}};
-  \code{\link{alpha}}; \code{\link{dotplot_error}};
-  \code{\link{errorBars}}; \code{\link{fadeRug}};
-  \code{\link{fill_area}}; \code{\link{find_difference}};
-  \code{\link{getCoords}}; \code{\link{gradientLegend}};
-  \code{\link{horiz_error}}; \code{\link{plot_error}}
+Other Utility functions for plotting: \code{\link{addInterval}};
+  \code{\link{alphaPalette}}; \code{\link{alpha}};
+  \code{\link{dotplot_error}}; \code{\link{errorBars}};
+  \code{\link{fadeRug}}; \code{\link{fill_area}};
+  \code{\link{find_difference}}; \code{\link{getCoords}};
+  \code{\link{gradientLegend}}; \code{\link{horiz_error}};
+  \code{\link{plot_error}}
 }
 

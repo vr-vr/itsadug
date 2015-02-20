@@ -72,7 +72,7 @@ fvisgam <- function(x, view = NULL, cond = list(),
     n.grid = 30, too.far = 0, col = NA, color = "topo", contour.col = NULL, 
     add.color.legend=TRUE,
     se = -1, plot.type = "contour", zlim = NULL, nCol = 50, 
-    rm.ranef=TRUE, suppressMessages=FALSE, ...) {
+    rm.ranef=NULL, suppressMessages=FALSE, ...) {
        
     fac.seq <- function(fac, n.grid) {
         fn <- length(levels(fac))

@@ -5,9 +5,10 @@
 \alias{plot_diff2}
 \title{Plot difference surface based on model predictions.}
 \usage{
-plot_diff2(model, view, comp, plotCI = F, color = "topo", nCol = 100,
-  col = NULL, add.color.legend = TRUE, n.grid = 30, nlevels = 10,
-  zlim = NULL, main = NULL)
+plot_diff2(model, view, comp, cond = NULL, plotCI = FALSE, f = 1.96,
+  color = "topo", nCol = 100, col = NULL, add.color.legend = TRUE,
+  n.grid = 30, nlevels = 10, zlim = NULL, main = NULL,
+  suppressMessages = FALSE)
 }
 \arguments{
 \item{model}{A GAMM model, resulting from the functions
@@ -19,7 +20,14 @@ and y-axes. Vector of two values.}
 \item{comp}{Named list with the grouping predictor (categorical variable)
 and the 2 levels to calculate the difference for.}
 
+\item{cond}{Named list of the values to use for the other predictor terms
+(not in view).}
+
 \item{plotCI}{Logical: whether or not to plot confidence intervals.}
+
+\item{f}{A number to scale the standard error. Defaults to 1.96, resulting
+in 95\% confidence intervals. For 99\% confidence intervals use a value of
+2.58.}
 
 \item{color}{Colorpalette}
 
@@ -39,6 +47,8 @@ Default is TRUE. If FALSE (omitted), one could use the function
 axis scale. NULL to choose automatically.}
 
 \item{main}{Title of plot.}
+
+\item{suppressMessages}{Logical: whether or not to print messages.}
 }
 \value{
 If the result is not being plotted, a list is
@@ -60,7 +70,7 @@ plot_diff2(m1, view=c('Time', 'Trial'),
 vignette("plotfunctions", package="itsadug")
 }
 \author{
-Martijn Wieling
+Martijn Wieling, adjusted by Jacolien van Rij
 }
 \seealso{
 Other functions for interpreting nonlinear effects: \code{\link{fvisgam}},

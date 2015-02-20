@@ -53,11 +53,12 @@ arrows(x0=x$start, x1=x$end, y0=-5, y1=-5, code=3, length=.1, col='red')
 Jacolien van Rij
 }
 \seealso{
-Other Utility functions for plotting: \code{\link{alphaPalette}};
-  \code{\link{alpha}}; \code{\link{dotplot_error}};
-  \code{\link{emptyPlot}}; \code{\link{errorBars}};
-  \code{\link{fadeRug}}; \code{\link{fill_area}};
-  \code{\link{getCoords}}; \code{\link{gradientLegend}};
-  \code{\link{horiz_error}}; \code{\link{plot_error}}
+Other Utility functions for plotting: \code{\link{addInterval}};
+  \code{\link{alphaPalette}}; \code{\link{alpha}};
+  \code{\link{dotplot_error}}; \code{\link{emptyPlot}};
+  \code{\link{errorBars}}; \code{\link{fadeRug}};
+  \code{\link{fill_area}}; \code{\link{getCoords}};
+  \code{\link{gradientLegend}}; \code{\link{horiz_error}};
+  \code{\link{plot_error}}
 }
 

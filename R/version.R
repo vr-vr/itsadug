@@ -1,5 +1,5 @@
 .onAttach <- function(...) {
-  packageStartupMessage('Loaded package itsadug 0.5 (see \'help(package="itsadug")\' ).')
+  packageStartupMessage('Loaded package itsadug 0.6 (see \'help(package="itsadug")\' ).')
 }
 
 #' Information on how to cite this package

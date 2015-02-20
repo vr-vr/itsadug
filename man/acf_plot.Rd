@@ -86,7 +86,7 @@ Use \code{\link[stats]{acf}} for the original ACF function,
 and \code{\link{acf_n_plots}} for inspection of individual time series.
 
 Other functions for model criticism: \code{\link{acf.n.plots}},
-  \code{\link{acf_n_plots}};
+  \code{\link{acf_n_plots}}; \code{\link{acf_resid}};
   \code{\link{check_normaldist}}; \code{\link{resid.gam}},
   \code{\link{resid_gam}}
 }
