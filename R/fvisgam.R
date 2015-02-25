@@ -40,7 +40,7 @@
 #' @param nCol The number of colors to use in color schemes.
 #' @param rm.ranef Logical: whether or not to remove random effects. 
 #' Default is TRUE.
-#' @param suppressMessages Logical: whether or not to print messages.
+#' @param print.summary Logical: whether or not to print a summary.
 #' @param ... other options to pass on to persp, image or contour. In 
 #' particular ticktype="detailed" will add proper axes labeling to the plots.
 #'
@@ -72,7 +72,7 @@ fvisgam <- function(x, view = NULL, cond = list(),
     n.grid = 30, too.far = 0, col = NA, color = "topo", contour.col = NULL, 
     add.color.legend=TRUE,
     se = -1, plot.type = "contour", zlim = NULL, nCol = 50, 
-    rm.ranef=NULL, suppressMessages=FALSE, ...) {
+    rm.ranef=NULL, print.summary=TRUE, ...) {
        
     fac.seq <- function(fac, n.grid) {
         fn <- length(levels(fac))
@@ -123,7 +123,7 @@ fvisgam <- function(x, view = NULL, cond = list(),
 
     newd <- get_predictions(x, cond=cond, se=ifelse(se>0, TRUE, FALSE), 
         f=ifelse(se>0, se, 1.96), rm.ranef=rm.ranef,
-        print.summary=!suppressMessages)
+        print.summary=print.summary)
     newd <- newd[order(newd[,view[1]], newd[, view[2]]),]
 
     z <- matrix(newd$fit, byrow=TRUE, n.grid, n.grid)

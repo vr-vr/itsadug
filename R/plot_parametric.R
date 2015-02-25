@@ -22,7 +22,7 @@
 #' plotted, but if greater than zero, then the predicted values plus 
 #' confidence intervals are plotted. The value of se will be multiplied with 
 #' the standard error (i.e., 1.96 results in 95\%CI and 2.58).
-#' @param suppressMessages Logical: whether or not to print messages.
+#' @param print.summary Logical: whether or not to print summary.
 #' @param main Changing the main title for the plot, see also title.
 #' @param xlab Changing the label for the x axis, 
 #' defaults to a description of x.
@@ -65,7 +65,7 @@
 
 plot_parametric <- function(x, pred, cond = list(), 
     parametricOnly = FALSE, rm.ranef=NULL, 
-    col = 'black', se = 1.96, suppressMessages=FALSE,
+    col = 'black', se = 1.96, print.summary=TRUE,
     main=NULL, xlab=NULL, ...) {
        
     dnm <- names(list(...))
@@ -136,7 +136,7 @@ plot_parametric <- function(x, pred, cond = list(),
     }else{
         newd <- get_predictions(x, cond=cond, se=ifelse(se>0, TRUE, FALSE), 
             f=ifelse(se>0, se, 1.96), rm.ranef=rm.ranef,
-            print.summary=!suppressMessages)
+            print.summary=print.summary)
 
     }
 

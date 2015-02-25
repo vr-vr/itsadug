@@ -4,19 +4,19 @@
 \alias{find_difference}
 \title{Find the regions in which the smooth is significantly different from zero.}
 \usage{
-find_difference(mean, se, f = 1, xVals = NULL)
+find_difference(mean, se, xVals = NULL, f = 1)
 }
 \arguments{
 \item{mean}{A vector with smooth predictions.}
 
 \item{se}{A vector with the standard error on the smooth predictions.}
 
-\item{f}{A number to multiply the \code{se} with, to convert the \code{se}
-into confidence intervals. Use 1.96 for 95\% CI and 2.58 for 99\%CI.}
-
 \item{xVals}{Optional vector with x values for the smooth.
 When \code{xVals} is provided, the regions are returned in terms of x-
 values, otherwise as indices.}
+
+\item{f}{A number to multiply the \code{se} with, to convert the \code{se}
+into confidence intervals. Use 1.96 for 95\% CI and 2.58 for 99\%CI.}
 }
 \value{
 The function returns a list with start points of each region

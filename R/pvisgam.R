@@ -51,7 +51,7 @@
 #' axis scale. NULL to choose automatically.
 #' @param nCol The number of colors to use in color schemes.
 #' @param labcex Size of the contour labels.
-#' @param suppressMessages Logical: whether or not to print messages.
+#' @param print.summary Logical: whether or not to print summary.
 #' @param ... other options to pass on to persp, image or contour. In 
 #' particular ticktype="detailed" will add proper axes labeling to the plots.
 #' @section Warnings:
@@ -88,7 +88,7 @@ pvisgam <- function(x, view = NULL, select = NULL, cond = list(), n.grid = 30,
     too.far = 0, col = NA, color = "topo", contour.col = NULL, 
     add.color.legend=TRUE,
     se = -1, type = "link", plot.type = "contour", zlim = NULL, 
-    nCol = 50, labcex=.6, suppressMessages=FALSE,...) {
+    nCol = 50, labcex=.6, print.summary=TRUE,...) {
     
     # This modfication of vis.gam allows the user to specify one condition to plot as partial effect surface.  Use: 1)
     # view=c('Time','Trial') to specify which surface to plot, and 2) select=2 to select a specific smooth term (necessary
@@ -217,7 +217,7 @@ pvisgam <- function(x, view = NULL, select = NULL, cond = list(), n.grid = 30,
     if (is.numeric(select)) {
         fv <- data.frame(fit = X1$fit[, select + n.linpred])
         fv$se.fit <- X1$se.fit[, select + n.linpred]
-        if(!suppressMessages){
+        if(print.summary){
             print(paste("Tensor(s) to be plotted:", colnames(X1$fit)[select + n.linpred]))
         }
         
@@ -258,7 +258,7 @@ pvisgam <- function(x, view = NULL, select = NULL, cond = list(), n.grid = 30,
         if (length(colnamesX1) == 1) {
             fv <- data.frame(fit = X1$fit[, colnamesX1])
             fv$se.fit <- X1$se.fit[, colnamesX1]
-            if(!suppressMessages){
+            if(print.summary){
                 cat(paste("Tensor(s) to be plotted:", colnamesX1))
             }
         } else {

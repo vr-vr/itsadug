@@ -6,7 +6,7 @@
 \usage{
 plot_smooth(x, view = NULL, cond = list(), rm.ranef = NULL, n.grid = 30,
   rug = TRUE, col = "black", add = FALSE, se = 1.96, shade = TRUE,
-  eegAxis = FALSE, suppressMessages = FALSE, main = NULL, xlab = NULL,
+  eegAxis = FALSE, print.summary = TRUE, main = NULL, xlab = NULL,
   ylab = NULL, ylim = NULL, h0 = 0, v0 = NULL, ...)
 }
 \arguments{
@@ -50,7 +50,7 @@ negative amplitudes upwards as traditionally is done in EEG research.
 If eeg.axes is TRUE, labels for x- and y-axis are provided, when not
 provided by the user. Default value is FALSE.}
 
-\item{suppressMessages}{Logical: whether or not to print messages.}
+\item{print.summary}{Logical: whether or not to print summary.}
 
 \item{main}{Changing the main title for the plot, see also title.}
 

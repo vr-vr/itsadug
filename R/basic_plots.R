@@ -86,7 +86,7 @@ emptyPlot <- function(xlim, ylim,
     plot(range(xlim), range(ylim), type='n',
         xlim=xlim, ylim=ylim, 
         main=main, xlab=xlab, ylab=ylab,
-        bty=bty)
+        bty=bty, ...)
     if(!is.null(h0)){
         abline(h=h0)
     }
@@ -190,13 +190,25 @@ plot_error <- function(x, fit, se.fit, shade=FALSE, f=1, col='black', border=NA,
 #' @family Utility functions for plotting
 
 fill_area <- function(x, y, from=0, col='black', alpha=.25,  border=NA, na.rm=TRUE, ...){
+    el.narm <- c()
     if(na.rm){
+        el.narm <- which(is.na(x) | is.na(y))
+        if(length(from)==length(x)){
+            from = from[!is.na(x) | !is.na(y)]
+        }
         x <- x[!is.na(x) | !is.na(y)]
         y <- y[!is.na(x) | !is.na(y)]
     }
     xval <- c(x, rev(x))
-    yval <- c(y, rep(from, length(y)))
-
+    yval <- c()
+    if(length(from)==1){
+        yval <- c(y, rep(from, length(y)))
+    }else if(length(from)==length(x)){
+        yval <- c(y, rev(from))
+    }else{
+        warning("Argument from has more than 1 element. Only first element being used.")
+        yval <- c(y, rep(from, length(y)))
+    }
     polygon(x=xval, y=yval, border=border, col=alpha(col, f=alpha), ...)
 }
 

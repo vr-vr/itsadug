@@ -90,10 +90,10 @@ par(mfrow=c(1,2))
 # Note: specify zlim when comparing two plots
 pvisgam(m1, view=c("Time", "Trial"), select=1, 
      main='Group=Children', labcex=.8,
-     zlim=c(-15,15), suppressMessages=TRUE)
+     zlim=c(-15,15), print.summary=FALSE)
 pvisgam(m1, view=c("Time", "Trial"), select=2, 
      main='Group=Adults', labcex=.8,
-     zlim=c(-15,15), suppressMessages=TRUE)
+     zlim=c(-15,15), print.summary=FALSE)
 ```
 
 Advantage and disadvantages of **`pvisgam`**:
@@ -143,20 +143,21 @@ The function **`gradientLegend`** in the package `itsadug` can be used to add a 
 ## 4. fvisgam() for summed effects
 The function **`fvisgam`** in `itsadug` is a variant of `vis.gam` that allows to exclude random effects. Figure 4 shows similar patterns as the partial effects in Figures 1 and 2, but the values on the contour lines are different. This is caused by the intercept and other terms in the model that are added as constants to the surface. When the random effects would *not* be excluded (i.e., setting `rm.ranef` to `NULL`) the surfaces in Figure 4 would be the same as with `vis.gam` (Figure 3).
 
-
-```{r, fvisgam,fig.width=8, fig.height=4, echo=TRUE, include=TRUE,fig.cap="<b>Figure 4.</b> Summed effects surfaces for <code>Time</code> and <code>Trial</code> plotted with <code>fvisgam</code>. Random effects are zeroed out."}
+```{r, fvisgam,fig.width=8, fig.height=4, echo=FALSE, include=TRUE,fig.cap="<b>Figure 4.</b> Summed effects surfaces for <code>Time</code> and <code>Trial</code> plotted with <code>fvisgam</code>. Random effects are zeroed out."}
 par(mfrow=c(1,2))
 # Note: specify zlim when comparing two plots
 fvisgam(m1, view=c("Time", "Trial"), 
         cond=list(Group='Children'),
         plot.type='contour', color='topo', main='Group=Children',
-        zlim=c(-12,15), suppressMessages=TRUE)
+        zlim=c(-12,15), print.summary=FALSE)
 fvisgam(m1, view=c("Time", "Trial"), 
         cond=list(Group='Adults'),
         plot.type='contour', color='topo', main='Group=Adults',
-        zlim=c(-12,15), suppressMessages=TRUE)
+        zlim=c(-12,15))
 ```
 
+
+Unless the argument \code{print.summary} is set to \code{FALSE}, the function will print the values of all model terms that are being used to generate the predictions.
 
 Advantages and disadvantages of **`fvisgam`**:
 
@@ -167,6 +168,8 @@ Advantages and disadvantages of **`fvisgam`**:
 - The surfaces might look different when being plot with different z-range (`zlim`), which changes the colors and contour lines being plot; 
 
 - It allows to generalize over random effects.
+
+- It reports the values of the other model terms that are not in view, but might influence the plot.
 
 Different settings for not viewed predictors may change the surface. Therefore, it is good practice to report which settings were used to generate the plot.
 
@@ -239,12 +242,12 @@ par(mfrow=c(1,2), cex=1.1)
 
 # First plot the smooth for Adult participants in gray...
 plot_smooth(m2, view="Time", cond=list(Group="Adults"), rug=FALSE, 
-  ylim=c(-10,15), suppressMessages=TRUE,
+  ylim=c(-10,15), print.summary=FALSE,
   main='m2: Time, Group=Adults')
 # ... then add the smooth from which the random effects are excluded
 plot_smooth(m2, view="Time", cond=list(Group="Adults"), 
   rug=FALSE, add=TRUE, col='red', rm.ranef=TRUE, 
-  ylim=c(-10,15), suppressMessages=TRUE, xpd=TRUE)
+  ylim=c(-10,15), print.summary=FALSE, xpd=TRUE)
 # Add legend:
 legend('bottomleft', 
   legend=c("incl. random","excl. random"),
@@ -253,11 +256,11 @@ legend('bottomleft',
 
 # Secondly, a smooth based on the tensor in m1:
 plot_smooth(m1, view="Time", cond=list(Group="Adults"), 
-  rug=FALSE, ylim=c(-10,15), suppressMessages=TRUE,
+  rug=FALSE, ylim=c(-10,15), print.summary=FALSE,
   main='m1: Time, Group=Adults')
 plot_smooth(m1, view="Time", cond=list(Group="Adults"), 
   rug=FALSE, add=TRUE, col='red', rm.ranef=TRUE, 
-  ylim=c(-10,15), suppressMessages=TRUE, xpd=TRUE)
+  ylim=c(-10,15), print.summary=FALSE, xpd=TRUE)
 ```
 
 Figure 6 *Left* and *Right* shows the same plot, *Left* is based on model `m2`, whereas *Right* is based on model `m1`. Remember that model `m1` included only interaction surfaces, but no one dimensional smooths. The function **`plot_smooth`** can derive the estimates of a one dimensional smooth on the basis of the complex interactions. Although very similar, deriving the estimate from an interaction surface results in a different smooth, because it is based on a different model.
@@ -280,7 +283,7 @@ par(cex=1.1)
 # First plot the Group estimates by setting the smooth terms on zero:
 plot_parametric(m1, pred=list(Group=c("Adults", "Children")),  
   cond=list(Time=0, Trial=0), rm.ranef=TRUE, 
-  suppressMessages=TRUE)
+  print.summary=FALSE)
 ```
 
 
@@ -291,8 +294,9 @@ The differences in the *Time* by *Trial* interaction between the adult participa
 par(mfrow=c(1,2))
 plot_diff2(m1, view=c("Time","Trial"), 
         comp=list(Group=c("Adults", "Children")),
-        zlim=c(-7.5,5),
-        main='Difference Adults-Children')
+        zlim=c(-5,7.5), 
+        main='Difference Adults-Children',
+        print.summary=FALSE)
 plot_diff(m1, view="Time",         
         comp=list(Group=c("Adults", "Children")),
         main='Time difference Adults-Children')
@@ -422,6 +426,14 @@ acf_n_plots(resid(m1),
   split_by=list(Subject=simdat$Subject, Trial=simdat$Trial), 
   n=6,cex.lab=1.5, cex.axis=1.5, cex.main=2)
 ```
+
+## 3. acf_resid()
+The function **`acf_resid()`** is a shortcut for plotting the ACF of model residuals. This function is also available for other regression models and `lmer()` / `glmer()` models. Note that the `split_pred` argument can take a vector with names of model terms that define how to split the data. If the argument `n` is being used, `acf_n_plots` is being called, otherwise `acf_plot`.
+
+```{r, acfresid, echo=TRUE, fig.width=4, fig.height=4, include=TRUE, fig.cap="<i>Figure 14.</i> ACF plot of model residuals."}
+acf_resid(m1, split_pred=c("Subject", "Trial"))
+```
+
 
 # Package info
 This summary was created on \today.

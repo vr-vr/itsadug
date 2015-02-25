@@ -29,4 +29,7 @@ length(na.el)
 \author{
 Jacolien van Rij
 }
+\seealso{
+Other utility functions: \code{\link{diff_terms}}
+}
 

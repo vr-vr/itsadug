@@ -38,6 +38,7 @@ Jacolien van Rij
 }
 \seealso{
 Other functions for model predictions: \code{\link{get_difference}};
+  \code{\link{get_modelterm}};
   \code{\link{get_predictions}}
 }
 

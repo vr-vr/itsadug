@@ -206,17 +206,35 @@ get_random <- function(model, fun=NULL, cond=NULL, n.grid=30, print.summary=TRUE
 		newd <- expand.grid(new.cond)
 
 		p <- mgcv::predict.gam(model, newd, type='terms')
-		newd <- cbind(p[,smoothlabels], newd)
-		names(newd)[1:length(smoothlabels)] <- smoothlabels
 
+		select <- p[,smoothlabels]
+		cnames <- smoothlabels
+		if(is.null(dim(select))){
+			if(length(select) != length(smoothlabels)){
+				# if length smoothlabels equals 1			
+				newd <- cbind(select, newd)
+				colnames(newd)[1] <- paste("fit",smoothlabels, sep='.')
+				cnames <- paste("fit",smoothlabels, sep='.')
+			}else{
+				names(select) <- paste("fit",smoothlabels, sep='.')
+				cnames <- names(select)
+				newd <- cbind(t(select), newd)
+			}
+		}else{
+			colnames(select) <- paste("fit",smoothlabels, sep='.')
+			cnames <- colnames(select)
+			newd <- cbind(select, newd)
+		}
 		
+
 		if(!is.null(fun)){
 
+
 			val <- NULL
-			if(length(smoothlabels) > 1){
-				val <- as.list(newd[, smoothlabels])
+			if(length(cnames) > 1){
+				val <- as.list(newd[, cnames])
 			}else{
-				val <- list(newd[, smoothlabels])
+				val <- list(newd[, cnames])
 			}
 			
 			names(val) <- smoothlabels
@@ -362,7 +380,87 @@ get_difference <- function(model, cond1, cond2, cond=NULL,
 		return(newd)
 
 	}
-
-
 }
+
+
+
+#' Get estimated for selected model terms.
+#' 
+#' @export
+#' @param model A gam object, produced by \code{\link[mgcv]{gam}} or 
+#' \code{\link[mgcv]{bam}}.
+#' @param select A number, indicating the model term to be selected. 
+#' @param cond A named list of the values to restrict the estimates for the 
+#' random predictor terms. When NULL (default) all levels are returned.
+#' Only relevant for complex interactions, which involve more than two 
+#' dimensions.
+#' @param n.grid Number of data points estimated for each random smooth.
+#' @return A data frame with estimates for the selected smooth term.
+#' @param se Logical: whether or not to return the confidence interval or 
+#' standard error around the estimates.
+#' @param f A number to scale the standard error. Defaults to 1.96, resulting 
+#' in 95\% confidence intervals. For 99\% confidence intervals use a value of 
+#' 2.58.
+#' @examples
+#' # see the vignette for examples:
+#' vignette("plotfunctions", package="itsadug")
+#' @author Jacolien van Rij
+#' @family functions for model predictions
+
+get_modelterm <- function(model, select, cond=NULL, n.grid=30, 
+	se=TRUE, f=1.96){
+
+	if(!"lm" %in% class(model)){
+		stop("This function does not work for class %s models.", class(model)[1])
+	}else{
+
+		# find terms:
+		smoothlabels <- model$smooth[[select[1]]][['label']]
+		smoothterms <-  model$smooth[[select[1]]][['term']]
+		# select right grouping predictor:
+		if(model$smooth[[select[1]]][['by']] !="NA"){
+			cond[[model$smooth[[select[1]]][['by']]]] <- model$smooth[[select[1]]][['by.level']]
+		}
+
+		su <- model$var.summary
+		newd <- NULL
+		new.cond <- list()
+
+		for(i in names(su)){
+			if((i %in% names(cond)) & any(grepl(i, smoothlabels)) ){
+				new.cond[[i]] <- cond[[i]]
+			}else{
+				if(any(grepl(i, smoothlabels))){
+					if(inherits(su[[i]],"factor")){
+						new.cond[[i]] <- levels(su[[i]])
+					}else if(inherits(su[[i]],"numeric")){
+						new.cond[[i]] <- seq(su[[i]][1], su[[i]][3], length=n.grid)
+					}
+				}else{
+					if(inherits(su[[i]],"factor")){
+						new.cond[[i]] <- as.character(su[[i]][1])
+					}else if(inherits(su[[i]],"numeric")){
+						new.cond[[i]] <- su[[i]][2]
+					}
+				}
+			}
+		}
+
+		newd <- expand.grid(new.cond)
+		p <- mgcv::predict.gam(model, newd, type='terms', se.fit=se)
+
+		fv <- list()
+		
+		if(se){
+			fv[['fit']] <- p$fit[, smoothlabels]
+			fv[['se.fit']] <- f*p$se.fit[,smoothlabels]
+			fv[['f']] <- f
+		}else{
+			fv[['fit']] <- p[, smoothlabels]
+		}
+		fv[['terms']] <- newd[,smoothterms]
+		return(fv)
+	}
+}
+
 

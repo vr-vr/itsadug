@@ -122,6 +122,8 @@ se <- function(x){
 #' Similar to the function \code{\link[utils]{str}}, but easier readable.
 #' @param data A data frame.
 #' @param print Logical: whether or not to print the summary.
+#' @param n Number: maximum number of values being mentioned in the summary.
+#' If NULL all values are being mentioned. Defaults to 10.
 #' @return Optionally returns a named list with info.
 #' @author Jacolien van Rij
 #' @examples
@@ -129,22 +131,33 @@ se <- function(x){
 #' summary_data(simdat)
 #' @family Data utility functions
 
-summary_data <- function(data, print=TRUE){    
+summary_data <- function(data, print=TRUE, n=10){    
     
     labelColumns <- function(x, data){
         out <- NULL
         cn <- ifelse(is.numeric(x), colnames(data)[x], x)
         cl <- class(data[,cn])
         if(inherits(data[,cn],'factor')){
-            out <- sprintf("a factor; set to the value(s): %s.", 
-                paste( sort(unique(as.character(data[,x]))), collapse=", ") )
+            vals <- sort(unique(as.character(data[,x])))
+            n.cur <- length(vals)+1
+            if(!is.null(n)){
+                n.cur <- n
+            }
+            if(length(vals)>n.cur){
+                out <- sprintf("factor with %d values; set to the value(s): %s, ...", 
+                    length(vals),
+                    paste( vals[1:n.cur], collapse=", ") )  
+            }else{
+                out <- sprintf("factor; set to the value(s): %s.", 
+                    paste( vals, collapse=", ") )
+            }
         }else if(inherits(data[,cn],'numeric')){
             if(length(unique(data[,x])) > 2){
-                out <- sprintf("a numeric predictor; with %d values ranging from %f to %f.", 
+                out <- sprintf("numeric predictor; with %d values ranging from %f to %f.", 
                     length(unique(data[,x])),
                     min(data[,x], na.rm=TRUE), max(data[,x], na.rm=TRUE)) 
             }else{
-                out <- sprintf("a numeric predictor; set to the value(s): %s.", paste(unique(data[,x]), collapse=", ") )
+                out <- sprintf("numeric predictor; set to the value(s): %s.", paste(unique(data[,x]), collapse=", ") )
             }
         }else if(inherits(data[,cn], "matrix")){
             if(length(unique(data[,x])) > 2){
@@ -152,12 +165,24 @@ summary_data <- function(data, print=TRUE){
                     length(unique(data[,x])),
                     min(data[,x], na.rm=TRUE), max(data[,x], na.rm=TRUE))
             }else{
-                out <- sprintf("a matrix predictor; set to the value(s): %s.", paste(unique(data[,x]), collapse=", ") ) 
+                out <- sprintf("matrix predictor; set to the value(s): %s.", paste(unique(data[,x]), collapse=", ") ) 
             }
         }else{
-            out <- sprintf("a %s vector; set to the value(s): %s.", 
-                class(data[,cn])[1],
-                paste( sort(unique(data[,x])), collapse=", "))
+            vals <- sort(unique(data[,x]))
+            n.cur <- length(vals)+1
+            if(!is.null(n)){
+                n.cur <- n
+            }
+            if(length(vals)>n.cur){
+                out <- sprintf("%s vector with %d values; set to the value(s): %s, ...", 
+                    class(data[,cn])[1],
+                    length(vals),
+                    paste( vals[1:n.cur], collapse=", ") )
+            }else{
+                out <- sprintf("%s vector; set to the value(s): %s.", 
+                    class(data[,cn])[1],
+                    paste( vals, collapse=", ") )
+            }
         }
         return(out)
     }

@@ -3,11 +3,11 @@
 #' @export
 #' @param mean A vector with smooth predictions.
 #' @param se A vector with the standard error on the smooth predictions.
-#' @param f A number to multiply the \code{se} with, to convert the \code{se} 
-#' into confidence intervals. Use 1.96 for 95\% CI and 2.58 for 99\%CI.
 #' @param xVals Optional vector with x values for the smooth. 
 #' When \code{xVals} is provided, the regions are returned in terms of x-
 #' values, otherwise as indices.
+#' @param f A number to multiply the \code{se} with, to convert the \code{se} 
+#' into confidence intervals. Use 1.96 for 95\% CI and 2.58 for 99\%CI.
 #' @return The function returns a list with start points of each region 
 #' (\code{start}) and end points of each region (\code{end}). The logical 
 #' \code{xVals} indicates whether the returned values are on the x-scale 
@@ -37,7 +37,7 @@
 #'
 #' @family Utility functions for plotting
 
-find_difference <- function(mean, se, f=1, xVals = NULL) {
+find_difference <- function(mean, se, xVals = NULL,f=1) {
     if (length(mean) != length(se)) {
         stop("The vectors mean and se are not equal in length.")
     } else {

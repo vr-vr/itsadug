@@ -35,7 +35,7 @@
 #' negative amplitudes upwards as traditionally is done in EEG research.
 #' If eeg.axes is TRUE, labels for x- and y-axis are provided, when not 
 #' provided by the user. Default value is FALSE.
-#' @param suppressMessages Logical: whether or not to print messages.
+#' @param print.summary Logical: whether or not to print summary.
 #' @param main Changing the main title for the plot, see also title.
 #' @param xlab Changing the label for the x axis, 
 #' defaults to a description of x.
@@ -86,7 +86,7 @@
 
 plot_smooth <- function(x, view = NULL, cond = list(), rm.ranef=NULL,
     n.grid = 30, rug = TRUE, col = 'black', add=FALSE, 
-    se = 1.96, shade = TRUE, eegAxis=FALSE, suppressMessages=FALSE,
+    se = 1.96, shade = TRUE, eegAxis=FALSE, print.summary=TRUE,
     main=NULL, xlab=NULL, ylab=NULL, ylim=NULL, h0=0, v0=NULL,...) {
        
     dnm <- names(list(...))
@@ -127,7 +127,7 @@ plot_smooth <- function(x, view = NULL, cond = list(), rm.ranef=NULL,
 
     newd <- get_predictions(x, cond=cond, se=ifelse(se>0, TRUE, FALSE), 
         f=ifelse(se>0, se, 1.96), rm.ranef=rm.ranef,
-        print.summary=!suppressMessages)
+        print.summary=print.summary)
 
     if(is.null(main)){ main <- view[1] }
     if(is.null(xlab)){ xlab <- view[1] }
@@ -154,7 +154,7 @@ plot_smooth <- function(x, view = NULL, cond = list(), rm.ranef=NULL,
     if(se > 0){
         plot_error(newd[,view[1]], newd$fit, newd$CI, shade=shade, f=1, col=col, ...)
     }else{
-        lines(newd[,view[1]], newd$fit, ...)
+        lines(newd[,view[1]], newd$fit, col=col, ...)
     }
     
     invisible(list(fv = newd, rm.ranef=rm.ranef))

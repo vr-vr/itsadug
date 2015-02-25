@@ -4,12 +4,15 @@
 \alias{summary_data}
 \title{Utility function.}
 \usage{
-summary_data(data, print = TRUE)
+summary_data(data, print = TRUE, n = 10)
 }
 \arguments{
 \item{data}{A data frame.}
 
 \item{print}{Logical: whether or not to print the summary.}
+
+\item{n}{Number: maximum number of values being mentioned in the summary.
+If NULL all values are being mentioned. Defaults to 10.}
 }
 \value{
 Optionally returns a named list with info.

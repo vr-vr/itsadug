@@ -123,22 +123,27 @@ plot_diff <- function(model, view, comp, eegAxis=F, f=1.96,
 	se.diff <- sqrt(rowSums((res1$Xp%*%vcov(model))*res1$Xp))
 
 	if(plot){	
+		pnm <- list(...)
+		shade.col <- alpha('black', f=.25)
+		if('col' %in% names(pnm)){
+			shade.col <- alpha(pnm[['col']], f=.25)
+		}
+
 		res1$ul <- res1$diff + f * se.diff
 		res1$ll <- res1$diff - f * se.diff
 
-		if (is.null(ylim)) yvals <- sort(c(convert*min(res1$ll),convert*max(res1$ul)),decreasing=F)
-		plot(res1$XXX,convert*res1$diff,type='l',xlab=view, main=mn, ylab=ylab, ylim=yvals, axes=F,...)
-		box()
-		axis(1)
-		axis(2, at=axTicks(2), labels=convert*axTicks(2))
+		if (is.null(ylim)){
+			 yvals <- sort(c(min(res1$ll),max(res1$ul)),decreasing=F)
+		}
 
-		polygon(c(res1$XXX,rev(res1$XXX)),c(convert*res1$ul,rev(convert*res1$ll)),
-				col=rgb(0.25,0.25,0.25,alpha=.25),border=NA) # shaded confidence interval
+		emptyPlot(range(res1$XXX), yvals, h0=0,
+			xlab=view, ylab=ylab, main=main,
+			eegAxis=eegAxis, ...)
+		plot_error(res1$XXX,res1$diff,f * se.diff, shade=TRUE, ...)
 
-		abline(h=0)
-		invisible(list(est=res1$diff, se.est=se.diff, xVals=res1$XXX))
+		invisible(list(est=res1$diff, se.est=f*se.diff, xVals=res1$XXX, f=f))
 	}else{
-		return(list(est=res1$diff, se.est=se.diff, xVals=res1$XXX))
+		return(list(est=res1$diff, se.est=f*se.diff, xVals=res1$XXX, f=f))
 	}
 }
 
@@ -170,7 +175,7 @@ plot_diff <- function(model, view, comp, eegAxis=F, f=1.96,
 #' @param f A number to scale the standard error. Defaults to 1.96, resulting 
 #' in 95\% confidence intervals. For 99\% confidence intervals use a value of 
 #' 2.58.
-#' @param suppressMessages Logical: whether or not to print messages.
+#' @param print.summary Logical: whether or not to print a summary.
 #' @return If the result is not being plotted, a list is 
 #' returned with the estimated difference (\code{est}) and the standard error 
 #' over the estimate (\code{se.est}) and the x-values (\code{x}) is returned.
@@ -192,7 +197,7 @@ plot_diff <- function(model, view, comp, eegAxis=F, f=1.96,
 plot_diff2 <- function(model,view, comp, cond=NULL, plotCI=FALSE, f=1.96, 
 	color='topo', nCol=100, col=NULL, add.color.legend=TRUE,
 	n.grid=30, nlevels=10, zlim=NULL, main=NULL,
-	suppressMessages=FALSE) { 
+	print.summary=TRUE) { 
 
 	dat = model$model
 
@@ -273,7 +278,7 @@ plot_diff2 <- function(model,view, comp, cond=NULL, plotCI=FALSE, f=1.96,
 	p <- p1 - p2
 
 	newd <- as.data.frame(newd1[,!names(newd1) %in% names(comp)])
-	if(!suppressMessages){
+	if(print.summary){
 		summary_data(newd)
 	}
 	newd$diff <- as.vector(p %*% coef(model))
@@ -352,6 +357,8 @@ plot_diff2 <- function(model,view, comp, cond=NULL, plotCI=FALSE, f=1.96,
 		zl = matrix(newd$ll, byrow=TRUE, nrow=nX, ncol=nY)
 		contour(m1,m2,zl,col='green',nlevels=nlevels,add=T,lty=2)
 	}
+
+	invisible(list(m1=m1, m2=m2, fit=zval))
 }
 
 

@@ -5,7 +5,7 @@
 \title{Visualization of group estimates.}
 \usage{
 plot_parametric(x, pred, cond = list(), parametricOnly = FALSE,
-  rm.ranef = NULL, col = "black", se = 1.96, suppressMessages = FALSE,
+  rm.ranef = NULL, col = "black", se = 1.96, print.summary = TRUE,
   main = NULL, xlab = NULL, ...)
 }
 \arguments{
@@ -32,7 +32,7 @@ plotted, but if greater than zero, then the predicted values plus
 confidence intervals are plotted. The value of se will be multiplied with
 the standard error (i.e., 1.96 results in 95\%CI and 2.58).}
 
-\item{suppressMessages}{Logical: whether or not to print messages.}
+\item{print.summary}{Logical: whether or not to print summary.}
 
 \item{main}{Changing the main title for the plot, see also title.}
 

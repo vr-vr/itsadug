@@ -54,7 +54,7 @@ head(diff)
 Jacolien van Rij, Martijn Wieling
 }
 \seealso{
-Other functions for model predictions: \code{\link{get_predictions}};
-  \code{\link{get_random}}
+Other functions for model predictions: \code{\link{get_modelterm}};
+  \code{\link{get_predictions}}; \code{\link{get_random}}
 }
 

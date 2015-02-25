@@ -28,3 +28,45 @@ missing_est <- function(model){
 		stop("This method is currently only implemented for lm, glm, gam, and bam models.")
 	}
 }
+
+
+#' Utility unction.
+#' 
+#' @param model1 A fitted regression model (using lm, glm, gam, or bam).
+#' @param model2 A fitted regression model (using lm, glm, gam, or bam).
+#' @return A list with model terms that are not shared by both models.
+#' @author Jacolien van Rij
+#' @examples 
+#' data(simdat)
+#'
+#' # Fit simple GAM model:
+#' gam1 <- bam(Y ~ s(Time), data=simdat)
+#' gam2 <- bam(Y ~ Group+s(Time), data=simdat)
+#' diff_terms(gam1, gam2)
+#'
+#' @family utility functions
+
+diff_terms <- function(model1, model2){
+
+	fa <- c()
+	fb <- c()
+
+	get_formula <- function(x){
+		if("gam" %in% class(x)){
+			return( attr(terms(x$formula), "term.labels") )
+		}else{
+			stop(sprintf("This function does not work for model of class %s.", class(x)))
+		}
+	}
+
+	fa <- get_formula(model1)
+	fb <- get_formula(model2)
+
+	d1 <- fa[!fa %in% fb]
+	d2 <- fb[!fb %in% fa]
+
+	out <- list()
+	out[[deparse(substitute(model1))]] <- d1
+	out[[deparse(substitute(model2))]] <- d2
+	return(out)
+}

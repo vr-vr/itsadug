@@ -8,7 +8,7 @@
 fvisgam(x, view = NULL, cond = list(), n.grid = 30, too.far = 0,
   col = NA, color = "topo", contour.col = NULL, add.color.legend = TRUE,
   se = -1, plot.type = "contour", zlim = NULL, nCol = 50,
-  rm.ranef = NULL, suppressMessages = FALSE, ...)
+  rm.ranef = NULL, print.summary = TRUE, ...)
 }
 \arguments{
 \item{x}{A gam object, produced by \code{\link[mgcv]{gam}} or
@@ -58,7 +58,7 @@ axis scale. NULL to choose automatically.}
 \item{rm.ranef}{Logical: whether or not to remove random effects.
 Default is TRUE.}
 
-\item{suppressMessages}{Logical: whether or not to print messages.}
+\item{print.summary}{Logical: whether or not to print a summary.}
 
 \item{...}{other options to pass on to persp, image or contour. In
 particular ticktype="detailed" will add proper axes labeling to the plots.}

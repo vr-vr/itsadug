@@ -1,8 +1,867 @@
-library(devtools)
-setwd('R Packages/itsadug/')
-devtools::document()
-devtools::load_all()
+setwd('/Volumes/DATA/2014 analysis pupil paper/version3')#
+#
+library(itsadug)#
+#
+# for plot colors:#
+library(sp)#
+col1 <- bpy.colors(6)[2] # blue#
+col2 <- bpy.colors(6)[4] # red#
+#
+plotRegion <- function(){#
+	if(!is.null(dev.list())){#
+		plt=par()$plt#
+		return( c( (c(0,1) - plt[1]) / (plt[2]-plt[1]), (c(0,1) - plt[3]) / (plt[4]-plt[3]) ) )#
+	}else{#
+		return(NULL)#
+	}#
+}#
+#
+# SET TO TRUE FOR PRINT COLORS:#
+print.col = FALSE#
+#
+renameLevels <- function(x){#
+  x <- strsplit(x, split="\\.")#
+  return(unlist(lapply(x, function(x){paste(x[2],substr(tolower(x[1]),1,5), sep=',')})))#
+}
+setwd('/Volumes/DATA/2014 analysis pupil paper/version3/')#
 dat <- readRDS('Data/sharedata_S1.rds')#
-dat$TrailTime <- dat$Time#
+dat$TrialTime <- dat$Time#
 dat$Time <- dat$Time - dat$Anafoor#
-dat <- dat[dat$Time >=-3000 & dat$Time < 3000,]
+dat <- dat[dat$Time >=-3000 & dat$Time < 3000,]#
+dat$Congruency <- as.factor( ifelse(dat$imageType=="other-oriented", "Congruent", "Incongruent") )#
+names(dat)[names(dat)=="Context"] <- "Condition"#
+dat$Condition <- as.factor( dat$Condition )
+dat$interaction <- interaction(dat$Congruency, dat$Condition)
+load("Models/model3variants.rda")
+quartz(,12,4)#
+#
+par(mfrow=c(1,3), cex=1.1)#
+#
+newd <- data.frame(Time= get_modelterm(model3, select=1, se=FALSE)$terms)#
+#
+for(i in 1:4){#
+  b <- coef(model3)[1]#
+  if(i!=1){#
+    b <- b+coef(model3)[i]#
+  }#
+  newd[,model3$smooth[[i]][['by.level']]] <- get_modelterm(model3, select=i, se=FALSE)$fit + b#
+}#
+#
+emptyPlot(c(-3000,3000), range(newd[,2:5]), v0=0,#
+  main='a. Conditions', xlab="Time", ylab="Estimated pupil size")#
+#
+for(i in 1:4){#
+  lines(newd[,1], newd[,i+1], col=ifelse(i%%2==1, col1, col2), lty=ifelse(i <= 2, 1, 2), lwd=1.5)#
+}#
+#
+legend('bottomright',#
+  legend=renameLevels(names(newd)[2:5]),#
+  col=rep(c(col1, col2), 2), lty=rep(c(1,2), each=2),#
+  lwd=1.5,#
+  bty='n', cex=.85)#
+## b. Effect of Congruency in AP#
+plot_diff(model3, view="Time", #
+  comp=list(interaction=c("Congruent.AP","Incongruent.AP")),#
+  ylab="Estimated pupil size", main='b. Difference AP',#
+  ylim=c(-25,50))#
+abline(v=0, lty=3)#
+mtext('congruent - incongruent', side=3, line=0)
+help(find_difference)
+par(mfrow=c(1,3), cex=1.1)#
+#
+newd <- data.frame(Time= get_modelterm(model3, select=1, se=FALSE)$terms)#
+#
+for(i in 1:4){#
+  b <- coef(model3)[1]#
+  if(i!=1){#
+    b <- b+coef(model3)[i]#
+  }#
+  newd[,model3$smooth[[i]][['by.level']]] <- get_modelterm(model3, select=i, se=FALSE)$fit + b#
+}#
+#
+emptyPlot(c(-3000,3000), range(newd[,2:5]), v0=0,#
+  main='a. Conditions', xlab="Time", ylab="Estimated pupil size")#
+#
+for(i in 1:4){#
+  lines(newd[,1], newd[,i+1], col=ifelse(i%%2==1, col1, col2), lty=ifelse(i <= 2, 1, 2), lwd=1.5)#
+}#
+#
+legend('bottomright',#
+  legend=renameLevels(names(newd)[2:5]),#
+  col=rep(c(col1, col2), 2), lty=rep(c(1,2), each=2),#
+  lwd=1.5,#
+  bty='n', cex=.85)#
+## b. Effect of Congruency in AP#
+p1 <- plot_diff(model3, view="Time", #
+  comp=list(interaction=c("Congruent.AP","Incongruent.AP")),#
+  ylab="Estimated pupil size", main='b. Difference AP',#
+  ylim=c(-25,50))#
+abline(v=0, lty=3)#
+mtext('congruent - incongruent', side=3, line=0)
+head(p1)
+names(p1)
+diff <- find_difference(p1$est, p1$se.est, xVals=p1$xVals)
+diff
+addInterval(0, diff$start, diff$end, col=col2)
+setwd('~/R Packages/itsadug/')#
+library(devtools)#
+#
+devtools::document()#
+devtools::load_all()
+setwd('~/R Packages/itsadug/')#
+library(devtools)#
+#
+devtools::document()#
+devtools::load_all()
+par(mfrow=c(1,3), cex=1.1)#
+#
+newd <- data.frame(Time= get_modelterm(model3, select=1, se=FALSE)$terms)#
+#
+for(i in 1:4){#
+  b <- coef(model3)[1]#
+  if(i!=1){#
+    b <- b+coef(model3)[i]#
+  }#
+  newd[,model3$smooth[[i]][['by.level']]] <- get_modelterm(model3, select=i, se=FALSE)$fit + b#
+}#
+#
+emptyPlot(c(-3000,3000), range(newd[,2:5]), v0=0,#
+  main='a. Conditions', xlab="Time", ylab="Estimated pupil size")#
+#
+for(i in 1:4){#
+  lines(newd[,1], newd[,i+1], col=ifelse(i%%2==1, col1, col2), lty=ifelse(i <= 2, 1, 2), lwd=1.5)#
+}#
+#
+legend('bottomright',#
+  legend=renameLevels(names(newd)[2:5]),#
+  col=rep(c(col1, col2), 2), lty=rep(c(1,2), each=2),#
+  lwd=1.5,#
+  bty='n', cex=.85)#
+## b. Effect of Congruency in AP#
+p1 <- plot_diff(model3, view="Time", #
+  comp=list(interaction=c("Congruent.AP","Incongruent.AP")),#
+  ylab="Estimated pupil size", main='b. Difference AP',#
+  ylim=c(-25,50))#
+abline(v=0, lty=3)#
+mtext('congruent - incongruent', side=3, line=0)#
+#
+diff <- find_difference(p1$est, p1$se.est, xVals=p1$xVals)
+addInterval(0, diff$start, diff$end, col=col2)
+addInterval(0, diff$start, diff$end, col=alpha(col2), lwd=3)
+par()$usr
+par()$usr[3]
+addInterval(par()$usr[3], diff$start, diff$end, col=alpha(col2), lwd=3, xpd=TRUE)
+addInterval(par()$usr[3], diff$start, diff$end, col=col2, lwd=3, xpd=TRUE)
+par(mfrow=c(1,3), cex=1.1)#
+#
+newd <- data.frame(Time= get_modelterm(model3, select=1, se=FALSE)$terms)#
+#
+for(i in 1:4){#
+  b <- coef(model3)[1]#
+  if(i!=1){#
+    b <- b+coef(model3)[i]#
+  }#
+  newd[,model3$smooth[[i]][['by.level']]] <- get_modelterm(model3, select=i, se=FALSE)$fit + b#
+}#
+#
+emptyPlot(c(-3000,3000), range(newd[,2:5]), v0=0,#
+  main='a. Conditions', xlab="Time", ylab="Estimated pupil size")#
+#
+for(i in 1:4){#
+  lines(newd[,1], newd[,i+1], col=ifelse(i%%2==1, col1, col2), lty=ifelse(i <= 2, 1, 2), lwd=1.5)#
+}#
+#
+legend('bottomright',#
+  legend=renameLevels(names(newd)[2:5]),#
+  col=rep(c(col1, col2), 2), lty=rep(c(1,2), each=2),#
+  lwd=1.5,#
+  bty='n', cex=.85)#
+## b. Effect of Congruency in AP#
+p1 <- plot_diff(model3, view="Time", #
+  comp=list(interaction=c("Congruent.AP","Incongruent.AP")),#
+  ylab="Estimated pupil size", main='b. Difference AP',#
+  ylim=c(-25,50))#
+abline(v=0, lty=3)#
+mtext('congruent - incongruent', side=3, line=0)#
+#
+diff <- find_difference(p1$est, p1$se.est, xVals=p1$xVals)#
+addInterval(par()$usr[3], diff$start, diff$end, col=col2, lwd=2, xpd=TRUE)
+par(mfrow=c(1,3), cex=1.1)#
+#
+newd <- data.frame(Time= get_modelterm(model3, select=1, se=FALSE)$terms)#
+#
+for(i in 1:4){#
+  b <- coef(model3)[1]#
+  if(i!=1){#
+    b <- b+coef(model3)[i]#
+  }#
+  newd[,model3$smooth[[i]][['by.level']]] <- get_modelterm(model3, select=i, se=FALSE)$fit + b#
+}#
+#
+emptyPlot(c(-3000,3000), range(newd[,2:5]), v0=0,#
+  main='a. Conditions', xlab="Time", ylab="Estimated pupil size")#
+#
+for(i in 1:4){#
+  lines(newd[,1], newd[,i+1], col=ifelse(i%%2==1, col1, col2), lty=ifelse(i <= 2, 1, 2), lwd=1.5)#
+}#
+#
+legend('bottomright',#
+  legend=renameLevels(names(newd)[2:5]),#
+  col=rep(c(col1, col2), 2), lty=rep(c(1,2), each=2),#
+  lwd=1.5,#
+  bty='n', cex=.85)#
+## b. Effect of Congruency in AP#
+p1 <- plot_diff(model3, view="Time", #
+  comp=list(interaction=c("Congruent.AP","Incongruent.AP")),#
+  ylab="Estimated pupil size", main='b. Difference AP',#
+  ylim=c(-25,50))#
+abline(v=0, lty=3)#
+mtext('congruent - incongruent', side=3, line=0)#
+#
+diff <- find_difference(p1$est, p1$se.est, xVals=p1$xVals)#
+addInterval(par()$usr[3], diff$start, diff$end, col=alpha(col2), lwd=2, xpd=TRUE)
+par(mfrow=c(1,3), cex=1.1)#
+#
+newd <- data.frame(Time= get_modelterm(model3, select=1, se=FALSE)$terms)#
+#
+for(i in 1:4){#
+  b <- coef(model3)[1]#
+  if(i!=1){#
+    b <- b+coef(model3)[i]#
+  }#
+  newd[,model3$smooth[[i]][['by.level']]] <- get_modelterm(model3, select=i, se=FALSE)$fit + b#
+}#
+#
+emptyPlot(c(-3000,3000), range(newd[,2:5]), v0=0,#
+  main='a. Conditions', xlab="Time", ylab="Estimated pupil size")#
+#
+for(i in 1:4){#
+  lines(newd[,1], newd[,i+1], col=ifelse(i%%2==1, col1, col2), lty=ifelse(i <= 2, 1, 2), lwd=1.5)#
+}#
+#
+legend('bottomright',#
+  legend=renameLevels(names(newd)[2:5]),#
+  col=rep(c(col1, col2), 2), lty=rep(c(1,2), each=2),#
+  lwd=1.5,#
+  bty='n', cex=.85)#
+## b. Effect of Congruency in AP#
+p1 <- plot_diff(model3, view="Time", #
+  comp=list(interaction=c("Congruent.AP","Incongruent.AP")),#
+  ylab="Estimated pupil size", main='b. Difference AP',#
+  ylim=c(-25,50))#
+abline(v=0, lty=3)#
+mtext('congruent - incongruent', side=3, line=0)#
+#
+diff <- find_difference(p1$est, p1$se.est, xVals=p1$xVals)#
+addInterval(par()$usr[3], diff$start, diff$end, col=alpha(col2, f=.75), lwd=2, xpd=TRUE)
+getCoords(.1,side=2)
+addInterval(getCoords(.1,side=2), diff$start, diff$end, col=alpha(col2, f=.75), lwd=2, xpd=TRUE)
+addInterval(getCoords(.01,side=2), diff$start, diff$end, col=alpha(col2, f=.75), lwd=2, xpd=TRUE)
+par(mfrow=c(1,3), cex=1.1)#
+#
+newd <- data.frame(Time= get_modelterm(model3, select=1, se=FALSE)$terms)#
+#
+for(i in 1:4){#
+  b <- coef(model3)[1]#
+  if(i!=1){#
+    b <- b+coef(model3)[i]#
+  }#
+  newd[,model3$smooth[[i]][['by.level']]] <- get_modelterm(model3, select=i, se=FALSE)$fit + b#
+}#
+#
+emptyPlot(c(-3000,3000), range(newd[,2:5]), v0=0,#
+  main='a. Conditions', xlab="Time", ylab="Estimated pupil size")#
+#
+for(i in 1:4){#
+  lines(newd[,1], newd[,i+1], col=ifelse(i%%2==1, col1, col2), lty=ifelse(i <= 2, 1, 2), lwd=1.5)#
+}#
+#
+legend('bottomright',#
+  legend=renameLevels(names(newd)[2:5]),#
+  col=rep(c(col1, col2), 2), lty=rep(c(1,2), each=2),#
+  lwd=1.5,#
+  bty='n', cex=.85)#
+## b. Effect of Congruency in AP#
+p1 <- plot_diff(model3, view="Time", #
+  comp=list(interaction=c("Congruent.AP","Incongruent.AP")),#
+  ylab="Estimated pupil size", main='b. Difference AP',#
+  ylim=c(-25,50))#
+abline(v=0, lty=3)#
+mtext('congruent - incongruent', side=3, line=0)#
+#
+diff <- find_difference(p1$est, p1$se.est, xVals=p1$xVals)#
+addInterval(getCoords(.05,side=2), diff$start, diff$end, col=alpha(col2, f=.75), lwd=2, xpd=TRUE)
+rect(diff$start, par()$usr[3], diff$end, par()$usr[4], col=alpha(col2))
+par(mfrow=c(1,3), cex=1.1)#
+#
+newd <- data.frame(Time= get_modelterm(model3, select=1, se=FALSE)$terms)#
+#
+for(i in 1:4){#
+  b <- coef(model3)[1]#
+  if(i!=1){#
+    b <- b+coef(model3)[i]#
+  }#
+  newd[,model3$smooth[[i]][['by.level']]] <- get_modelterm(model3, select=i, se=FALSE)$fit + b#
+}#
+#
+emptyPlot(c(-3000,3000), range(newd[,2:5]), v0=0,#
+  main='a. Conditions', xlab="Time", ylab="Estimated pupil size")#
+#
+for(i in 1:4){#
+  lines(newd[,1], newd[,i+1], col=ifelse(i%%2==1, col1, col2), lty=ifelse(i <= 2, 1, 2), lwd=1.5)#
+}#
+#
+legend('bottomright',#
+  legend=renameLevels(names(newd)[2:5]),#
+  col=rep(c(col1, col2), 2), lty=rep(c(1,2), each=2),#
+  lwd=1.5,#
+  bty='n', cex=.85)#
+## b. Effect of Congruency in AP#
+p1 <- plot_diff(model3, view="Time", #
+  comp=list(interaction=c("Congruent.AP","Incongruent.AP")),#
+  ylab="Estimated pupil size", main='b. Difference AP',#
+  ylim=c(-25,50))#
+abline(v=0, lty=3)#
+mtext('congruent - incongruent', side=3, line=0)#
+#
+diff <- find_difference(p1$est, p1$se.est, xVals=p1$xVals)#
+addInterval(getCoords(.05,side=2), diff$start, diff$end, col=alpha(col2, f=.75), lwd=2, xpd=TRUE)#
+rect(diff$start, par()$usr[3], diff$end, par()$usr[4], col=alpha(col2, f=.25), border=NA)
+par(mfrow=c(1,3), cex=1.1)#
+#
+newd <- data.frame(Time= get_modelterm(model3, select=1, se=FALSE)$terms)#
+#
+for(i in 1:4){#
+  b <- coef(model3)[1]#
+  if(i!=1){#
+    b <- b+coef(model3)[i]#
+  }#
+  newd[,model3$smooth[[i]][['by.level']]] <- get_modelterm(model3, select=i, se=FALSE)$fit + b#
+}#
+#
+emptyPlot(c(-3000,3000), range(newd[,2:5]), v0=0,#
+  main='a. Conditions', xlab="Time", ylab="Estimated pupil size")#
+#
+for(i in 1:4){#
+  lines(newd[,1], newd[,i+1], col=ifelse(i%%2==1, col1, col2), lty=ifelse(i <= 2, 1, 2), lwd=1.5)#
+}#
+#
+legend('bottomright',#
+  legend=renameLevels(names(newd)[2:5]),#
+  col=rep(c(col1, col2), 2), lty=rep(c(1,2), each=2),#
+  lwd=1.5,#
+  bty='n', cex=.85)#
+## b. Effect of Congruency in AP#
+p1 <- plot_diff(model3, view="Time", #
+  comp=list(interaction=c("Congruent.AP","Incongruent.AP")),#
+  ylab="Estimated pupil size", main='b. Difference AP',#
+  ylim=c(-25,50))#
+abline(v=0, lty=3)#
+mtext('congruent - incongruent', side=3, line=0)#
+#
+diff <- find_difference(p1$est, p1$se.est, xVals=p1$xVals)#
+addInterval(getCoords(.05,side=2), diff$start, diff$end, col=alpha(col2, f=.75), lwd=2, xpd=TRUE)#
+rect(diff$start, par()$usr[3], diff$end, par()$usr[4], col=alpha(col2, f=.2), border=NA)
+## c. Effect of Congruency in PA#
+p2 <- plot_diff(model3, view="Time", #
+  comp=list(interaction=c("Congruent.PA","Incongruent.PA")),#
+  ylab="Estimated pupil size", main='c. Difference PA',#
+  ylim=c(-25,50))#
+abline(v=0, lty=3)#
+mtext('congruent - incongruent', side=3, line=0)#
+#
+diff <- find_difference(p2$est, p2$se.est, xVals=p2$xVals)#
+addInterval(getCoords(.05,side=2), diff$start, diff$end, col=alpha(col2, f=.75), lwd=2, xpd=TRUE)#
+rect(diff$start, par()$usr[3], diff$end, par()$usr[4], col=alpha(col2, f=.2), border=NA)
+legend('topright',#
+  legend="95%CI",#
+  fill=alpha('black'),#
+  bty='n', cex.85)
+par(mfrow=c(1,3), cex=1.1)#
+#
+newd <- data.frame(Time= get_modelterm(model3, select=1, se=FALSE)$terms)#
+#
+for(i in 1:4){#
+  b <- coef(model3)[1]#
+  if(i!=1){#
+    b <- b+coef(model3)[i]#
+  }#
+  newd[,model3$smooth[[i]][['by.level']]] <- get_modelterm(model3, select=i, se=FALSE)$fit + b#
+}#
+#
+emptyPlot(c(-3000,3000), range(newd[,2:5]), v0=0,#
+  main='a. Conditions', xlab="Time", ylab="Estimated pupil size")#
+#
+for(i in 1:4){#
+  lines(newd[,1], newd[,i+1], col=ifelse(i%%2==1, col1, col2), lty=ifelse(i <= 2, 1, 2), lwd=1.5)#
+}#
+#
+legend('bottomright',#
+  legend=renameLevels(names(newd)[2:5]),#
+  col=rep(c(col1, col2), 2), lty=rep(c(1,2), each=2),#
+  lwd=1.5,#
+  bty='n', cex=.85)#
+## b. Effect of Congruency in AP#
+p1 <- plot_diff(model3, view="Time", #
+  comp=list(interaction=c("Congruent.AP","Incongruent.AP")),#
+  ylab="Estimated pupil size", main='b. Difference AP',#
+  ylim=c(-25,50))#
+abline(v=0, lty=3)#
+mtext('congruent - incongruent', side=3, line=0)#
+#
+diff <- find_difference(p1$est, p1$se.est, xVals=p1$xVals)#
+addInterval(getCoords(.05,side=2), diff$start, diff$end, col=alpha(col2, f=.75), lwd=2, xpd=TRUE)#
+rect(diff$start, par()$usr[3], diff$end, par()$usr[4], col=alpha(col2, f=.2), border=NA)#
+#
+legend('topright',#
+  legend="95%CI",#
+  fill=alpha('black'),#
+  bty='n', cex=.85)#
+#
+## c. Effect of Congruency in PA#
+p2 <- plot_diff(model3, view="Time", #
+  comp=list(interaction=c("Congruent.PA","Incongruent.PA")),#
+  ylab="Estimated pupil size", main='c. Difference PA',#
+  ylim=c(-25,50))#
+abline(v=0, lty=3)#
+mtext('congruent - incongruent', side=3, line=0)#
+#
+diff <- find_difference(p2$est, p2$se.est, xVals=p2$xVals)#
+addInterval(getCoords(.05,side=2), diff$start, diff$end, col=alpha(col2, f=.75), lwd=2, xpd=TRUE)#
+rect(diff$start, par()$usr[3], diff$end, par()$usr[4], col=alpha(col2, f=.2), border=NA)#
+#
+legend('topright',#
+  legend="95%CI",#
+  fill=alpha('black'),#
+  bty='n', cex=.85)
+par(mfrow=c(1,3), cex=1.1)#
+#
+newd <- data.frame(Time= get_modelterm(model3, select=1, se=FALSE)$terms)#
+#
+for(i in 1:4){#
+  b <- coef(model3)[1]#
+  if(i!=1){#
+    b <- b+coef(model3)[i]#
+  }#
+  newd[,model3$smooth[[i]][['by.level']]] <- get_modelterm(model3, select=i, se=FALSE)$fit + b#
+}#
+#
+emptyPlot(c(-3000,3000), range(newd[,2:5]), v0=0,#
+  main='a. Conditions', xlab="Time", ylab="Estimated pupil size")#
+#
+for(i in 1:4){#
+  lines(newd[,1], newd[,i+1], col=ifelse(i%%2==1, col1, col2), lty=ifelse(i <= 2, 1, 2), lwd=1.5)#
+}#
+#
+legend('bottomright',#
+  legend=renameLevels(names(newd)[2:5]),#
+  col=rep(c(col1, col2), 2), lty=rep(c(1,2), each=2),#
+  lwd=1.5,#
+  bty='n', cex=.85)#
+## b. Effect of Congruency in AP#
+p1 <- plot_diff(model3, view="Time", #
+  comp=list(interaction=c("Congruent.AP","Incongruent.AP")),#
+  ylab="Estimated pupil size", main='b. Difference AP',#
+  ylim=c(-25,50))#
+abline(v=0, lty=3)#
+mtext('congruent - incongruent', side=3, line=0)#
+#
+diff <- find_difference(p1$est, p1$se.est, xVals=p1$xVals)#
+addInterval(getCoords(.05,side=2), diff$start, diff$end, col=alpha(col2, f=.75), lwd=2, xpd=TRUE)#
+rect(diff$start, par()$usr[3], diff$end, par()$usr[4], col=alpha(col2, f=.2), border=NA)#
+#
+legend('topleft',#
+  legend="95%CI",#
+  fill=alpha('black'),#
+  bty='n', cex=.85)#
+#
+## c. Effect of Congruency in PA#
+p2 <- plot_diff(model3, view="Time", #
+  comp=list(interaction=c("Congruent.PA","Incongruent.PA")),#
+  ylab="Estimated pupil size", main='c. Difference PA',#
+  ylim=c(-25,50))#
+abline(v=0, lty=3)#
+mtext('congruent - incongruent', side=3, line=0)#
+#
+diff <- find_difference(p2$est, p2$se.est, xVals=p2$xVals)#
+addInterval(getCoords(.05,side=2), diff$start, diff$end, col=alpha(col2, f=.75), lwd=2, xpd=TRUE)#
+rect(diff$start, par()$usr[3], diff$end, par()$usr[4], col=alpha(col2, f=.2), border=NA)#
+#
+legend('topleft',#
+  legend="95%CI",#
+  fill=alpha('black'),#
+  bty='n', cex=.85)
+par(mfrow=c(1,3), cex=1.1)#
+#
+newd <- data.frame(Time= get_modelterm(model3, select=1, se=FALSE)$terms)#
+#
+for(i in 1:4){#
+  b <- coef(model3)[1]#
+  if(i!=1){#
+    b <- b+coef(model3)[i]#
+  }#
+  newd[,model3$smooth[[i]][['by.level']]] <- get_modelterm(model3, select=i, se=FALSE)$fit + b#
+}#
+#
+emptyPlot(c(-3000,3000), range(newd[,2:5]), v0=0,#
+  main='a. Conditions', xlab="Time", ylab="Estimated pupil size")#
+#
+for(i in 1:4){#
+  lines(newd[,1], newd[,i+1], col=ifelse(i%%2==1, col1, col2), lty=ifelse(i <= 2, 1, 2), lwd=1.5)#
+}#
+#
+legend('bottomright',#
+  legend=renameLevels(names(newd)[2:5]),#
+  col=rep(c(col1, col2), 2), lty=rep(c(1,2), each=2),#
+  lwd=1.5,#
+  bty='n', cex=.85)#
+## b. Effect of Congruency in AP#
+p1 <- plot_diff(model3, view="Time", #
+  comp=list(interaction=c("Congruent.AP","Incongruent.AP")),#
+  ylab="Estimated pupil size", main='b. Difference AP',#
+  ylim=c(-25,50))#
+abline(v=0, lty=3)#
+mtext('congruent - incongruent', side=3, line=0)#
+#
+diff <- find_difference(p1$est, p1$se.est, xVals=p1$xVals)#
+addInterval(0, diff$start, diff$end, col=alpha(col2, f=.75), lwd=2, xpd=TRUE)#
+rect(diff$start, par()$usr[3], diff$end, 0, col=alpha(col2, f=.2), border=NA)
+par(mfrow=c(1,3), cex=1.1)#
+#
+newd <- data.frame(Time= get_modelterm(model3, select=1, se=FALSE)$terms)#
+#
+for(i in 1:4){#
+  b <- coef(model3)[1]#
+  if(i!=1){#
+    b <- b+coef(model3)[i]#
+  }#
+  newd[,model3$smooth[[i]][['by.level']]] <- get_modelterm(model3, select=i, se=FALSE)$fit + b#
+}#
+#
+emptyPlot(c(-3000,3000), range(newd[,2:5]), v0=0,#
+  main='a. Conditions', xlab="Time", ylab="Estimated pupil size")#
+#
+for(i in 1:4){#
+  lines(newd[,1], newd[,i+1], col=ifelse(i%%2==1, col1, col2), lty=ifelse(i <= 2, 1, 2), lwd=1.5)#
+}#
+#
+legend('bottomright',#
+  legend=renameLevels(names(newd)[2:5]),#
+  col=rep(c(col1, col2), 2), lty=rep(c(1,2), each=2),#
+  lwd=1.5,#
+  bty='n', cex=.85)#
+## b. Effect of Congruency in AP#
+p1 <- plot_diff(model3, view="Time", #
+  comp=list(interaction=c("Congruent.AP","Incongruent.AP")),#
+  ylab="Estimated pupil size", main='b. Difference AP',#
+  ylim=c(-25,50))#
+abline(v=0, lty=3)#
+mtext('congruent - incongruent', side=3, line=0)#
+#
+diff <- find_difference(p1$est, p1$se.est, xVals=p1$xVals)#
+addInterval(getCoords(.05,side=2), diff$start, diff$end, col=alpha(col2, f=.75), lwd=2, xpd=TRUE)#
+rect(diff$start, par()$usr[3], diff$end, 0, col=alpha(col2, f=.2), border=NA)
+legend('topleft',#
+  legend="95%CI",#
+  fill=alpha('black'),#
+  bty='n', cex=.85)
+## c. Effect of Congruency in PA#
+p2 <- plot_diff(model3, view="Time", #
+  comp=list(interaction=c("Congruent.PA","Incongruent.PA")),#
+  ylab="Estimated pupil size", main='c. Difference PA',#
+  ylim=c(-25,50))#
+abline(v=0, lty=3)#
+mtext('congruent - incongruent', side=3, line=0)#
+#
+diff <- find_difference(p2$est, p2$se.est, xVals=p2$xVals)#
+addInterval(getCoords(.05,side=2), diff$start, diff$end, col=alpha(col2, f=.75), lwd=2, xpd=TRUE)
+diff <- find_difference(p2$est, p2$se.est, xVals=p2$xVals)#
+addInterval(getCoords(.05,side=2), diff$start, diff$end, col=alpha(col2, f=.75), lwd=2, xpd=TRUE)#
+rect(diff$start, par()$usr[3], diff$end, 0, col=alpha(col2, f=.2), border=NA)
+legend('topleft',#
+  legend="95%CI",#
+  fill=alpha('black'),#
+  bty='n', cex=.85)
+install.packages('~/R Packages/itsadug_0.7.tar.gz', repos=NULL, type='source')
+library(itsadug)
+help(itsadug)
+library(itsadug)
+help(itsadug)
+help(acf_resid)
+help(gamObject)
+quartz(,12,4)#
+#
+par(mfrow=c(1,3), cex=1.1)#
+#
+newd <- data.frame(Time= get_modelterm(model3, select=1, se=FALSE)$terms)#
+#
+for(i in 1:4){#
+  b <- coef(model3)[1]#
+  if(i!=1){#
+    b <- b+coef(model3)[i]#
+  }#
+  newd[,model3$smooth[[i]][['by.level']]] <- get_modelterm(model3, select=i, se=FALSE)$fit + b#
+}#
+#
+emptyPlot(c(-3000,3000), range(newd[,2:5]), v0=0,#
+  main='a. Conditions', xlab="Time", ylab="Estimated pupil size")#
+#
+for(i in 1:4){#
+  lines(newd[,1], newd[,i+1], col=ifelse(i%%2==1, col1, col2), lty=ifelse(i <= 2, 1, 2), lwd=1.5)#
+}#
+#
+legend('bottomright',#
+  legend=renameLevels(names(newd)[2:5]),#
+  col=rep(c(col1, col2), 2), lty=rep(c(1,2), each=2),#
+  lwd=1.5,#
+  bty='n', cex=.85)#
+## b. Effect of Congruency in AP#
+p1 <- plot_diff(model3, view="Time", #
+  comp=list(interaction=c("Congruent.AP","Incongruent.AP")),#
+  ylab="Estimated pupil size", main='b. Difference AP',#
+  ylim=c(-20,50))#
+abline(v=0, lty=3)#
+mtext('congruent - incongruent', side=3, line=0)#
+#
+diff <- find_difference(p1$est, p1$se.est, xVals=p1$xVals)#
+addInterval(getCoords(.05,side=2), diff$start, diff$end, col=alpha(col2, f=.75), lwd=2, xpd=TRUE)#
+rect(diff$start, par()$usr[3], diff$end, 0, col=alpha(col2, f=.2), border=NA)#
+#
+legend('topleft',#
+  legend="95%CI",#
+  fill=alpha('black'),#
+  bty='n', cex=.85)#
+#
+## c. Effect of Congruency in PA#
+p2 <- plot_diff(model3, view="Time", #
+  comp=list(interaction=c("Congruent.PA","Incongruent.PA")),#
+  ylab="Estimated pupil size", main='c. Difference PA',#
+  ylim=c(-20,50))#
+abline(v=0, lty=3)#
+mtext('congruent - incongruent', side=3, line=0)#
+#
+diff <- find_difference(p2$est, p2$se.est, xVals=p2$xVals)#
+addInterval(getCoords(.05,side=2), diff$start, diff$end, col=alpha(col2, f=.75), lwd=2, xpd=TRUE)#
+rect(diff$start, par()$usr[3], diff$end, 0, col=alpha(col2, f=.2), border=NA)#
+#
+legend('topleft',#
+  legend="95%CI",#
+  fill=alpha('black'),#
+  bty='n', cex=.85)
+head(dat)
+acf_plot(resid(model3), split_by=list(dat$Event))
+qqnorm(resid(model), pch='*')#
+qqline(resid(model), col=red)#
+mtext('residuals model', side=3, line=0.5)
+qqnorm(resid(model3), pch='*')#
+qqline(resid(model3), col=red)#
+mtext('residuals model', side=3, line=0.5)
+qqnorm(resid(model3), pch=16)
+qqline(resid(model3), col=red)
+quartz(,12,4)#
+par(mfrow=c(1,3), cex=1.1)#
+#
+acf_plot(resid(model3), split_by=list(dat$Event))#
+#
+qqnorm(resid(model3), pch=16)#
+qqline(resid(model3), col='red')#
+mtext('residuals model', side=3, line=0.5)
+par(mfrow=c(1,3), cex=1.1)#
+#
+acf_plot(resid(model3), split_by=list(dat$Event))#
+#
+qqnorm(resid(model3), pch=16, col=alpha(1))#
+qqline(resid(model3), col='red')#
+mtext('residuals model', side=3, line=0.5)
+newd <- dat[dat$Subject %in% c("s02","s03") & dat$Item %in% c(3,17),]#
+newd <- droplevels(newd)#
+newd <- newd[order(newd$Subject, newd$Time),]#
+newd$fit <- predict(model, newd)
+newd$fit <- predict(model3, newd)
+# BASELINED DATA#
+plot(newd$Time, newd$Pupil, type='n',#
+  main='Model fit', xlab='Trial time (ms)', ylab='',#
+  xlim=c(-3000,3000),#
+  axes=F)#
+axis(1)#
+axis(2, las=2)#
+abline(h=0)#
+abline(v=0, lty=3)
+mtext(bquote(rho == .( round(cor(dat$Pupil_base, fitted(model)),2) )), line=0, side=3)#
+#
+for(i in unique(newd$Event)){#
+  tmp <- newd[newd$Event==i, ]#
+  lines(tmp$Time, tmp$Pupil, #
+    col=red)#
+}
+for(i in unique(newd$Event)){#
+  tmp <- newd[newd$Event==i, ]#
+  lines(tmp$Time, tmp$Pupil, #
+    col='red')#
+}
+for(i in unique(newd$Event)){#
+  tmp <- newd[newd$Event==i, ]#
+  lines(tmp$Time, tmp$fit, #
+    col='blue')#
+}
+emptyPlot(c(-3000,3000), range(newd$Pupil), #
+  main='Model fit', xlab='Time', ylab='Pupil size',#
+  las=2)
+emptyPlot(c(-3000,3000), range(newd$Pupil), #
+  main='Model fit', xlab='Time', ylab='Pupil size',#
+  las=c(1,2))
+quartz(,12,4)#
+par(mfrow=c(1,3), cex=1.1)#
+#
+acf_plot(resid(model3), split_by=list(dat$Event))#
+#
+qqnorm(resid(model3), pch=16, col=alpha(1))#
+qqline(resid(model3), col=col2)#
+mtext('residuals model', side=3, line=0.5)#
+#
+# fitted effects#
+#
+newd <- dat[dat$Subject %in% c("s02","s03") & dat$Item %in% c(3,17),]#
+newd <- droplevels(newd)#
+newd <- newd[order(newd$Subject, newd$Time),]#
+newd$fit <- predict(model3, newd)#
+#
+# BASELINED DATA#
+emptyPlot(c(-3000,3000), range(newd$Pupil), #
+  h0=0, v0=0,#
+  main='Model fit', xlab='Time', ylab='Pupil size')#
+#
+mtext(bquote(rho == .( round(cor(dat$Pupil_base, fitted(model)),2) )), line=0, side=3)#
+#
+for(i in unique(newd$Event)){#
+  tmp <- newd[newd$Event==i, ]#
+  lines(tmp$Time, tmp$Pupil, #
+    col=alpha(1, f=.5))#
+}#
+#
+for(i in unique(newd$Event)){#
+  tmp <- newd[newd$Event==i, ]#
+  lines(tmp$Time, tmp$fit, #
+    col=col2)#
+}#
+#
+legend('bottomright',#
+  legend=c('data', 'model'),#
+  col=c('darkgray', red), lwd=1,#
+  box.lty=0, bg=alpha('white', f=.8), cex=.8)
+legend('bottomright',#
+  legend=c('data', 'model'),#
+  col=c(alpha(1,f=.5), col2), lwd=1,#
+  box.lty=0, bg=alpha('white', f=.8), cex=.8)
+par(mfrow=c(1,3), cex=1.1)#
+#
+acf_plot(resid(model3), split_by=list(dat$Event))#
+#
+qqnorm(resid(model3), pch=16, col=alpha(1))#
+qqline(resid(model3), col=col2)#
+mtext('residuals model', side=3, line=0.5)#
+#
+# fitted effects#
+#
+newd <- dat[dat$Subject %in% c("s02","s03") & dat$Item %in% c(3,17),]#
+newd <- droplevels(newd)#
+newd <- newd[order(newd$Subject, newd$Time),]#
+newd$fit <- predict(model3, newd)#
+#
+# BASELINED DATA#
+emptyPlot(c(-3000,3000), range(newd$Pupil), #
+  h0=0, v0=0,#
+  main='Model fit', xlab='Time', ylab='Pupil size')#
+#
+mtext(bquote(rho == .( round(cor(dat$Pupil_base, fitted(model)),2) )), line=0, side=3)#
+#
+for(i in unique(newd$Event)){#
+  tmp <- newd[newd$Event==i, ]#
+  lines(tmp$Time, tmp$Pupil, #
+    col=1)#
+}#
+#
+for(i in unique(newd$Event)){#
+  tmp <- newd[newd$Event==i, ]#
+  lines(tmp$Time, tmp$fit, #
+    col=col2)#
+}#
+#
+legend('bottomright',#
+  legend=c('data', 'model'),#
+  col=c(alpha(1,f=.5), col2), lwd=1,#
+  box.lty=0, bg=alpha('white', f=.8), cex=.8)
+par(mfrow=c(1,3), cex=1.1)#
+#
+acf_plot(resid(model3), split_by=list(dat$Event))#
+#
+qqnorm(resid(model3), pch=16, col=alpha(1))#
+qqline(resid(model3), col=col2)#
+mtext('residuals model', side=3, line=0.5)#
+#
+# fitted effects#
+#
+newd <- dat[dat$Subject %in% c("s02","s03") & dat$Item %in% c(3,17),]#
+newd <- droplevels(newd)#
+newd <- newd[order(newd$Subject, newd$Time),]#
+newd$fit <- predict(model3, newd)#
+#
+# BASELINED DATA#
+emptyPlot(c(-3000,3000), range(newd$Pupil), #
+  h0=0, v0=0,#
+  main='Model fit', xlab='Time', ylab='Pupil size')#
+#
+mtext(bquote(rho == .( round(cor(dat$Pupil_base, fitted(model)),2) )), line=0, side=3)#
+#
+for(i in unique(newd$Event)){#
+  tmp <- newd[newd$Event==i, ]#
+  lines(tmp$Time, tmp$Pupil, #
+    col=col2)#
+}#
+#
+for(i in unique(newd$Event)){#
+  tmp <- newd[newd$Event==i, ]#
+  lines(tmp$Time, tmp$fit, #
+    col=1)#
+}#
+#
+legend('bottomright',#
+  legend=c('data', 'model'),#
+  col=c(col2, 1), lwd=1,#
+  box.lty=0, bg=alpha('white', f=.8), cex=.8)
+plotRegion <- function(){#
+	if(!is.null(dev.list())){#
+		plt=par()$plt#
+		return( c( (c(0,1) - plt[1]) / (plt[2]-plt[1]), (c(0,1) - plt[3]) / (plt[4]-plt[3]) ) )#
+	}else{#
+		return(NULL)#
+	}#
+}
+plotRegion()
+plotRegion(3)
+getCoords(plotRegion()[3],side=2)
+legend(getCoords(plotRegion()[3],side=2),#
+  yjust=0,#
+  legend=c('data', 'model'),#
+  col=c(col2, 1), lwd=1,#
+  box.lty=0, bg=alpha('white', f=.8), cex=.8)
+legend(1000, getCoords(plotRegion()[3],side=2),#
+  yjust=1,#
+  legend=c('data', 'model'),#
+  col=c(col2, 1), lwd=1,#
+  box.lty=0, bg=alpha('white', f=.8), cex=.8)
+legend(1000, getCoords(plotRegion()[3],side=2),#
+  yjust=0,#
+  legend=c('data', 'model'),#
+  col=c(col2, 1), lwd=1,#
+  box.lty=0, bg=alpha('white', f=.8), cex=.8)
+legend(1000, getCoords(plotRegion()[3],side=2),#
+  yjust=0,#
+  legend=c('data', 'model'),#
+  col=c(col2, 1), lwd=1,#
+  box.lty=0, bg=alpha('white', f=.8), cex=.8, xpd=TRUE)
+legend(getCoords(plotRegion()[2],side=1), getCoords(plotRegion()[3],side=2),#
+  xjust=1, yjust=0,#
+  legend=c('data', 'model'),#
+  col=c(col2, 1), lwd=1,#
+  box.lty=0, bg=alpha('white', f=.8), cex=.8, xpd=TRUE)
