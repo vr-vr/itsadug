@@ -1,9 +1,9 @@
 Package: itsadug
 Title: Interpreting Time Series, Autocorrelated Data Using GAMMs
-Version: 0.7
-Date: 2015-01-14
-Authors@R: c( person("Jacolien", "van Rij", email="jacolien.van-rij@uni-tuebingen.de", role = c("aut", "cre")),person("R. Harald","Baayen", role = "aut"),person("Martijn","Wieling", role = "aut"), person("Hedderik", "van Rijn", role = "aut"))
-Description: This package includes functions for evaluating and interpreting GAMMs (Generalized Additive Mixed Modeling) as implemented in the R package mgcv (Wood, S.N., 2006; 2011). GAMM is a nonlinear regression analysis which is particularly useful for time course data such as EEG, pupil dilation, gaze data (eye tracking), and articulography recordings, but also for behavioral data such as reaction times and response data. As these time course measures are sensitive to autocorrelation problems, GAMMs implements methods to reduce the autocorrelation problems. The functions in this package are useful for the evaluation of GAMM models (e.g., model comparisons, determining regions of significance, inspection of autocorrelational structure in residuals) and interpreting of GAMMs (e.g., visualization of complex interactions, and contrasts).
+Version: 0.8
+Date: 2015-02-26
+Authors@R: c( person("Jacolien", "van Rij", email="vanrij.jacolien@gmail.com", role = c("aut", "cre")),person("Martijn","Wieling", role = "aut"), person("R. Harald","Baayen", role = "aut"), person("Hedderik", "van Rijn", role = "aut"))
+Description: This package includes functions for evaluating and interpreting GAMMs (Generalized Additive Mixed Modeling; Lin & Zhang, 1999) as implemented in the R package mgcv (Wood, S.N., 2006; 2011). GAMM is a nonlinear regression analysis which is particularly useful for time course data such as EEG, pupil dilation, gaze data (eye tracking), and articulography recordings, but also for behavioral data such as reaction times and response data. As these time course measures are sensitive to autocorrelation problems, GAMMs implements methods to reduce the autocorrelation problems. The functions in this package are useful for the evaluation of GAMM models (e.g., model comparisons, determining regions of significance, inspection of autocorrelational structure in residuals) and interpreting of GAMMs (e.g., visualization of complex interactions, and contrasts).
 License: GPL (>=2) 
 LazyData: true
 Depends: R (>= 2.10), mgcv (>= 1.8)

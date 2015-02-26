@@ -28,7 +28,9 @@ residuals of a GAMM that includes an AR1 model.
 \section{Interpretation and visualization}{
 
 The vignettes "overview" and "plotfunctions"
-(\code{\link[utils]{browseVignettes}}) provide more
+(\code{vignette("overview", package="itsadug")} and
+\code{vignette("plotfunctions", package="itsadug")})
+provide more
 info and examples on the different plot functions, and how they related to
 \code{mgcv}'s default plot functions. Here's a short list of the functions
 for visualizing model terms and interactions:
@@ -51,7 +53,8 @@ possibility to exclude random effects.
 Further, there are some wrappers around the \code{\link[mgcv]{predict.gam}}
 function to facilitate the extraction of model predictions. These can be
 used for customized plots. See for an example in the vignette
-"plotfunctions" (\code{\link[utils]{browseVignettes}}).
+"plotfunctions"
+(\code{vignette("plotfunctions", package="itsadug")}).
 \itemize{
   \item \code{\link{get_predictions}} for getting the estimates for given
 settings of some or all of the model predictors;
@@ -81,5 +84,12 @@ The additional functions are mostly convenience functions for plotting,
 such as \code{\link{emptyPlot}}, \code{\link{plot_error}} for quickly
 plotting smooth terms with shaded errors, and \code{\link{addInterval}}
 for drawing interval indication.
+}
+\author{
+Jacolien van Rij, Martijn Wieling, R.Harald Baayen, Hedderik van Rijn
+
+Maintainer: Jacolien van Rij (\email{vanrij.jacolien@gmail.com})
+
+University of Tuebingen, Germany
 }
 
