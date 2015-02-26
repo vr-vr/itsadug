@@ -1,13 +1,5 @@
-library(languageR)
-help(languageR)
-help(languageR)
 library(itsadug)
 help(itsadug)
-setwd('~/R Packages/itsadug/')#
-library(devtools)#
-#
-devtools::document()#
-devtools::load_all()
 help(itsadug)
 setwd('~/R Packages/itsadug/')#
 library(devtools)#
@@ -19,33 +11,5 @@ library(devtools)#
 #
 devtools::document()#
 devtools::load_all()
-setwd('~/R Packages/itsadug/')#
-library(devtools)#
-#
-devtools::document()#
-devtools::load_all()
 help(itsadug)
-setwd('~/R Packages/itsadug/')#
-library(devtools)#
-#
-devtools::document()#
-devtools::load_all()
-help(itsadug)
-setwd('~/R Packages/itsadug/')#
-library(devtools)#
-#
-devtools::document()#
-devtools::load_all()
-help(itsadug)
-setwd('~/R Packages/itsadug/')#
-library(devtools)#
-#
-devtools::document()#
-devtools::load_all()
-help(itsadug)
-setwd('~/R Packages/itsadug/')#
-library(devtools)#
-#
-devtools::document()#
-devtools::load_all()
-help(itsadug)
+help(package="itsadug")

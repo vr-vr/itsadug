@@ -1,7 +1,6 @@
 #' Generate an ACF plot of an aggregated time series.
 #' 
 #' @export
-#' @aliases acf.plot
 #' @param x A vector with time series data, typically residuals of a 
 #' regression model. 
 #' (See examples for how to avoid errors due to missing values.)

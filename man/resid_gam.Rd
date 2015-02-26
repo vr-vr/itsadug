@@ -74,8 +74,7 @@ Jacolien van Rij
 \seealso{
 \code{\link[stats]{resid}}
 
-Other functions for model criticism: \code{\link{acf.n.plots}},
-  \code{\link{acf_n_plots}}; \code{\link{acf.plot}},
+Other functions for model criticism: \code{\link{acf_n_plots}};
   \code{\link{acf_plot}}; \code{\link{acf_resid}};
   \code{\link{check_normaldist}}
 }

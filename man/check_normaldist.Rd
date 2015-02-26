@@ -46,8 +46,7 @@ check_normaldist(scale(test))
 Jacolien van Rij
 }
 \seealso{
-Other functions for model criticism: \code{\link{acf.n.plots}},
-  \code{\link{acf_n_plots}}; \code{\link{acf.plot}},
+Other functions for model criticism: \code{\link{acf_n_plots}};
   \code{\link{acf_plot}}; \code{\link{acf_resid}};
   \code{\link{resid.gam}}, \code{\link{resid_gam}}
 }

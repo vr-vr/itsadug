@@ -72,8 +72,7 @@ Jacolien van Rij
 Use \code{\link[stats]{acf}} for the original ACF function,
 and \code{\link{acf_plot}}, or \code{\link{acf_n_plots}}.
 
-Other functions for model criticism: \code{\link{acf.n.plots}},
-  \code{\link{acf_n_plots}}; \code{\link{acf.plot}},
+Other functions for model criticism: \code{\link{acf_n_plots}};
   \code{\link{acf_plot}}; \code{\link{check_normaldist}};
   \code{\link{resid.gam}}, \code{\link{resid_gam}}
 }

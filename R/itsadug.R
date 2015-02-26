@@ -58,6 +58,10 @@
 #' There are more functions, mostly utility functions. But the ones mentioned 
 #' here may be worth to try:
 #' \itemize{
+#'   \item The function \code{\link{start_event}} creates a column
+#' with the start of each event, which can be used as input of the 
+#' argument \code{AR.start} in \code{\link[mgcv]{gam}} or 
+#' \code{\link[mgcv]{bam}}
 #'   \item The function \code{\link{gamtabs}} is a wrapper around 
 #' \code{print.xtable} (package xtable) for including model summaries 
 #' in a \code{knitr} file.
