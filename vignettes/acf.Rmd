@@ -21,12 +21,15 @@ p       {margin-top: 2em;}
 
 The functions listed in this vignette apply to linear regression models, linear mixed models, and GAMMs (i.e., the functions are tested with `lm`, `glm`, `lmer`, `glmer`, `gam`, and `bam` models).
 
+```{r}
+suppressMessages(library(itsadug))
+info('version')
+```
+
 ## Example GAMM model
 The code below was used to fit a GAMM model `m1` to the data set `simdat` from the package `itsadug`. The data set `simdat` is simulated time series data with arbitrary predictors. 
 
 ```{r, results='hide'}
-library(itsadug)
-
 data(simdat)
 
 # For illustration purposes, we build a GAMM model
@@ -41,7 +44,7 @@ m1 <- bam(Y ~ Group + te(Time, Trial, by=Group)
 
 The function `acf_resid` is a wrapper around the functions [`acf_plot`](#acfplot) and [`acf_n_plots`](#acfnplots). It allows for different ways of checking the ACF.
 
-#### 1. standard ACF
+### 1. standard ACF
 
 The default `acf` function R plots the autocorrelation function of the residuals as if the residuals are a single time series:
 ```{r, fig.width=4, fig.height=4}
@@ -55,7 +58,7 @@ acf_resid(m1)
 ```
 
 
-#### 2. Average ACF over different time series
+### 2. Average ACF over different time series
 
 Individual time series could be provided as a named list, or as a vector with model predictors.
 
@@ -104,7 +107,7 @@ legend('topright',
     bty='n')
 ```
 
-#### 4. N different ACF plots
+### 3. N different ACF plots
 
 The function `acf_resid` makes use of the function `acf_n_plots` to plot individual time series when the argument `n` is specified. 
 
@@ -145,7 +148,7 @@ acf_resid(m1, split_pred=list(Event=simdat$Event), n=6,
 ```
 
 
-#### 5. Output
+### 4. Output
 
 The function `acf_resid` optionally gives back information about individual timeseries:
 
@@ -197,7 +200,7 @@ xyplot(acf ~ lag | event, type = "h", data = out, col.line = "black",
             xlab="lag", ylab="autocorrelation")
 ```
 
-# 6. Correcting for AR1 $\rho$
+### 5. Correcting for AR1 $\rho$
 
 When an AR1 model is included in a `gam` or `bam` model, the function `acf_resid` autmatically corrects for it:
 
@@ -222,8 +225,8 @@ acf_plot(resid_gam(m1, incl_na=TRUE), split_by=list(simdat$Subject))
 ```
 
 
-<a id="acfplot"></a>
-## The use of `acf_plot` 
+
+## The use of `acf_plot` <a id="acfplot"></a>
 
 The function `acf_plot` is used for generating the ACF for individual time series, and may plot the averaged ACF. In contrast with `acf_resid` the input needs to be a vector, and the grouping predictors are provided to the argument `split_by` as a list with vectors.
 
@@ -232,8 +235,8 @@ acf_plot(resid_gam(m1))
 acf_plot(resid_gam(m1, incl_na=TRUE), split_by=list(simdat$Subject))
 ```
 
-<a id="acfnplots"></a>
-## The use of `acf_n_plots` 
+
+## The use of `acf_n_plots` <a id="acfnplots"></a>
 
 The function `acf_n_plots` is used for generating $N$ ACF plots of individual time series. In contrast with `acf_resid` the input needs to be a vector, and the grouping predictors are provided to the argument `split_by` as a list with vectors.
 
