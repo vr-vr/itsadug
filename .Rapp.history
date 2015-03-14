@@ -1,15 +1,66 @@
+library)ggplot2
+library(ggplot2)
 library(itsadug)
-help(itsadug)
-help(itsadug)
+help(get_modelterm)
+data(simdat)#
+#
+## Not run: #
+# Model with random effect and interactions:#
+m1 <- bam(Y ~ s(Time) + s(Trial)#
++ti(Time, Trial)#
++s(Time, Subject, bs='fs', m=1),#
+data=simdat)
+pp <- get_modelterm(m1, select=4,
+cond=list(Subject=c('a01', 'a03', 'c16')),
+as.data.frame=TRUE)
+qplot(fit, Time, data = pp, geom = "line",#
+    colour = Subject,#
+    main = "How does orange tree circumference vary with age?")
+library(lattice)
+lattice::xyplot(fit~Time|Subject,
+data=pp, type="l",
+xlab="Time", ylab="Partial effect")
+qplot(fit, Time, data = pp, geom = c("point", "line"), colour = Subject)
+qplot(Time, fit, data = pp, geom = c("point", "line"), colour = Subject)
+pp <- get_modelterm(m1, select=4, as.data.frame=TRUE)
+ggplot2:qplot(Time, fit, data = pp, geom = c("point", "line"), colour = Subject)
+ggplot2::qplot(Time, fit, data = pp, geom = c("point", "line"), colour = Subject)
+par()$mar
+par(mar=c(5.1, 4.1, 4.1, 4.1))
+pp <- get_modelterm(m1, select=4, as.data.frame=TRUE)
+pg <- ggplot2::qplot(Time, fit, data = pp, geom = c("point", "line"), colour = Subject)
+pg + guides(col = guide_legend(nrow = 15))
+pg + guides(col = guide_legend(nrow = 18))
+pg <- ggplot2::qplot(Time, fit, data = pp,
+geom = c("point", "line"), colour = Subject,
+title = "s(Time, Subject, bs='fs', m=1)")
+pg + guides(col = guide_legend(nrow = 18))
+pg + ggtitle("s(Time, Subject, bs='fs', m=1)")
+pg + ggtitle("s(Time, Subject, bs='fs', m=1)")
++ theme(plot.title = element_text(lineheight=.8, face="bold"))
+pg + ggtitle("s(Time, Subject, bs='fs', m=1)")
++ theme(plot.title = element_text(lineheight=.8, face="bold"))
+pg + ggtitle("s(Time, Subject, bs='fs', m=1)")
++ theme(plot.title = element_text(face="bold"))
++ theme(ggtitle = element_text(face="bold"))
+pg + guides(col = guide_legend(nrow = 18))
+pg + ggtitle("s(Time, Subject, bs='fs', m=1)")
++ guides(col = guide_legend(nrow = 18))
+pg <- ggplot2::qplot(Time, fit, data = pp,
+geom = c("point", "line"), colour = Subject)
+pg + ggtitle("s(Time, Subject, bs='fs', m=1)")
++ guides(col = guide_legend(nrow = 18))
+pg + guides(col = guide_legend(nrow = 18))
++ ggtitle("s(Time, Subject, bs='fs', m=1)")
+pg + guides(title="s(Time, Subject)", col = guide_legend(nrow = 18))
+pg <- ggplot2::qplot(Time, fit, data = pp,
+geom = c("point", "line"), colour = Subject)
+pg + ggplot2::guides(col = guide_legend(nrow = 18))
 setwd('~/R Packages/itsadug/')#
+#
 library(devtools)#
 #
 devtools::document()#
 devtools::load_all()
-setwd('~/R Packages/itsadug/')#
-library(devtools)#
-#
-devtools::document()#
-devtools::load_all()
-help(itsadug)
-help(package="itsadug")
+help(get_modelterm)
+install.packages('~/R Packages/itsadug_0.9.tar.gz', repos=NULL, type='source')

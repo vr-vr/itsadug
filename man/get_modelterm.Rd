@@ -5,7 +5,7 @@
 \title{Get estimated for selected model terms.}
 \usage{
 get_modelterm(model, select, cond = NULL, n.grid = 30, se = TRUE,
-  f = 1.96)
+  f = 1.96, as.data.frame = FALSE)
 }
 \arguments{
 \item{model}{A gam object, produced by \code{\link[mgcv]{gam}} or
@@ -26,15 +26,73 @@ standard error around the estimates.}
 \item{f}{A number to scale the standard error. Defaults to 1.96, resulting
 in 95\% confidence intervals. For 99\% confidence intervals use a value of
 2.58.}
+
+\item{as.data.frame}{Logical: whether or not to return a data.frame.
+Default is false, and a list will be returned.}
 }
 \value{
 A data frame with estimates for the selected smooth term.
+
+A list with two or more elements:
+\itemize{
+\item \code{fit}: Numeric vector with the fitted values;
+\item \code{se.fit}: Optionally, only with \code{se=TRUE}.
+Numeric vector with the error or confidence interval values (f*SE);
+\item \code{f}: The multiplication factor for generating
+the confidence interval values;
+\item \code{terms}: Numeric vector (for 1-dimensional smooth)
+or data frame (more 2- or more dimensional surfaces)
+with values of the modelterms.
+\item \code{title}: String with name of the model term.
+\item \code{xlab}, \code{ylab}, or \code{labels}:
+Labels for x-axis and optionally y-axis. Precise structure depends
+on type of smooth term: for 1-dimensional smooth only x-label is provided,
+for 2-dimensional smooths x-label and y-label are provided,
+for more complex smooths a vector of of labels is provided.
+}
 }
 \description{
 Get estimated for selected model terms.
 }
 \examples{
-# see the vignette for examples:
+data(simdat)
+
+\dontrun{
+# Model with random effect and interactions:
+m1 <- bam(Y ~ s(Time) + s(Trial)
++ti(Time, Trial)
++s(Time, Subject, bs='fs', m=1),
+data=simdat)
+
+# Get list with predictions:
+p <- get_modelterm(m1, select=1)
+emptyPlot(range(p$terms), range(p$fit), h=0)
+plot_error(p$terms, p$fit, p$se.fit, shade=TRUE, xpd=TRUE)
+
+# Plot random effects in separate panels:
+pp <- get_modelterm(m1, select=4, as.data.frame=TRUE)
+require(lattice)
+lattice::xyplot(fit~Time|Subject,
+    data=pp, type="l",
+    xlab="Time", ylab="Partial effect")
+
+# Plot selection of subjects:
+pp <- get_modelterm(m1, select=4,
+    cond=list(Subject=c('a01', 'a03', 'c16')),
+    as.data.frame=TRUE)
+lattice::xyplot(fit~Time|Subject,
+    data=pp, type="l",
+    xlab="Time", ylab="Partial effect")
+
+# Or using the package ggplot2:
+require(ggplot2)
+pp <- get_modelterm(m1, select=4, as.data.frame=TRUE)
+pg <- ggplot2::qplot(Time, fit, data = pp,
+    geom = c("point", "line"), colour = Subject)
+pg + ggplot2::guides(col = guide_legend(nrow = 18))
+}
+
+# see the vignette for plot examples:
 vignette("plotfunctions", package="itsadug")
 }
 \author{

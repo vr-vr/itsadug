@@ -23,14 +23,14 @@ in 95\% confidence intervals. For 99\% confidence intervals use a value of
 2.58.}
 
 \item{rm.ranef}{Logical: whether or not to remove random effects.
-Default is TRUE. Alternatively a string (or vector of strings) with the
+Default is FALSE. Alternatively a string (or vector of strings) with the
 name of the random effect(s) to remove.}
 
 \item{print.summary}{Logical: whether or not to print a summary of the
 values selected for each predictor. Defaults to TRUE.}
 }
 \value{
-A data frame with estimates and optinally errors.
+A data frame with estimates and optionally errors.
 }
 \description{
 Get model predictions for specific conditions.

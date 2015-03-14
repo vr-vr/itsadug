@@ -5,7 +5,7 @@
 \alias{resid_gam}
 \title{Extract model residuals and remove the autocorrelation accounted for.}
 \usage{
-resid_gam(model, AR_start = NULL, incl_na = F, return_all = F)
+resid_gam(model, AR_start = NULL, incl_na = FALSE, return_all = FALSE)
 }
 \arguments{
 \item{model}{A GAMM model build with \code{\link[mgcv]{gam}} or

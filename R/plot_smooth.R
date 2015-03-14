@@ -29,7 +29,8 @@
 #' plotted, but if greater than zero, then the predicted values plus 
 #' confidence intervals are plotted. The value of se will be multiplied with 
 #' the standard error (i.e., 1.96 results in 95\%CI and 2.58).
-#' @param shade Logical: Set to TRUE to produce shaded regions as confidence #' bands for smooths (not avaliable for parametric terms, which are plotted 
+#' @param shade Logical: Set to TRUE to produce shaded regions as confidence 
+#' bands for smooths (not avaliable for parametric terms, which are plotted 
 #' using termplot).
 #' @param eegAxis Logical: whether or not to reverse the y-axis, plotting the 
 #' negative amplitudes upwards as traditionally is done in EEG research.
@@ -48,6 +49,12 @@
 #' reference. By default no values provided.
 #' @param ... other options to pass on to lines and plot, 
 #' see \code{\link[graphics]{par}}
+#' @section Notes:
+#' This function plots the summed effects, including intercept and other 
+#' predictors. For plotting partial effects, see the function 
+#' \code{\link[mgcv]{plot.gam}}, or see the examples with 
+#' \code{\link{get_modelterm}} for more flexibility (e.g., plotting using the 
+#' \code{lattice} package or \code{ggplots}).
 #'
 #' @examples
 #' data(simdat)
@@ -77,8 +84,12 @@
 #' plot_smooth(m1, view='Time', cond=list(Trial=-5),
 #'     main='Trial=-5', rm.ranef=TRUE)
 #' }
-#' # see the vignette for examples:
+#'
+#' # see the vignette for more examples:
 #' vignette("plotfunctions", package="itsadug")
+#' # and for a quick overview of plotfunctions:
+#' vignette("overview", package="itsadug")
+#'
 #' @author Jacolien van Rij and Martijn Wieling. 
 #' @seealso \code{\link[mgcv]{plot.gam}}, \code{\link{plot_diff}} 
 #'

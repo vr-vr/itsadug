@@ -394,7 +394,7 @@ title(main="Random smooths")
 abline(h=0)
 
 # Plot the mean random smooth:
-itsadug::emptyPlot(range(g4[[1]]$Time), c(-10,10),
+emptyPlot(range(g4[[1]]$Time), c(-10,10),
     main='Mean and median of random smooths', 
     xlab='Time', ylab='Est. value of Y',
     h0=0)

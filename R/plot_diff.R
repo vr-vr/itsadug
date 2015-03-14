@@ -8,24 +8,43 @@
 #' axis.
 #' @param comp Named list with the grouping predictor (categorical variable)
 #' and the 2 levels to calculate the difference for.
-#' @param eegAxis Logical: whether or not to reverse the y-axis, plotting 
-#' negative values upwards. Default is FALSE.
-#' @param ylim Range of y-axis. If not specified, the function automatically 
-#' generates an appropriate y-axis.
-#' @param ylab Text string, alternative label for y-axis. 
-#' @param main Text string, alternative title for plot.
+#' @param cond A named list of the values to use for the predictor terms. 
+#' Variables omitted from this list will have the closest observed value to 
+#' the median for continuous variables, or the reference level for factors. 
+#' @param plotCI Logical: whether or not to plot confidence intervals. 
+#' Default is TRUE.
 #' @param f A number to scale the standard error. Defaults to 1.96, resulting 
 #' in 95\% confidence intervals. For 99\% confidence intervals use a value of 
 #' 2.58.
+#' @param rm.ranef Logical: whether or not to remove random effects. 
+#' Default is FALSE. Alternatively a string (or vector of strings) with the 
+#' name of the random effect(s) to remove.
+#' @param eegAxis Logical: whether or not to reverse the y-axis, plotting 
+#' negative values upwards. Default is FALSE.
+#' @param col Line color. Shading color is derived from line color.
+#' @param shade Logical: plot shaded confidence interval (TRUE) 
+#' or dashed lines that indicate confidence region (FALSE).
+#' @param ylim Range of y-axis. If not specified, the function automatically 
+#' generates an appropriate y-axis.
+#' @param main Text string, alternative title for plot.
+#' @param xlab Text string, alternative label for x-axis. 
+#' @param ylab Text string, alternative label for y-axis. 
+#' @param n.grid Number of data points sampled as predictions. Defaults to 100.
+#' @param add Logical: whether or not to add the line to an existing plot. 
+#' Default is FALSE.
+#' When no plot window is available and \code{add=TRUE}, 
+#' the function will generate an error.
 #' @param plot Logical: whether or not to plot the difference. If FALSE, then 
 #' the output is returned as a list, with the estimated difference 
 #' (\code{est}) and the standard error over the estimate (\code{se.est}) and 
 #' the x-values (\code{x}). Default is TRUE.
+#' @param print.summary Logical: whether or not to print the summary. 
+#' Default is TRUE.
 #' @param ... Optional arguments for plot.
 #' @return If the result is not being plotted, a list is 
 #' returned with the estimated difference (\code{est}) and the standard error 
-#' over the estimate (\code{se.est}) and the x-values (\code{x}) is returned.
-#' @author Martijn Wieling
+#' over the estimate (\code{se}) and the x-values (\code{x}) is returned.
+#' @author Martijn Wieling, Jacolien van Rij
 #' @examples
 #' data(simdat)
 #' \dontrun{
@@ -48,104 +67,81 @@
 #'
 #' @family functions for interpreting nonlinear effects
 
-# plots difference curve
-# set binary=T if you have a by-variable occurring multiple times 
-plot_diff <- function(model, view, comp, eegAxis=F, f=1.96, 
-	ylim=NULL, ylab=NULL, main=NULL, plot=TRUE, ...) { 
+plot_diff <- function(model, view, comp, cond=NULL, plotCI=TRUE, f=1.96, 
+	eegAxis=FALSE, col="black", shade=TRUE, n.grid=100, add=FALSE,
+	print.summary=TRUE, plot=TRUE, rm.ranef=NULL,
+	main=NULL, ylab=NULL, xlab=NULL, ylim=NULL, ...) { 
+
 	dat = model$model
 
+	xvar <- NULL
 	by_predictor <- NULL
-	comp_levels <- NULL
+
+	# check view
 	if(length(view) > 1){
-		warning('Only first element of view will be used.')
-		view <- view[1]
-	}
-	if(names(comp)[1] %in% colnames(dat)){
-		if(length(comp[[1]]) < 2){
-			stop(sprintf('Provide two levels for %s to calculate difference.', names(comp)[1]))
+		warning("Only first element of 'view' is being used. Use plot_diff2 for plotting difference surfaces.")
+	}else{
+		xvar <- view[1]
+
+		if(xvar %in% names(cond)){
+			warning(sprintf('Predictor %s specified in view and cond. Values in cond being used, rather than the whole range of %s.', xvar))
 		}else{
-			by_predictor <- names(comp)[1]
-			comp_levels <- comp[[1]][1:2]
+			cond[[xvar]] <- seq(min(na.exclude(dat[,xvar])), max(na.exclude(dat[,xvar])), length=n.grid)
 		}
-	}else{
-		stop(sprintf('Grouping predictor %s not found in model.', names(comp)[1]))
 	}
 
-	if (is.null(ylab)) { 
-		ylab = as.character(model$formula[2])
-	}
+	newd <- c()
+	newd <- get_difference(model, comp=comp, cond=cond, 
+		print.summary=print.summary, rm.ranef=rm.ranef, f=f)
 
-	convert <- 1
-	if(eegAxis==T) convert <- -1
-			
-	yvals <- sort(convert*ylim, decreasing=F)
-	
-	rngX = max(na.exclude(dat[,view])) - min(na.exclude(dat[,view]))
-	
-	np = 100
 
-	if (is.null(comp_levels)) { 
-		vals = sort(unique(dat[,by_predictor]))
-	} else { 
-		vals = comp_levels
-	}
-
-	grp1 <- dat[which(is.na(dat[,by_predictor])), ] 
-	grp1[1:np,] = dat[1,]
-	grp1[,view] = seq(min(na.exclude(dat[,view])),max(na.exclude(dat[,view])), by=rngX/(np-1))
-	
-	grp1[,by_predictor] = vals[1]
-
-	#pred1 = predict.onlyInclude(model,grp1,onlyInclude=c(view,paste(by_predictor,vals[1],sep='')))
-	pred1 = predict(model,grp1,type='lpmatrix')
-
-	grp2 = grp1
-	grp2[,by_predictor] = vals[2]
-
-	#pred2 = predict.onlyInclude(model,grp2,onlyInclude=c(view,paste(by_predictor,vals[2],sep='')))
-	pred2 = mgcv::predict.gam(model,grp2,type='lpmatrix')
-
-	res1 = grp1
-	res1$Xp <- pred2 - pred1
-
-	res1$diff <- res1$Xp%*%coef(model)
-	
-
-	res1$XXX = res1[,view]
-		
 	if (is.null(main)) {
-		mn = paste('Difference between',vals[1],'and',vals[2])
-	} else { 
-		mn = main
+		levels1 <- paste(sapply(comp, function(x) x[1]), collapse='.')
+		levels2 <- paste(sapply(comp, function(x) x[2]), collapse='.')
+		main = sprintf('Difference between %s and %s', levels1, levels2)
+	} 
+	if(is.null(ylab)) {
+		ylab = sprintf("Est. difference in %s", as.character(model$formula[[2]]))
+	}
+	if(is.null(xlab)) {
+		xlab = xvar
+	}
+	if(is.null(ylim)){
+		ylim <- range(newd$difference)
+		if (plotCI) { 
+			ylim <- with(newd, range(c(difference+CI, difference-CI)))
+		}
 	}
 
-	res1 = res1[order(res1$XXX),]
-	se.diff <- sqrt(rowSums((res1$Xp%*%vcov(model))*res1$Xp))
+	out <- list(est=newd$difference)
+	if(plotCI){
+		out[['se']]<- newd$CI
+	}
+	out[['xVals']] <- newd[,xvar]
+	out[['f']] <- f
+	out[['comp']] = comp
 
-	if(plot){	
-		pnm <- list(...)
-		shade.col <- alpha('black', f=.25)
-		if('col' %in% names(pnm)){
-			shade.col <- alpha(pnm[['col']], f=.25)
+	if(plot==TRUE){
+		if(add==FALSE){
+			emptyPlot(range(newd[,xvar]), ylim, 
+				main=main, xlab=xlab, ylab=ylab, h0=0,
+				eegAxis=eegAxis, ...)
 		}
-
-		res1$ul <- res1$diff + f * se.diff
-		res1$ll <- res1$diff - f * se.diff
-
-		if (is.null(ylim)){
-			 yvals <- sort(c(min(res1$ll),max(res1$ul)),decreasing=F)
+		if(plotCI==TRUE){
+			plot_error(newd[,xvar], newd$difference, newd$CI, shade=shade, col=col, ...)
+		}else{
+			lines(newd[,xvar], newd$difference, col=col, ...)
 		}
+		invisible(out)
 
-		emptyPlot(range(res1$XXX), yvals, h0=0,
-			xlab=view, ylab=ylab, main=main,
-			eegAxis=eegAxis, ...)
-		plot_error(res1$XXX,res1$diff,f * se.diff, shade=TRUE, ...)
-
-		invisible(list(est=res1$diff, se.est=f*se.diff, xVals=res1$XXX, f=f))
 	}else{
-		return(list(est=res1$diff, se.est=f*se.diff, xVals=res1$XXX, f=f))
+		return(out)
 	}
 }
+
+
+
+
 
 
 #' Plot difference surface based on model predictions.
@@ -204,7 +200,6 @@ plot_diff2 <- function(model,view, comp, cond=NULL, plotCI=FALSE, f=1.96,
 	xvar <- NULL
 	yvar <- NULL
 	by_predictor <- NULL
-	comp_levels <- NULL
 
 	# check view
 	if(length(view) < 2){
@@ -230,8 +225,6 @@ plot_diff2 <- function(model,view, comp, cond=NULL, plotCI=FALSE, f=1.96,
 	if(names(comp)[1] %in% colnames(dat)){
 		if(length(comp[[1]]) < 2){
 			stop(sprintf('Provide two levels for %s to calculate difference.', names(comp)[1]))
-		}else{
-			comp_levels <- comp[[1]][1:2]
 		}
 	}else{
 		stop(sprintf('Grouping predictor %s not found in model.', names(comp)[1]))

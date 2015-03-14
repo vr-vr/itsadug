@@ -14,7 +14,8 @@
 #' @param n The number of plots to generate. If \code{n}=1 (default) then 
 #' \code{\link{acf_plot}} is being called. If \code{n}>1 then 
 #' \code{\link{acf_n_plots}} is being called.
-#' @param ... Other arguments for plotting, see \code{\link{acf_plot}} 
+#' @param plot Logical: whether or not to produce plot. Default is TRUE.
+#' @param ... Other arguments as input for \code{\link{acf_plot}} 
 #' or \code{\link{acf_n_plots}}.
 #' @return An aggregated ACF plot and / or optionally a list with the aggregated ACF values.
 #' @author Jacolien van Rij
@@ -56,43 +57,59 @@
 #' @family functions for model criticism
 
 
-acf_resid <- function(model, split_pred, n=1, ...){
+acf_resid <- function(model, split_pred=NULL, n=1, plot=TRUE, ...){
 
-	split_by=list()
+	split_by=NULL
+	res <- NULL
 
-	if(!is.list(split_pred)){
-		# extract time series data from model:
+	if(!is.null(split_pred)){
+		
+		split_by=list()
 
-		dat <- NULL
+		if(!is.list(split_pred)){
+			# extract time series data from model:
+			dat <- NULL
 
-		if("lm" %in% class(model)){
-			dat <- model$model
-		}else if( "lmerMod" %in% class(model)){
-			dat <- model@frame
-		}
+			if("lm" %in% class(model)){
+				dat <- model$model
 
-		if(!all(split_pred %in% colnames(dat))){
-			notindata <- paste(split_pred[!split_pred %in% colnames(dat)], collapse=", ")
-			stop(sprintf("split-pred value(s) %s is / are not included as predictor in the model.", 
-				notindata))
-		}else{
-			for(i in split_pred){
-				split_by[[i]] <- as.vector(dat[,i])
+			}else if( "lmerMod" %in% class(model)){
+				dat <- model@frame
 			}
+
+			if(!all(split_pred %in% colnames(dat))){
+				notindata <- paste(split_pred[!split_pred %in% colnames(dat)], collapse=", ")
+				stop(sprintf("split-pred value(s) %s is / are not included as predictor in the model.", 
+					notindata))
+			}else{
+				for(i in split_pred){
+					split_by[[i]] <- as.vector(dat[,i])
+				}
+			}
+		}else{
+			split_by <- split_pred
 		}
-	}else{
-		split_by <- split_pred
 	}
 
 	if(n > 1){
-		if(!all(is.na(resid(model)))){
-			out <- acf_n_plots(resid(model), split_by=split_by, n=n, ...)
-			invisible(out)
+		if(!all(is.na(resid_gam(model, incl_na=TRUE)))){
+			if(is.null(split_pred)){
+				out <- acf_n_plots(resid_gam(model), split_by=split_by, n=n, plot=plot, ...)
+				invisible(out)
+			}else{
+				out <- acf_n_plots(resid_gam(model, incl_na=TRUE), split_by=split_by, n=n, plot=plot, ...)
+				invisible(out)
+			}
 		}
 	}else{
-		if(!all(is.na(resid(model)))){
-			out <- acf_plot(resid(model), split_by=split_by, ...)
-			invisible(out)
+		if(!all(is.na(resid_gam(model, incl_na=TRUE)))){
+			if(is.null(split_pred)){
+				out <- acf_plot(resid_gam(model), split_by=split_by, plot=plot, ...)
+				invisible(out)
+			}else{
+				out <- acf_plot(resid_gam(model, incl_na=TRUE), split_by=split_by, plot=plot, ...)
+				invisible(out)
+			}
 		}
 	}
 

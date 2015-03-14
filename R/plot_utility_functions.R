@@ -102,22 +102,59 @@ alphaPalette <- function(x, f.seq, n=NULL) {
 #' @seealso 
 #' \code{\link[graphics]{rug}}, \code{\link[graphics]{contour}}, 
 #' \code{\link[graphics]{image}}
-#'
+#' @examples
+#' data(simdat)
+#' 
+#' # Introduce extreme values:
+#' set.seed(123)
+#' newdat <- simdat[sample(which(simdat$Time < 1500),
+#'     size=round(.5*length(which(simdat$Time < 1500)))),]
+#' newdat <- rbind(newdat, 
+#'     simdat[sample(which(simdat$Time > 1500),
+#'     size=5),])
+#' # Some simple GAM with tensor:
+#' m1 <- bam(Y ~ te(Time, Trial), data=newdat)
+#' # plot summed effects:
+#' fvisgam(m1, view=c("Time", "Trial"), zlim=c(-15,15),
+#'     add.color.legend=FALSE)
+#' # add rug:
+#' fadeRug(newdat$Time, newdat$Trial)
+#' # compare with default rug:
+#' rug(newdat$Time)
+#' rug(newdat$Trial, side=2)
+#' # add color legend:
+#' gradientLegend(c(-15,15), pos=.875)
+#' # add data points (for checking the grid):
+#' points(newdat$Time, newdat$Trial)
+#' 
+#' # change x- and y-grid:
+#' fvisgam(m1, view=c("Time", "Trial"), zlim=c(-15,15))
+#' points(newdat$Time, newdat$Trial)
+#' fadeRug(newdat$Time, newdat$Trial, n.grid=c(100,10), col='gray')
 #' @family Utility functions for plotting
 
-fadeRug <- function(x, y, n.grid = 30, gradual=FALSE, max.alpha = 0.75, col='white') {
+fadeRug <- function(x, y, n.grid = 30, gradual=FALSE, 
+    max.alpha = 0.75, col='white') {
+    n.grid.x <- n.grid.y <- n.grid[1]
+    if(length(n.grid)==2){
+        n.grid.y <- n.grid[2]
+    }
+
     xlim <- c(par()$usr[1], par()$usr[2])
     ylim <- c(par()$usr[3], par()$usr[4])
-    x.step <- length(xlim[1]:xlim[2])/n.grid
-    y.step <- length(ylim[1]:ylim[2])/n.grid
+    x.step <- diff(seq(xlim[1], xlim[2], length=n.grid.x))[1]
+    y.step <- diff(seq(ylim[1], ylim[2], length=n.grid.y))[1]
 
-    im <- matrix(table(factor(round((x - xlim[1])/x.step), levels = 1:n.grid), factor(round((y - ylim[1])/y.step), levels = 1:n.grid)))
+
+    im <- matrix(table(factor(round((x - xlim[1])/x.step)+1, levels = 1:n.grid.x), 
+        factor(round((y - ylim[1])/y.step)+1, levels = 1:n.grid.y)))
     if(gradual==FALSE){
         im[im > 0] <- 1 
     }
     fadecols <- alphaPalette(col, f.seq = seq(max.alpha, 0, length = max(im) + 1))
-    im <- matrix(fadecols[im + 1], byrow = TRUE, ncol = n.grid)
-    rasterImage(as.raster(im), xleft = xlim[1], xright = xlim[2], ybottom = ylim[2], ytop = ylim[1], interpolate = FALSE)
+    im <- matrix(fadecols[im + 1], byrow = TRUE, ncol = n.grid.x)
+    im <- im[n.grid.y:1,]
+    rasterImage(as.raster(im), xleft = xlim[1], xright = xlim[2], ybottom = ylim[1], ytop = ylim[2], interpolate = FALSE)
 }
 
 #' Utility function.
@@ -501,9 +538,13 @@ addInterval <- function(pos, lowVals, highVals, horiz=TRUE, minmax=NULL, length=
             segments(y0=lowVals[len.check], y1=lowVals[len.check], x0=pos-len, x1=pos+len, ...)
         }
 
-        pos <- pos[-len.check]
-        lowVals <- lowVals[-len.check]
-        highVals <- highVals[-len.check]
+        # pos <- pos[-len.check]
+        # lowVals <- lowVals[-len.check]
+        # highVals <- highVals[-len.check]
+
+        # set of warnings
+        options(warn=-1)
+
     }
 
     if(horiz){
@@ -518,6 +559,10 @@ addInterval <- function(pos, lowVals, highVals, horiz=TRUE, minmax=NULL, length=
         }else{
             eval(parse(text=paste('arrows(y0=lowVals, y1=highVals, x0=pos, x1=pos, length=length,', pars ,',...)', sep='')))
         }        
+    }
+
+    if(length(len.check)>0){
+        options(warn=0)
     }
 }
 

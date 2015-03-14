@@ -346,6 +346,7 @@ dotplot_error <- function (x, se.val=NULL, labels = NULL, groups = NULL,
         groups <- groups[o]
         color <- rep_len(color, length(groups))[o]
         lcolor <- rep_len(lcolor, length(groups))[o]
+        bg <- rep_len(bg, length(groups))[o]
         offset <- cumsum(c(0, diff(as.numeric(groups)) != 0))
         y <- 1L:n + 2 * offset
         ylim <- range(0, y + 2)

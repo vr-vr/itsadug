@@ -251,3 +251,205 @@ group_sort <- function(x, group=NULL, decreasing=FALSE){
         return(x.split)
     }
 }
+
+
+#' Utility function.
+#' 
+#' @description Function uses \code{\link[base]{table}} with factors
+#' to count the occurrances of each value in the predictor.
+#' @param x A vector to be counted.
+#' @param values A vector with all possible group names.
+#' @param incl_na Logical: whether or not to return a count of missing values.
+#' @return A table with count information.
+#' @section Note:
+#' Values that are not specified in \code{values} will be ignored.
+#' @seealso \code{\link[base]{table}}
+#' @family Functions for binomial count data.
+
+countValues <- function(x, values, incl_na=FALSE){
+    counts <- factor(x, levels=values)
+    return( table(counts, 
+        useNA=ifelse(incl_na==TRUE, "always", "no"), 
+        dnn=list(deparse(substitute(x)))) )
+    
+}
+
+
+
+#' Utility function.
+#' 
+#' @description Function uses \code{\link[base]{table}} with factors
+#' to count the occurrances of each value in the predictor.
+#' @param x Name of a column in \code{data} or vector with values 
+#' to be counted.
+#' @param data Optional: data frame.
+#' @param split_by Vector with column names in \code{data} or named list with 
+#' grouping predictors.
+#' @param values Values of \code{x} that should be counted. 
+#' If NULL (default) all values are counted.
+#' @param incl_na Logical: whether or not to return a count of missing values.
+#' @return A data frame with cbinded count information.
+#' @section Note:
+#' Values that are not specified in \code{values} will be ignored.
+#' @seealso \code{\link[base]{table}}
+#' @family Functions for binomial count data.
+
+getCountData <- function(x, split_by, data=NULL, values=NULL, incl_na=FALSE){
+    
+    dat <- c()
+    if(is.null(data)){
+        dat <- data.frame(x=x)
+        if(is.null( names(split_by) ) ){
+            warning('Split_by is a not a named list. Names are given automatically.')
+            names(split_by) <- paste('V', 1:length(split_by), sep='')
+        }
+        for(i in names(split_by)){
+            dat[,i] <- split_by[[i]]
+        }
+    }else{
+        split_by <- unlist(split_by)
+        cn <- colnames(data)
+        if(! x %in% cn){
+            stop(sprintf('Column %s not found in data %s.', 
+                deparse(substitute(x)),
+                deparse(substitute(data))))
+        }
+        el <- which(!split_by %in% cn)
+        if( length(el)> 0){
+            stop(sprintf('Column(s) %s not found in data %s.', 
+                paste(split_by[el], collapse=', '),
+                deparse(substitute(data))))
+        }
+        dat <- data.frame( data[,c(x, split_by)], row.names=NULL)
+        names(dat)[names(dat)==x] <- 'x'
+    } 
+
+    if(is.null(values)){
+        values <- sort(unique(dat$x))
+    }
+
+    out <- values
+    if(incl_na){
+        out <- c(out, NA)
+    }
+
+    split <- list()
+    if(length(split_by)>1){
+        split <-  as.list(dat[,colnames(dat)!='x'])
+    }else{
+        split <-  list(dat[,colnames(dat)!='x'])
+    }
+
+    # To avoid dropping levels, treat NA in predictors as category:
+    split <- lapply(split, function(x){factor(as.character(x), exclude="")})
+
+    ## make more efficient with dplyr or data.table
+    newd <- aggregate(dat$x, by=split, 
+        function(x){unlist(countValues(x,values=values, incl_na=incl_na))})
+
+    ## Convert numeric split predictors back to numeric:
+    for(i in names(split)){
+        if(is.numeric(dat[,i])){
+            newd[,i] <- as.numeric(as.character(newd[,i]))
+        }
+    }
+    
+    colnames(newd)[colnames(newd)=='x'] <- deparse(substitute(x))
+    colnames(newd) <- gsub('"','', colnames(newd))
+    return(newd)
+}
+
+#' Utility function.
+#' 
+#' @description Create cbind of successes and failures.
+#'
+#' @param success Vector with column(s) of count data 
+#' defining the number of successes.
+#' @param failure Vector with column(s) of count data 
+#' defining the number of failures.
+#' @param data Data frame.
+#' @param name Text string, name of column with the cbind of 
+#' successes and failures. Only if \code{data} is specified.
+#' @return cbind count data, which sums up to 2 for each row.
+#' @author Jacolien van Rij
+#' @family Functions for binomial count data.
+
+convertToBinom <- function(success, failure, data=NULL, name="cbind"){
+    # check colnames:
+    sval <- c()
+    fval <- c()
+    if(is.list(success)){
+        if(length(success)==1){
+            sval <- success[[1]]
+        }else{
+            sval <- rowSums(as.data.frame(success))
+        }
+    }else if(!is.null(dim(success))){
+        if(dim(success)[2]==1){
+            sval <- success[,1]
+        }else{
+            sval <- rowSums(success)
+        }
+    }else{
+        sval <- success
+    }
+    if(is.list(failure)){
+        if(length(failure)==1){
+            fval <- failure[[1]]
+        }else{
+            fval <- rowSums(as.data.frame(failure))
+        }
+    }else if(!is.null(dim(failure))){
+        if(dim(failure)[2]==1){
+            fval <- failure[,1]
+        }else{
+            fval <- rowSums(failure)
+        }
+    }else{
+        fval <- failure
+    }
+
+    if(is.null(data)){
+        return(t( mapply(function(x,y){cbind(x,y)},
+            sval, fval) ))
+    }else{
+        data[,name] <- t( mapply(function(x,y){cbind(x,y)},
+            sval, fval) ) 
+        return(data)
+    }
+}
+
+
+#' Reducing cbind binomial count data to avoid autocorrelation issues.
+#'
+#' @param x cbind data column (leave \code{y} NULL), or a vector 
+#' specify \code{y}).
+#' @param y Vector, in case \code{x} is vector, otherwise NULL.
+#' @return cbind count data, which sums up to 2 for each row.
+#' @author Jacolien van Rij
+#' @family Functions for binomial count data.
+
+reduceCounts <- function(x,y=NULL){
+  check <- function(a,b){
+    if(any(is.na(c(a,b)))){
+      return(NA)
+    }else if(a==b){
+        if(a==0){
+            return(cbind(0,0))
+        }else{
+            return(cbind(1,1))
+        }
+    }else if(a > b){
+      return(cbind(2,0))
+    }else if(a < b){
+      return(cbind(0,2))
+    }else{
+      return(NA)
+    }
+  }  
+  if(is.null(y)){
+    return( t(mapply(function(x,y){check(x,y)}, x[,1], x[,2])) )
+  }else{
+    return( t(mapply(function(x,y){check(x,y)}, x, y)) )
+  }
+}

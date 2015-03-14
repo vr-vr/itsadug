@@ -1,5 +1,5 @@
 .onAttach <- function(...) {
-  packageStartupMessage('Loaded package itsadug 0.8 (see \'help("itsadug")\' ).')
+  packageStartupMessage('Loaded package itsadug 0.9 (see \'help("itsadug")\' ).')
 }
 
 #' Information on how to cite this package
@@ -20,10 +20,9 @@ info <- function(input=NULL){
 	if(is.null(input)){
 		citation(package="itsadug")
 	}else if(input=="version"){
-		cat(sprintf("Package: itsadug\nVersion: %s\n", 
+		cat(sprintf("Package itsadug, version %s\n", 
 			packageVersion("itsadug")))
 	}else{
 		help(package="itsadug")
 	}
-	
 }

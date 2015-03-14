@@ -38,6 +38,36 @@ On Linux \code{\link{x11}} devices may not support transparency.
 In that case, a solution might be to write the plots immediately to a file
 using functions such as \code{\link{pdf}}, or \code{\link{png}}.
 }
+\examples{
+data(simdat)
+
+# Introduce extreme values:
+set.seed(123)
+newdat <- simdat[sample(which(simdat$Time < 1500),
+    size=round(.5*length(which(simdat$Time < 1500)))),]
+newdat <- rbind(newdat,
+    simdat[sample(which(simdat$Time > 1500),
+    size=5),])
+# Some simple GAM with tensor:
+m1 <- bam(Y ~ te(Time, Trial), data=newdat)
+# plot summed effects:
+fvisgam(m1, view=c("Time", "Trial"), zlim=c(-15,15),
+    add.color.legend=FALSE)
+# add rug:
+fadeRug(newdat$Time, newdat$Trial)
+# compare with default rug:
+rug(newdat$Time)
+rug(newdat$Trial, side=2)
+# add color legend:
+gradientLegend(c(-15,15), pos=.875)
+# add data points (for checking the grid):
+points(newdat$Time, newdat$Trial)
+
+# change x- and y-grid:
+fvisgam(m1, view=c("Time", "Trial"), zlim=c(-15,15))
+points(newdat$Time, newdat$Trial)
+fadeRug(newdat$Time, newdat$Trial, n.grid=c(100,10), col='gray')
+}
 \author{
 Jacolien van Rij
 }

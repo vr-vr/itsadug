@@ -12,11 +12,11 @@
 #' in 95\% confidence intervals. For 99\% confidence intervals use a value of 
 #' 2.58.
 #' @param rm.ranef Logical: whether or not to remove random effects. 
-#' Default is TRUE. Alternatively a string (or vector of strings) with the 
+#' Default is FALSE. Alternatively a string (or vector of strings) with the 
 #' name of the random effect(s) to remove.
 #' @param print.summary Logical: whether or not to print a summary of the 
 #' values selected for each predictor. Defaults to TRUE.
-#' @return A data frame with estimates and optinally errors.
+#' @return A data frame with estimates and optionally errors.
 #' @examples
 #' # see the vignette for examples:
 #' vignette("plotfunctions", package="itsadug")
@@ -104,7 +104,7 @@ get_predictions <- function(model, cond=NULL, se=TRUE, f=1.96, rm.ranef=NULL,
 					} )) 	
 			test <- table(predictors$Terms) - table(predictors[predictors$Label %in% rm.ranef,]$Terms)
 			for(pred in names(test[test==0])){
-				mysummary[[pred]] <- paste(mysummary[[pred]], "(Canceled as random effect.)")
+				mysummary[[pred]] <- paste(mysummary[[pred]], "(Might be canceled as random effect, check below.)")
 			}
 
 			if(length(rm.col)>0){
@@ -129,7 +129,6 @@ get_predictions <- function(model, cond=NULL, se=TRUE, f=1.96, rm.ranef=NULL,
 		}
 		
 		return(newd)
-
 	}
 }
 
@@ -278,14 +277,15 @@ get_random <- function(model, fun=NULL, cond=NULL, n.grid=30, print.summary=TRUE
 #' @export
 #' @param model A gam object, produced by \code{\link[mgcv]{gam}} or 
 #' \code{\link[mgcv]{bam}}.
-#' @param cond1 A named list with the values to use for the first difference 
-#' condition.
-#' @param cond2 A named list with the values to use for the second difference 
-#' condition.
+#' @param comp A named list with the two levels to compare.
 #' @param cond A named list of the values to use for the other predictor 
 #' terms. Variables omitted from this list will have the closest observed 
 #' value to the median for continuous variables, or the reference level for 
 #' factors. 
+#' @param rm.ranef Logical: whether or not to remove random effects. 
+#' Default is FALSE. Alternatively a string (or vector of strings) with the 
+#' name of the random effect(s) to remove. 
+#' (See notes.)
 #' @param se Logical: whether or not to return the confidence interval or 
 #' standard error around the estimates.
 #' @param f A number to scale the standard error. Defaults to 1.96, resulting 
@@ -295,6 +295,13 @@ get_random <- function(model, fun=NULL, cond=NULL, n.grid=30, print.summary=TRUE
 #' values selected for each predictor. Defaults to TRUE.
 #' @return Returns a data frame with the estimates of the difference and 
 #' optionally the confidence intervals around that estimate.
+#' @section Notes:
+#' Other, not specified effects and random effects are generally canceled 
+#' out, when calculating the difference. When the predictors that 
+#' specify the conditions to compare are involved in other interactions
+#' or included as random slopes, it may be useful to specify the values
+#' of other predictors with \code{cond} or remove the random effects with
+#' \code{rm.ranef}. 
 #' @examples
 #' data(simdat)
 #' 
@@ -302,43 +309,56 @@ get_random <- function(model, fun=NULL, cond=NULL, n.grid=30, print.summary=TRUE
 #' m1 <- bam(Y ~ Group+te(Time, Trial, by=Group), data=simdat)
 #'
 #' # get difference estimates:
-#' diff <- get_difference(m1, cond1=list(Group='Adults'), 
-#' cond2=list(Group='Children'), cond=list(Time=seq(0,500,length=100)))
+#' diff <- get_difference(m1, comp=list(Group=c('Adults', 'Children')), 
+#'     cond=list(Time=seq(0,500,length=100)))
 #' head(diff)
 #' @author Jacolien van Rij, Martijn Wieling
 #' @family functions for model predictions
 
-get_difference <- function(model, cond1, cond2, cond=NULL,
+get_difference <- function(model, comp, cond=NULL,
+	rm.ranef=NULL,
 	se=TRUE, f=1.96, print.summary=TRUE){
 
-
-	if(is.null(cond)){
-		stop("Please specify values for at least one predictor in the parameter 'cond'.")
-	}
 
 	if(!"lm" %in% class(model)){
 		stop("This function does not work for class %s models.", class(model)[1])
 	}else{
 		newd <- NULL
 		su <- model$var.summary
+		dat <- model$model
 
-		if(names(cond1) != names(cond2)){
-			stop("The arguments cond1 and cond2 do not specify different levels of the same predictors.")
+		# check comp
+		if(is.null(names(comp))){
+			stop("Predictor specified in 'comp' unknown. Please provide a named list for 'comp', in the form of 'comp=list(Predictor=c('level1', 'level2'))'.")
 		}
-		if(any(names(cond) %in% names(cond1))){
-			for(i in names(cond)[names(cond) %in% names(cond1)] ){
-				cond[[i]] <- NULL
+
+		if(all(names(comp) %in% colnames(dat))){
+			for(i in 1:length(comp)){
+				if(length(comp[[i]]) < 2){
+					stop(sprintf('Provide two levels for %s to calculate difference.', names(comp)[i]))
+				}else if(length(comp[[i]]) > 2){
+					warning(sprintf('More than two levels provided for predictor %s. Only first two levels are being used.', names(comp)[i]))
+				}
 			}
-			warning(sprintf('Predictor %s specified in cond1, cond2 and cond.', i))
+		}else{
+			errname <- paste(which(!names(comp)%in% colnames(dat)), collapse=", ")
+			stop(sprintf('Grouping predictor(s) not found in model: %s.', errname))
+		}
+
+		if(any(names(cond) %in% names(comp))){
+			for(i in names(cond)[names(cond) %in% names(comp)] ){
+				cond[[i]] <- NULL
+				warning(sprintf('Predictor %s specified in comp and cond. (The value in cond will be ignored.)', i))
+			}
 		}
 
 		new.cond1 <- list()
 		new.cond2 <- list()
 
 		for(i in names(su)){
-			if(i %in% names(cond1)){
-				new.cond1[[i]] <- cond1[[i]]
-				new.cond2[[i]] <- cond2[[i]]
+			if(i %in% names(comp)){
+				new.cond1[[i]] <- comp[[i]][1]
+				new.cond2[[i]] <- comp[[i]][2]
 			}else if(i %in% names(cond)){
 				new.cond1[[i]] <- new.cond2[[i]] <- cond[[i]]
 			}else{
@@ -357,15 +377,75 @@ get_difference <- function(model, cond1, cond2, cond=NULL,
 
 		p1 <- mgcv::predict.gam(model, newd1, type='lpmatrix') 
 		p2 <- mgcv::predict.gam(model, newd2, type='lpmatrix')
-		p <- p1 - p2
 
-		newd <- as.data.frame(newd1[,names(cond)])
-		names(newd) <- names(cond)
-		newd1 <- as.data.frame(newd1[,names(cond1)])
-		names(newd1) <- paste(names(cond1), '1', sep='..')
-		newd2 <- as.data.frame(newd2[,names(cond2)])
-		names(newd2) <- paste(names(cond2), '2', sep='..')
-		newd <- cbind(newd, newd1, newd2)
+		newd <- as.data.frame(newd1[,!names(newd1) %in% names(comp)])
+		mysummary <- summary_data(newd, print=FALSE)	
+
+		# Check for random effects:
+		if(class(rm.ranef)=="logical"){
+			if(rm.ranef==FALSE){
+				rm.ranef <- NULL			
+			}
+		}
+		if(!is.null(rm.ranef)){	
+
+			# get random effects columns:
+			smoothlabels <- as.data.frame( do.call('rbind', 
+				lapply(model$smooth, 
+					function(x){
+						data.frame(Label=x[['label']], 
+							Dim=x[['null.space.dim']], 
+							Class = attr(x, "class")[1],
+							stringsAsFactors=FALSE)
+					} ) ) )
+			# smoothlabels <- smoothlabels[smoothlabels$Dim==0,c("Label", "Class")]
+			smoothlabels <- as.vector( smoothlabels[smoothlabels$Class %in% c("random.effect","fs.interaction"), "Label"] )
+
+			if(class(rm.ranef)=="logical"){
+				if(rm.ranef==TRUE){
+					rm.ranef <- smoothlabels			
+				}
+			}
+			rm.col <- unlist(lapply(rm.ranef, 
+				function(x){
+					colnames(p1)[grepl(x, colnames(p1), fixed=TRUE)]
+				}))
+			rm.col <- unlist(lapply(smoothlabels,
+				function(x){
+					rm.col[grepl(x, rm.col, fixed=TRUE)]
+				}))
+
+			# cancel random effects
+			p1[,rm.col] <- 0
+			p2[,rm.col] <- 0
+
+			# find terms that only occur in random effects:
+			predictors <- do.call('rbind',
+				lapply(model$smooth, 
+					function(x){
+						data.frame(Label=x[['label']],
+							Terms=x[['term']])
+					} )) 	
+			test <- table(predictors$Terms) - table(predictors[predictors$Label %in% rm.ranef,]$Terms)
+			for(pred in names(test[test==0])){
+				if(pred %in% names(mysummary)){
+					mysummary[[pred]] <- paste(mysummary[[pred]], "(Might be canceled as random effect, check below.)")
+				}
+			}
+
+			if(length(rm.col)>0){
+				mysummary[['NOTE']] =  sprintf("The following random effects columns are canceled: %s\n", 
+				paste(smoothlabels, collapse=","))
+			}else{
+				warning("No random effects to cancel.\n")				
+			}
+
+		}
+
+
+
+		# calculate the difference:
+		p <- p1 - p2
 
 		newd$difference <- as.vector(p %*% coef(model))
 		if(se){
@@ -373,12 +453,11 @@ get_difference <- function(model, cond1, cond2, cond=NULL,
 		}
 
 		# print summary of chosen values
-		if(print.summary){
-			summary_data(newd)
-		}
+		if(print.summary==TRUE){
+			print_summary(mysummary)
+		}	
 		
 		return(newd)
-
 	}
 }
 
@@ -401,14 +480,70 @@ get_difference <- function(model, cond1, cond2, cond=NULL,
 #' @param f A number to scale the standard error. Defaults to 1.96, resulting 
 #' in 95\% confidence intervals. For 99\% confidence intervals use a value of 
 #' 2.58.
+#' @param as.data.frame Logical: whether or not to return a data.frame. 
+#' Default is false, and a list will be returned.
+#' @return A list with two or more elements:
+#' \itemize{
+#' \item \code{fit}: Numeric vector with the fitted values;
+#' \item \code{se.fit}: Optionally, only with \code{se=TRUE}.
+#' Numeric vector with the error or confidence interval values (f*SE);
+#' \item \code{f}: The multiplication factor for generating 
+#' the confidence interval values;
+#' \item \code{terms}: Numeric vector (for 1-dimensional smooth) 
+#' or data frame (more 2- or more dimensional surfaces) 
+#' with values of the modelterms.
+#' \item \code{title}: String with name of the model term.
+#' \item \code{xlab}, \code{ylab}, or \code{labels}:
+#' Labels for x-axis and optionally y-axis. Precise structure depends 
+#' on type of smooth term: for 1-dimensional smooth only x-label is provided, 
+#' for 2-dimensional smooths x-label and y-label are provided, 
+#' for more complex smooths a vector of of labels is provided.
+#' }
 #' @examples
-#' # see the vignette for examples:
+#' data(simdat)
+#'
+#'\dontrun{ 
+#' # Model with random effect and interactions:
+#' m1 <- bam(Y ~ s(Time) + s(Trial) 
+#' +ti(Time, Trial)
+#' +s(Time, Subject, bs='fs', m=1),
+#' data=simdat)
+#' 
+#' # Get list with predictions:
+#' p <- get_modelterm(m1, select=1)
+#' emptyPlot(range(p$terms), range(p$fit), h=0)
+#' plot_error(p$terms, p$fit, p$se.fit, shade=TRUE, xpd=TRUE)
+#' 
+#' # Plot random effects in separate panels:
+#' pp <- get_modelterm(m1, select=4, as.data.frame=TRUE)
+#' require(lattice)
+#' lattice::xyplot(fit~Time|Subject, 
+#'     data=pp, type="l",
+#'     xlab="Time", ylab="Partial effect")
+#' 
+#' # Plot selection of subjects:
+#' pp <- get_modelterm(m1, select=4, 
+#'     cond=list(Subject=c('a01', 'a03', 'c16')),
+#'     as.data.frame=TRUE)
+#' lattice::xyplot(fit~Time|Subject, 
+#'     data=pp, type="l",
+#'     xlab="Time", ylab="Partial effect")
+#'
+#' # Or using the package ggplot2:
+#' require(ggplot2)
+#' pp <- get_modelterm(m1, select=4, as.data.frame=TRUE)
+#' pg <- ggplot2::qplot(Time, fit, data = pp, 
+#'     geom = c("point", "line"), colour = Subject)
+#' pg + ggplot2::guides(col = guide_legend(nrow = 18))
+#' }
+#' 
+#' # see the vignette for plot examples:
 #' vignette("plotfunctions", package="itsadug")
 #' @author Jacolien van Rij
 #' @family functions for model predictions
 
 get_modelterm <- function(model, select, cond=NULL, n.grid=30, 
-	se=TRUE, f=1.96){
+	se=TRUE, f=1.96, as.data.frame=FALSE){
 
 	if(!"lm" %in% class(model)){
 		stop("This function does not work for class %s models.", class(model)[1])
@@ -449,17 +584,43 @@ get_modelterm <- function(model, select, cond=NULL, n.grid=30,
 		newd <- expand.grid(new.cond)
 		p <- mgcv::predict.gam(model, newd, type='terms', se.fit=se)
 
-		fv <- list()
-		
-		if(se){
-			fv[['fit']] <- p$fit[, smoothlabels]
-			fv[['se.fit']] <- f*p$se.fit[,smoothlabels]
-			fv[['f']] <- f
+		if(as.data.frame){
+			fv <- c()
+			if(length(smoothterms) > 1){
+				fv <- newd[,smoothterms]
+			}else{
+				fv <- data.frame(st=newd[,smoothterms])
+				names(fv) <- smoothterms
+			}
+			fv$fit <-  p$fit[, smoothlabels]
+			if(se){
+				fv$se.fit <- f*p$se.fit[,smoothlabels]
+			}
+			return(fv)
 		}else{
-			fv[['fit']] <- p[, smoothlabels]
+			fv <- list()
+			
+			if(se){
+				fv[['fit']] <- p$fit[, smoothlabels]
+				fv[['se.fit']] <- f*p$se.fit[,smoothlabels]
+				fv[['f']] <- f
+			}else{
+				fv[['fit']] <- p[, smoothlabels]
+			}
+
+			fv[['terms']] <- newd[,smoothterms]
+			fv[['title']] <- model$smooth[[select]]['label']
+			if(length(smoothterms)==1){
+				fv[['xlab']] <- smoothterms[1]
+			}else if(length(smoothterms)==2){
+				fv[['xlab']] <- smoothterms[1]
+				fv[['ylab']] <- smoothterms[2]
+			}else{
+				fv[['labels']] <- smoothterms
+			}	
+
+			return(fv)
 		}
-		fv[['terms']] <- newd[,smoothterms]
-		return(fv)
 	}
 }
 

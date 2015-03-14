@@ -14,7 +14,6 @@
 #' allows to plotting of interactions with three of more continuous predictors 
 #' by breaking it down in two-dimensional surfaces.
 #' The code is derivated from the script for \code{\link[mgcv]{vis.gam}}.
-#'
 #' @param x A gam object, produced by \code{\link[mgcv]{gam}} or 
 #' \code{\link[mgcv]{bam}}.
 #' @param view A two-value vector containing the names of the two main effect 

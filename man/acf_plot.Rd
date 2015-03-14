@@ -5,7 +5,7 @@
 \title{Generate an ACF plot of an aggregated time series.}
 \usage{
 acf_plot(x, split_by = NULL, max_lag = NULL, plot = TRUE, fun = mean,
-  return_all = FALSE, ...)
+  cond = NULL, return_all = FALSE, ...)
 }
 \arguments{
 \item{x}{A vector with time series data, typically residuals of a
@@ -23,6 +23,10 @@ Default is the maximum for the longest time series.}
 
 \item{fun}{The function used when aggregating over time series
 (depending on the value of \code{split_by}).}
+
+\item{cond}{Named list with a selection of the time series events
+specified in \code{split_by}. Default is NULL, indicating that
+all time series are being processed, rather than a selection.}
 
 \item{return_all}{Returning acfs for all time series.}
 

@@ -49,6 +49,7 @@ m1 <- bam(Y~Group + s(Time, by=Group), method="fREML", data=simdat)
 m2 <- bam(Y~Group + s(Time), method="fREML", data=simdat)
 
 compareML(m1, m2)
+
 }
 }
 \author{

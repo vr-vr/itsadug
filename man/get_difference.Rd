@@ -4,23 +4,24 @@
 \alias{get_difference}
 \title{Get model predictions for differences between conditions.}
 \usage{
-get_difference(model, cond1, cond2, cond = NULL, se = TRUE, f = 1.96,
-  print.summary = TRUE)
+get_difference(model, comp, cond = NULL, rm.ranef = NULL, se = TRUE,
+  f = 1.96, print.summary = TRUE)
 }
 \arguments{
 \item{model}{A gam object, produced by \code{\link[mgcv]{gam}} or
 \code{\link[mgcv]{bam}}.}
 
-\item{cond1}{A named list with the values to use for the first difference
-condition.}
-
-\item{cond2}{A named list with the values to use for the second difference
-condition.}
+\item{comp}{A named list with the two levels to compare.}
 
 \item{cond}{A named list of the values to use for the other predictor
 terms. Variables omitted from this list will have the closest observed
 value to the median for continuous variables, or the reference level for
 factors.}
+
+\item{rm.ranef}{Logical: whether or not to remove random effects.
+Default is FALSE. Alternatively a string (or vector of strings) with the
+name of the random effect(s) to remove.
+(See notes.)}
 
 \item{se}{Logical: whether or not to return the confidence interval or
 standard error around the estimates.}
@@ -39,6 +40,15 @@ optionally the confidence intervals around that estimate.
 \description{
 Get model predictions for differences between conditions.
 }
+\section{Notes}{
+
+Other, not specified effects and random effects are generally canceled
+out, when calculating the difference. When the predictors that
+specify the conditions to compare are involved in other interactions
+or included as random slopes, it may be useful to specify the values
+of other predictors with \code{cond} or remove the random effects with
+\code{rm.ranef}.
+}
 \examples{
 data(simdat)
 
@@ -46,8 +56,8 @@ data(simdat)
 m1 <- bam(Y ~ Group+te(Time, Trial, by=Group), data=simdat)
 
 # get difference estimates:
-diff <- get_difference(m1, cond1=list(Group='Adults'),
-cond2=list(Group='Children'), cond=list(Time=seq(0,500,length=100)))
+diff <- get_difference(m1, comp=list(Group=c('Adults', 'Children')),
+    cond=list(Time=seq(0,500,length=100)))
 head(diff)
 }
 \author{

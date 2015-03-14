@@ -4,8 +4,8 @@
 \alias{acf_n_plots}
 \title{Generate N ACF plots of individual or aggregated time series.}
 \usage{
-acf_n_plots(x, n = 5, split_by = NULL, max_lag = NULL, fun = mean,
-  random = F, mfrow = NULL, add = FALSE, ...)
+acf_n_plots(x, n = 5, split_by = NULL, cond = NULL, max_lag = NULL,
+  fun = mean, plot = TRUE, random = F, mfrow = NULL, add = FALSE, ...)
 }
 \arguments{
 \item{x}{A vector with time series data, typically residuals of a
@@ -17,11 +17,17 @@ regression model.}
 group the values of \code{x} into trials or timeseries events.
 Generally other columns from the same data frame.}
 
+\item{cond}{Named list with a selection of the time series events
+specified in \code{split_by}. Default is NULL, indicating that
+all time series are being processed, rather than a selection.}
+
 \item{max_lag}{Maximum lag at which to calculate the acf.
 Default is the maximum for the longest time series.}
 
 \item{fun}{The function used when aggregating over time series
 (depending on the value of \code{split_by}).}
+
+\item{plot}{Logical: whether or not to produce plot. Default is TRUE.}
 
 \item{random}{Logical: determine randomly which \code{n} (aggregated) time
 series are plotted, or use the \code{\link{quantile}} function to find a
@@ -55,17 +61,19 @@ acf_n_plots(simdat$Y, split_by=list(simdat$Subject))
 acf_n_plots(simdat$Y, add=TRUE)
 # Plot 4 ACF plots doesn't work without splitting data:
 acf_n_plots(simdat$Y, add=TRUE, n=4)
-}
+
 # Plot ACFs of 4 randomly selected time series:
 acf_n_plots(simdat$Y, random=TRUE, n=4, add=TRUE,
     split_by=list(simdat$Subject, simdat$Trial))
+
 # See also the vignette for an example:
 vignette(topic="plotfunctions", package="itsadug")
+}
 
 #---------------------------------------------
 # When using model residuals
 #---------------------------------------------
-
+\dontrun{
 # add missing values to simdat:
 simdat[sample(nrow(simdat), 15),]$Y <- NA
 # simple linear model:
@@ -83,6 +91,7 @@ acf_n_plots(resid(m1),
 simdat$res <- NA
 simdat[!is.na(simdat$Y),]$res <- resid(m1)
 acf_n_plots(simdat$res, split_by=list(simdat$Subject, simdat$Trial))
+}
 }
 \author{
 Jacolien van Rij, R. Harald Baayen

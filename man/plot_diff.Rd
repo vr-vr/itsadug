@@ -5,8 +5,10 @@
 \alias{plot_diff}
 \title{Plot difference curve based on model predictions.}
 \usage{
-plot_diff(model, view, comp, eegAxis = F, f = 1.96, ylim = NULL,
-  ylab = NULL, main = NULL, plot = TRUE, ...)
+plot_diff(model, view, comp, cond = NULL, plotCI = TRUE, f = 1.96,
+  eegAxis = FALSE, col = "black", shade = TRUE, n.grid = 100,
+  add = FALSE, print.summary = TRUE, plot = TRUE, rm.ranef = NULL,
+  main = NULL, ylab = NULL, xlab = NULL, ylim = NULL, ...)
 }
 \arguments{
 \item{model}{A GAMM model, resulting from the functions
@@ -18,31 +20,59 @@ axis.}
 \item{comp}{Named list with the grouping predictor (categorical variable)
 and the 2 levels to calculate the difference for.}
 
-\item{eegAxis}{Logical: whether or not to reverse the y-axis, plotting
-negative values upwards. Default is FALSE.}
+\item{cond}{A named list of the values to use for the predictor terms.
+Variables omitted from this list will have the closest observed value to
+the median for continuous variables, or the reference level for factors.}
+
+\item{plotCI}{Logical: whether or not to plot confidence intervals.
+Default is TRUE.}
 
 \item{f}{A number to scale the standard error. Defaults to 1.96, resulting
 in 95\% confidence intervals. For 99\% confidence intervals use a value of
 2.58.}
 
-\item{ylim}{Range of y-axis. If not specified, the function automatically
-generates an appropriate y-axis.}
+\item{eegAxis}{Logical: whether or not to reverse the y-axis, plotting
+negative values upwards. Default is FALSE.}
 
-\item{ylab}{Text string, alternative label for y-axis.}
+\item{col}{Line color. Shading color is derived from line color.}
 
-\item{main}{Text string, alternative title for plot.}
+\item{shade}{Logical: plot shaded confidence interval (TRUE)
+or dashed lines that indicate confidence region (FALSE).}
+
+\item{n.grid}{Number of data points sampled as predictions. Defaults to 100.}
+
+\item{add}{Logical: whether or not to add the line to an existing plot.
+Default is FALSE.
+When no plot window is available and \code{add=TRUE},
+the function will generate an error.}
+
+\item{print.summary}{Logical: whether or not to print the summary.
+Default is TRUE.}
 
 \item{plot}{Logical: whether or not to plot the difference. If FALSE, then
 the output is returned as a list, with the estimated difference
 (\code{est}) and the standard error over the estimate (\code{se.est}) and
 the x-values (\code{x}). Default is TRUE.}
 
+\item{rm.ranef}{Logical: whether or not to remove random effects.
+Default is FALSE. Alternatively a string (or vector of strings) with the
+name of the random effect(s) to remove.}
+
+\item{main}{Text string, alternative title for plot.}
+
+\item{ylab}{Text string, alternative label for y-axis.}
+
+\item{xlab}{Text string, alternative label for x-axis.}
+
+\item{ylim}{Range of y-axis. If not specified, the function automatically
+generates an appropriate y-axis.}
+
 \item{...}{Optional arguments for plot.}
 }
 \value{
 If the result is not being plotted, a list is
 returned with the estimated difference (\code{est}) and the standard error
-over the estimate (\code{se.est}) and the x-values (\code{x}) is returned.
+over the estimate (\code{se}) and the x-values (\code{x}) is returned.
 }
 \description{
 Plot difference curve based on model predictions.
@@ -68,7 +98,7 @@ arrows(x0=x$start, x1=x$end, y0=0, y1=0,code=3, length=.1, col='red')
 vignette("plotfunctions", package="itsadug")
 }
 \author{
-Martijn Wieling
+Martijn Wieling, Jacolien van Rij
 }
 \seealso{
 Other functions for interpreting nonlinear effects: \code{\link{fvisgam}},
