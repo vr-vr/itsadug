@@ -8,7 +8,7 @@
 plot_diff2(model, view, comp, cond = NULL, plotCI = FALSE, f = 1.96,
   color = "topo", nCol = 100, col = NULL, add.color.legend = TRUE,
   n.grid = 30, nlevels = 10, zlim = NULL, main = NULL,
-  print.summary = TRUE)
+  print.summary = getOption("itsadug_print"))
 }
 \arguments{
 \item{model}{A GAMM model, resulting from the functions
@@ -48,7 +48,9 @@ axis scale. NULL to choose automatically.}
 
 \item{main}{Title of plot.}
 
-\item{print.summary}{Logical: whether or not to print a summary.}
+\item{print.summary}{Logical: whether or not to print a summary.
+Default set to the print info messages option
+(see \code{\link{infoMessages}}).}
 }
 \value{
 If the result is not being plotted, a list is

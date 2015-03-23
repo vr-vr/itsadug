@@ -5,8 +5,9 @@
 \title{Visualization of group estimates.}
 \usage{
 plot_parametric(x, pred, cond = list(), parametricOnly = FALSE,
-  rm.ranef = NULL, col = "black", se = 1.96, print.summary = TRUE,
-  main = NULL, xlab = NULL, ...)
+  rm.ranef = NULL, col = "black", se = 1.96,
+  print.summary = getOption("itsadug_print"), main = NULL, xlab = NULL,
+  ...)
 }
 \arguments{
 \item{x}{A gam object, produced by \code{\link[mgcv]{gam}} or
@@ -32,7 +33,9 @@ plotted, but if greater than zero, then the predicted values plus
 confidence intervals are plotted. The value of se will be multiplied with
 the standard error (i.e., 1.96 results in 95\%CI and 2.58).}
 
-\item{print.summary}{Logical: whether or not to print summary.}
+\item{print.summary}{Logical: whether or not to print summary.
+Default set to the print info messages option
+(see \code{\link{infoMessages}}).}
 
 \item{main}{Changing the main title for the plot, see also title.}
 

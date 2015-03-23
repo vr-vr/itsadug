@@ -203,7 +203,9 @@ check_resid <- function(model, AR_start = NULL, split_by=NULL){
 			main=sprintf('resid(%s)', deparse(substitute(model))))
 		lines(0:(length(val)-1), val, type='h', lwd=3, col=alpha('red', .5), lend=1, xpd=TRUE)
 	}else{
-		message("No AR1 model included.")
+		if(getOption('itsadug_print')==TRUE){
+			message("No AR1 model included.")
+		}
 		acf(res, col=ifelse(is.null(res.rho), 'black','darkgray'), 
 			main=sprintf('resid(%s)', deparse(substitute(model))))
 	}
@@ -222,7 +224,9 @@ check_resid <- function(model, AR_start = NULL, split_by=NULL){
 				main=sprintf('resid(%s) - time series', deparse(substitute(model))), ylab='ACF')
 		}
 	}else{
-		message("No predictors specified to split the residuals. Last plot is canceled.")
+		if(getOption('itsadug_print')==TRUE){
+			message("No predictors specified to split the residuals. Last plot is canceled.")
+		}
 	}
 }
 

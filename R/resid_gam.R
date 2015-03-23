@@ -130,7 +130,10 @@ resid_gam <- function(model, AR_start = NULL, incl_na = FALSE, return_all = FALS
     }
     
     tmpdat$RES_next <- next_point(tmpdat$RES)
-    tmpdat[n[(n - 1) > 0], ]$RES_next <- rep(NA, length(n[(n - 1) > 0]))
+    if(length(n[(n - 1) > 0]) > 0){
+        tmpdat[n[(n - 1) > 0], ]$RES_next <- rep(NA, length(n[(n - 1) > 0]))
+    }
+    
     
 
 

@@ -5,7 +5,7 @@
 \title{Get model predictions for specific conditions.}
 \usage{
 get_predictions(model, cond = NULL, se = TRUE, f = 1.96,
-  rm.ranef = NULL, print.summary = TRUE)
+  rm.ranef = NULL, print.summary = getOption("itsadug_print"))
 }
 \arguments{
 \item{model}{A gam object, produced by \code{\link[mgcv]{gam}} or
@@ -27,7 +27,9 @@ Default is FALSE. Alternatively a string (or vector of strings) with the
 name of the random effect(s) to remove.}
 
 \item{print.summary}{Logical: whether or not to print a summary of the
-values selected for each predictor. Defaults to TRUE.}
+values selected for each predictor.
+Default set to the print info messages option
+(see \code{\link{infoMessages}}).}
 }
 \value{
 A data frame with estimates and optionally errors.
@@ -44,6 +46,7 @@ Jacolien van Rij
 }
 \seealso{
 Other functions for model predictions: \code{\link{get_difference}};
-  \code{\link{get_modelterm}}; \code{\link{get_random}}
+  \code{\link{get_modelterm}}; \code{\link{get_random}};
+  \code{\link{plotsurface}}
 }
 

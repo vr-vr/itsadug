@@ -51,6 +51,8 @@
 #' @param nCol The number of colors to use in color schemes.
 #' @param labcex Size of the contour labels.
 #' @param print.summary Logical: whether or not to print summary.
+#' Default set to the print info messages option 
+#' (see \code{\link{infoMessages}}).
 #' @param ... other options to pass on to persp, image or contour. In 
 #' particular ticktype="detailed" will add proper axes labeling to the plots.
 #' @section Warnings:
@@ -87,7 +89,7 @@ pvisgam <- function(x, view = NULL, select = NULL, cond = list(), n.grid = 30,
     too.far = 0, col = NA, color = "topo", contour.col = NULL, 
     add.color.legend=TRUE,
     se = -1, type = "link", plot.type = "contour", zlim = NULL, 
-    nCol = 50, labcex=.6, print.summary=TRUE,...) {
+    nCol = 50, labcex=.6, print.summary=getOption('itsadug_print'),...) {
     
     # This modfication of vis.gam allows the user to specify one condition to plot as partial effect surface.  Use: 1)
     # view=c('Time','Trial') to specify which surface to plot, and 2) select=2 to select a specific smooth term (necessary

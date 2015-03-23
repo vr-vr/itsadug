@@ -4,15 +4,19 @@
 \alias{plot_error}
 \title{Utility function}
 \usage{
-plot_error(x, fit, se.fit, shade = FALSE, f = 1, col = "black",
-  border = NA, alpha = 0.25, ...)
+plot_error(x, fit, se.fit, se.fit2 = NULL, shade = FALSE, f = 1,
+  col = "black", border = NA, alpha = 0.25, ...)
 }
 \arguments{
 \item{x}{Vector with values on x-axis.}
 
 \item{fit}{Vector with values on y-axis.}
 
-\item{se.fit}{Vector with standard error.}
+\item{se.fit}{Vector with standard error; or when \code{se.fit2}
+is provided, \code{se.fit} specifies upper values confidence
+interval.}
+
+\item{se.fit2}{Optional: lower values confidence interval.}
 
 \item{shade}{Logical: whether or not to produce shaded regions as
 confidence bands.}
@@ -59,6 +63,16 @@ x <- find_difference(avg$x[,'mean'], avg$x[,'sd'], xVals=avg$Time)
 abline(v=c(x$start, x$end), lty=3, col='red')
 arrows(x0=x$start, x1=x$end, y0=-5, y1=-5, code=3, length=.1, col='red')
 
+# Use of se.fit2:
+avg$cu <- avg$x[,'mean'] + avg$x[,'sd']
+avg$cl <- avg$x[,'mean'] - avg$x[,'sd']
+emptyPlot(range(avg$Time), c(-20,20), h0=0)
+plot_error(avg$Time, avg$x[,'mean'], se.fit=avg$cu, se.fit2=avg$cl, col='red')
+# Change layout:
+emptyPlot(range(avg$Time), c(-20,20), h0=0)
+plot_error(avg$Time, avg$x[,'mean'], avg$x[,'sd'],
+   shade=TRUE, lty=3, lwd=3)
+
 # see the vignette on visualization,
 # section 'Using predictions to customize plots', for an example:
 vignette(topic="plotfunctions")
@@ -69,10 +83,11 @@ Jacolien van Rij
 \seealso{
 Other Utility functions for plotting: \code{\link{addInterval}};
   \code{\link{alphaPalette}}; \code{\link{alpha}};
-  \code{\link{dotplot_error}}; \code{\link{emptyPlot}};
-  \code{\link{errorBars}}; \code{\link{fadeRug}};
-  \code{\link{fill_area}}; \code{\link{find_difference}};
-  \code{\link{getCoords}}; \code{\link{gradientLegend}};
+  \code{\link{color_contour}}; \code{\link{dotplot_error}};
+  \code{\link{emptyPlot}}; \code{\link{errorBars}};
+  \code{\link{fadeRug}}; \code{\link{fill_area}};
+  \code{\link{find_difference}}; \code{\link{getCoords}};
+  \code{\link{getFigCoords}}; \code{\link{gradientLegend}};
   \code{\link{horiz_error}}
 }
 

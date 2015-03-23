@@ -35,49 +35,66 @@
 #' \code{\link[mgcv]{bam}}.
 # help function
 
-gamtabs = function(model, caption=" ", label="tab.gam", pnames = NA, snames = NA, 
-                   ptab=NA, stab=NA, ...) 
-{
-  if (!requireNamespace("xtable", quietly = TRUE)) {
-    stop("Package 'xtable' needed for this function to work. Please install it.",
-      call. = FALSE)
-  }
-  if (is.na(ptab[1])) ptab = as.data.frame(summary(model)$p.table)
-  if (is.na(stab[1])) stab = as.data.frame(summary(model)$s.table)
-  if (!is.na(pnames[1])) rownames(ptab)=pnames
-  if (!is.na(snames[1])) rownames(stab)=snames
-  colnames(ptab)[4]="p-value"
-  colnames(ptab)[3]="t-value"
-  ptab.cnames = colnames(ptab)
-  stab.cnames = colnames(stab)
-  stab.cnames[3]="F-value"
+gamtabs <- function (model, caption = " ", label = "tab.gam", 
+    pnames = NA, snames = NA, ptab = NA, stab = NA, ...){
 
-  colnames(ptab)=c("A", "B", "C", "D")
-  colnames(stab)=colnames(ptab)
-  tab = rbind(ptab, stab)
-  colnames(tab)=ptab.cnames
-  tab = round(tab, 4)
-  m = data.frame(matrix(0, nrow(tab), ncol(tab)))
-  for (i in 1:nrow(tab)) {
-    for (j in 1:4) {
-      if ((j==4) & (tab[i,j] < 0.0001)) m[i,j]="< 0.0001"
-      else m[i,j]=sprintf("%3.4f", tab[i,j])
+    if (!requireNamespace("xtable", quietly = TRUE)) {
+        stop("Package 'xtable' needed for this function to work. Please install it.",
+            call. = FALSE)
     }
-  }
-  colnames(m) = colnames(tab)
-  rownames(m) = rownames(tab)
-  tab=m
-  tab2 = rbind(c(ptab.cnames),
-             tab[1:nrow(ptab),],
-             c(stab.cnames),
-             tab[(nrow(ptab)+1):nrow(tab),])
-  rownames(tab2)[(nrow(ptab)+2)]="B. smooth terms"
-  rownames(tab2)[1]="A. parametric coefficients"
-  for (i in 1:nrow(tab2)) {
-    if (tab2[i,4] == "0") tab2[i,4] = "< 0.0001"
-    if (length(grep("\\.", tab2[i,2]))==0) tab2[i,2]=paste(tab2[i,2], ".0000", sep="")
-  }
-  print(xtable::xtable(tab2, caption=caption, label = label, align="lrrrr"), 
-      include.colnames=FALSE, #include.rownames=FALSE,
-      hline.after=c(0, (nrow(ptab)+1), nrow(tab2)), ... )
+    if (is.na(ptab[1])){
+        ptab = as.data.frame(summary(model)$p.table)
+    }
+    if (is.na(stab[1])){
+        stab = as.data.frame(summary(model)$s.table)
+    }
+    if (!is.na(pnames[1])){
+        rownames(ptab) = pnames
+    }
+    if (!is.na(snames[1])){
+        rownames(stab) = snames
+    }
+    colnames(ptab)[4] = "p-value"
+    colnames(ptab)[3] = "t-value"
+    ptab.cnames = colnames(ptab)
+    stab.cnames = colnames(stab)
+    stab.cnames[3] = "F-value"
+    colnames(ptab) = c("A", "B", "C", "D")
+  if (ncol(stab) != 0){
+    colnames(stab) = colnames(ptab)
+    }
+    tab = rbind(ptab, stab)
+    colnames(tab) = ptab.cnames
+    tab = round(tab, 4)
+    m = data.frame(matrix(0, nrow(tab), ncol(tab)))
+    for (i in 1:nrow(tab)) {
+        for (j in 1:4) {
+            if ((j == 4) & (tab[i, j] < 1e-04)){
+                m[i, j] = "< 0.0001"
+            }
+            else {
+                m[i, j] = sprintf("%3.4f", tab[i, j])
+            }
+        }
+    }
+    colnames(m) = colnames(tab)
+    rownames(m) = rownames(tab)
+    tab = m
+    tab2 = rbind(c(ptab.cnames), tab[1:nrow(ptab), ])
+  if (nrow(stab) > 0){
+    tab2 = rbind(tab2, c(stab.cnames), tab[(nrow(ptab) + 1):nrow(tab), ])
+    }
+  if (nrow(stab)){
+    rownames(tab2)[(nrow(ptab) + 2)] = "B. smooth terms"
+    }
+    rownames(tab2)[1] = "A. parametric coefficients"
+    for (i in 1:nrow(tab2)) {
+        if (tab2[i, 4] == "0")
+            tab2[i, 4] = "< 0.0001"
+        if (length(grep("\\.", tab2[i, 2])) == 0)
+            tab2[i, 2] = paste(tab2[i, 2], ".0000", sep = "")
+    }
+    print(xtable::xtable(tab2, caption = caption, label = label,
+        align = "lrrrr"), include.colnames = FALSE, hline.after = c(0,
+        (nrow(ptab) + 1), nrow(tab2)), ...)
 }

@@ -6,8 +6,9 @@
 \usage{
 plot_smooth(x, view = NULL, cond = list(), rm.ranef = NULL, n.grid = 30,
   rug = TRUE, col = "black", add = FALSE, se = 1.96, shade = TRUE,
-  eegAxis = FALSE, print.summary = TRUE, main = NULL, xlab = NULL,
-  ylab = NULL, ylim = NULL, h0 = 0, v0 = NULL, ...)
+  eegAxis = FALSE, print.summary = getOption("itsadug_print"),
+  main = NULL, xlab = NULL, ylab = NULL, ylim = NULL, h0 = 0,
+  v0 = NULL, transform = NULL, ...)
 }
 \arguments{
 \item{x}{A gam object, produced by \code{\link[mgcv]{gam}} or
@@ -51,7 +52,9 @@ negative amplitudes upwards as traditionally is done in EEG research.
 If eeg.axes is TRUE, labels for x- and y-axis are provided, when not
 provided by the user. Default value is FALSE.}
 
-\item{print.summary}{Logical: whether or not to print summary.}
+\item{print.summary}{Logical: whether or not to print summary.
+Default set to the print info messages option
+(see \code{\link{infoMessages}}).}
 
 \item{main}{Changing the main title for the plot, see also title.}
 
@@ -68,6 +71,9 @@ reference. By default no values provided.}
 
 \item{v0}{A vector indicating where to add dotted vertical lines for
 reference. By default no values provided.}
+
+\item{transform}{Function for transforming the fitted values.
+Default is NULL.}
 
 \item{...}{other options to pass on to lines and plot,
 see \code{\link[graphics]{par}}}

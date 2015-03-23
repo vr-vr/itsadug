@@ -100,6 +100,7 @@ Jacolien van Rij
 }
 \seealso{
 Other functions for model predictions: \code{\link{get_difference}};
-  \code{\link{get_predictions}}; \code{\link{get_random}}
+  \code{\link{get_predictions}}; \code{\link{get_random}};
+  \code{\link{plotsurface}}
 }
 

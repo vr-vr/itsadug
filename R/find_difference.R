@@ -8,6 +8,9 @@
 #' values, otherwise as indices.
 #' @param f A number to multiply the \code{se} with, to convert the \code{se} 
 #' into confidence intervals. Use 1.96 for 95\% CI and 2.58 for 99\%CI.
+#' @param as.vector Logical: whether or not to return the data points as 
+#' vector, or not. Default is FALSE, and a list with start and end points will
+#'  be returned.
 #' @return The function returns a list with start points of each region 
 #' (\code{start}) and end points of each region (\code{end}). The logical 
 #' \code{xVals} indicates whether the returned values are on the x-scale 
@@ -37,7 +40,8 @@
 #'
 #' @family Utility functions for plotting
 
-find_difference <- function(mean, se, xVals = NULL,f=1) {
+find_difference <- function(mean, se, xVals = NULL,f=1,
+    as.vector=FALSE) {
     if (length(mean) != length(se)) {
         stop("The vectors mean and se are not equal in length.")
     } else {
@@ -45,19 +49,30 @@ find_difference <- function(mean, se, xVals = NULL,f=1) {
         lb <- mean - f*se
         
         n <- which(!(ub >= 0 & lb <= 0))
-        if (length(n) == 0) {
-            return(NULL)
-        } else {
-            n_prev <- c(NA, n[1:(length(n) - 1)])
-            n_next <- c(n[2:length(n)], NA)
-            if (!is.null(xVals) & (length(xVals) == length(mean))) {
-                return(list(start = xVals[n[which(is.na(n - n_prev) | (n - n_prev) > 1)]], end = xVals[n[which(is.na(n_next - 
-                  n) | (n_next - n) > 1)]], xVals = TRUE))
+
+        if(as.vector){
+            if (length(n) == 0) {
+                return(rep(FALSE, length(mean)))
             } else {
-                return(list(start = n[which(is.na(n - n_prev) | (n - n_prev) > 1)], end = n[which(is.na(n_next - n) | (n_next - 
-                  n) > 1)], xVals = FALSE))
+                out <- rep(FALSE, length(mean))
+                out[n] <- TRUE
+                return(out)
             }
-            
+        }else{
+            if (length(n) == 0) {
+                return(NULL)
+            } else {
+                n_prev <- c(NA, n[1:(length(n) - 1)])
+                n_next <- c(n[2:length(n)], NA)
+                if (!is.null(xVals) & (length(xVals) == length(mean))) {
+                    return(list(start = xVals[n[which(is.na(n - n_prev) | (n - n_prev) > 1)]], end = xVals[n[which(is.na(n_next - 
+                      n) | (n_next - n) > 1)]], xVals = TRUE))
+                } else {
+                    return(list(start = n[which(is.na(n - n_prev) | (n - n_prev) > 1)], end = n[which(is.na(n_next - n) | (n_next - 
+                      n) > 1)], xVals = FALSE))
+                }
+                
+            }
         }
     }
 }

@@ -89,6 +89,22 @@ such as \code{\link{emptyPlot}}, \code{\link{plot_error}} for quickly
 plotting smooth terms with shaded errors, and \code{\link{addInterval}}
 for drawing interval indication.
 }
+
+\section{Notes}{
+
+\itemize{
+\item Use \code{\link{infoMessages}(FALSE)} to suppress all
+information messages for the current session.
+This may be helpful when creating knitr or
+R markdown reports.
+\item The vignettes are available via \code{browseVignettes()}.
+When working on a server via the command line,
+using \code{ssh -X} instead of \code{ssh} may make the
+HTML files available.
+\item A list of all available functions is provided in
+\code{help(package="itsadug")}.
+}
+}
 \author{
 Jacolien van Rij, Martijn Wieling, R.Harald Baayen, Hedderik van Rijn
 

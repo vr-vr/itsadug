@@ -37,6 +37,8 @@
 #' If eeg.axes is TRUE, labels for x- and y-axis are provided, when not 
 #' provided by the user. Default value is FALSE.
 #' @param print.summary Logical: whether or not to print summary.
+#' Default set to the print info messages option 
+#' (see \code{\link{infoMessages}}).
 #' @param main Changing the main title for the plot, see also title.
 #' @param xlab Changing the label for the x axis, 
 #' defaults to a description of x.
@@ -47,6 +49,8 @@
 #' reference. By default no values provided.
 #' @param v0 A vector indicating where to add dotted vertical lines for 
 #' reference. By default no values provided.
+#' @param transform Function for transforming the fitted values. 
+#' Default is NULL.
 #' @param ... other options to pass on to lines and plot, 
 #' see \code{\link[graphics]{par}}
 #' @section Notes:
@@ -97,8 +101,10 @@
 
 plot_smooth <- function(x, view = NULL, cond = list(), rm.ranef=NULL,
     n.grid = 30, rug = TRUE, col = 'black', add=FALSE, 
-    se = 1.96, shade = TRUE, eegAxis=FALSE, print.summary=TRUE,
-    main=NULL, xlab=NULL, ylab=NULL, ylim=NULL, h0=0, v0=NULL,...) {
+    se = 1.96, shade = TRUE, eegAxis=FALSE, 
+    print.summary=getOption('itsadug_print'),
+    main=NULL, xlab=NULL, ylab=NULL, ylim=NULL, h0=0, v0=NULL, 
+    transform=NULL,...) {
        
     dnm <- names(list(...))
 
@@ -140,12 +146,26 @@ plot_smooth <- function(x, view = NULL, cond = list(), rm.ranef=NULL,
         f=ifelse(se>0, se, 1.96), rm.ranef=rm.ranef,
         print.summary=print.summary)
 
+    if(se > 0){
+        newd$ul <- with(newd, fit+CI)
+        newd$ll <- with(newd, fit-CI)
+
+        if(!is.null(transform)){
+            newd$ul <- sapply(newd$ul, transform)
+            newd$ll <- sapply(newd$ll, transform)
+        }
+    }
+    if(!is.null(transform)){
+        newd$fit <- sapply(newd$fit, transform)
+    }
+
+
     if(is.null(main)){ main <- view[1] }
     if(is.null(xlab)){ xlab <- view[1] }
     if(is.null(ylab)){ ylab <- names(x$model)[!names(x$model) %in% v.names]}
     if(is.null(ylim)){ 
         if(se>0){
-            ylim <- range(c(newd$fit+newd$CI, newd$fit-newd$CI))
+            ylim <- range(c(newd$ul, newd$ll))
         } else {
             ylim <- range(newd$fit)
         }
@@ -163,12 +183,12 @@ plot_smooth <- function(x, view = NULL, cond = list(), rm.ranef=NULL,
     }
 
     if(se > 0){
-        plot_error(newd[,view[1]], newd$fit, newd$CI, shade=shade, f=1, col=col, ...)
+        plot_error(newd[,view[1]], newd$fit, newd$ul, se.fit2=newd$ll, shade=shade, f=1, col=col, ...)
     }else{
         lines(newd[,view[1]], newd$fit, col=col, ...)
     }
     
-    invisible(list(fv = newd, rm.ranef=rm.ranef))
+    invisible(list(fv = newd, rm.ranef=rm.ranef, transform=transform))
 }
 
  

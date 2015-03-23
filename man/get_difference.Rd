@@ -5,7 +5,7 @@
 \title{Get model predictions for differences between conditions.}
 \usage{
 get_difference(model, comp, cond = NULL, rm.ranef = NULL, se = TRUE,
-  f = 1.96, print.summary = TRUE)
+  f = 1.96, print.summary = getOption("itsadug_print"))
 }
 \arguments{
 \item{model}{A gam object, produced by \code{\link[mgcv]{gam}} or
@@ -31,7 +31,9 @@ in 95\% confidence intervals. For 99\% confidence intervals use a value of
 2.58.}
 
 \item{print.summary}{Logical: whether or not to print a summary of the
-values selected for each predictor. Defaults to TRUE.}
+values selected for each predictor.
+Default set to the print info messages option
+(see \code{\link{infoMessages}}).}
 }
 \value{
 Returns a data frame with the estimates of the difference and
@@ -65,6 +67,7 @@ Jacolien van Rij, Martijn Wieling
 }
 \seealso{
 Other functions for model predictions: \code{\link{get_modelterm}};
-  \code{\link{get_predictions}}; \code{\link{get_random}}
+  \code{\link{get_predictions}}; \code{\link{get_random}};
+  \code{\link{plotsurface}}
 }
 

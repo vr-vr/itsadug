@@ -5,7 +5,7 @@
 \title{Get model predictions for the random effects.}
 \usage{
 get_random(model, fun = NULL, cond = NULL, n.grid = 30,
-  print.summary = TRUE)
+  print.summary = getOption("itsadug_print"))
 }
 \arguments{
 \item{model}{A gam object, produced by \code{\link[mgcv]{gam}} or
@@ -21,7 +21,9 @@ random predictor terms. When NULL (default) all levels are returned.}
 \item{n.grid}{Number of data points estimated for each random smooth.}
 
 \item{print.summary}{Logical: whether or not to print a summary of the
-values selected for each predictor. Defaults to TRUE.}
+values selected for each predictor.
+Default set to the print info messages option
+(see \code{\link{infoMessages}}).}
 }
 \value{
 A data frame with estimates for random effects.
@@ -39,6 +41,6 @@ Jacolien van Rij
 \seealso{
 Other functions for model predictions: \code{\link{get_difference}};
   \code{\link{get_modelterm}};
-  \code{\link{get_predictions}}
+  \code{\link{get_predictions}}; \code{\link{plotsurface}}
 }
 

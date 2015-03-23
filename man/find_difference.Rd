@@ -4,7 +4,7 @@
 \alias{find_difference}
 \title{Find the regions in which the smooth is significantly different from zero.}
 \usage{
-find_difference(mean, se, xVals = NULL, f = 1)
+find_difference(mean, se, xVals = NULL, f = 1, as.vector = FALSE)
 }
 \arguments{
 \item{mean}{A vector with smooth predictions.}
@@ -17,6 +17,10 @@ values, otherwise as indices.}
 
 \item{f}{A number to multiply the \code{se} with, to convert the \code{se}
 into confidence intervals. Use 1.96 for 95\% CI and 2.58 for 99\%CI.}
+
+\item{as.vector}{Logical: whether or not to return the data points as
+vector, or not. Default is FALSE, and a list with start and end points will
+ be returned.}
 }
 \value{
 The function returns a list with start points of each region
@@ -55,9 +59,10 @@ Jacolien van Rij
 \seealso{
 Other Utility functions for plotting: \code{\link{addInterval}};
   \code{\link{alphaPalette}}; \code{\link{alpha}};
-  \code{\link{dotplot_error}}; \code{\link{emptyPlot}};
-  \code{\link{errorBars}}; \code{\link{fadeRug}};
-  \code{\link{fill_area}}; \code{\link{getCoords}};
+  \code{\link{color_contour}}; \code{\link{dotplot_error}};
+  \code{\link{emptyPlot}}; \code{\link{errorBars}};
+  \code{\link{fadeRug}}; \code{\link{fill_area}};
+  \code{\link{getCoords}}; \code{\link{getFigCoords}};
   \code{\link{gradientLegend}}; \code{\link{horiz_error}};
   \code{\link{plot_error}}
 }

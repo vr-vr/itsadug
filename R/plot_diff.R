@@ -39,7 +39,8 @@
 #' (\code{est}) and the standard error over the estimate (\code{se.est}) and 
 #' the x-values (\code{x}). Default is TRUE.
 #' @param print.summary Logical: whether or not to print the summary. 
-#' Default is TRUE.
+#' Default set to the print info messages option 
+#' (see \code{\link{infoMessages}}).
 #' @param ... Optional arguments for plot.
 #' @return If the result is not being plotted, a list is 
 #' returned with the estimated difference (\code{est}) and the standard error 
@@ -69,7 +70,7 @@
 
 plot_diff <- function(model, view, comp, cond=NULL, plotCI=TRUE, f=1.96, 
 	eegAxis=FALSE, col="black", shade=TRUE, n.grid=100, add=FALSE,
-	print.summary=TRUE, plot=TRUE, rm.ranef=NULL,
+	print.summary=getOption('itsadug_print'), plot=TRUE, rm.ranef=NULL,
 	main=NULL, ylab=NULL, xlab=NULL, ylim=NULL, ...) { 
 
 	dat = model$model
@@ -172,6 +173,8 @@ plot_diff <- function(model, view, comp, cond=NULL, plotCI=TRUE, f=1.96,
 #' in 95\% confidence intervals. For 99\% confidence intervals use a value of 
 #' 2.58.
 #' @param print.summary Logical: whether or not to print a summary.
+#' Default set to the print info messages option 
+#' (see \code{\link{infoMessages}}).
 #' @return If the result is not being plotted, a list is 
 #' returned with the estimated difference (\code{est}) and the standard error 
 #' over the estimate (\code{se.est}) and the x-values (\code{x}) is returned.
@@ -193,7 +196,7 @@ plot_diff <- function(model, view, comp, cond=NULL, plotCI=TRUE, f=1.96,
 plot_diff2 <- function(model,view, comp, cond=NULL, plotCI=FALSE, f=1.96, 
 	color='topo', nCol=100, col=NULL, add.color.legend=TRUE,
 	n.grid=30, nlevels=10, zlim=NULL, main=NULL,
-	print.summary=TRUE) { 
+	print.summary=getOption('itsadug_print')) { 
 
 	dat = model$model
 

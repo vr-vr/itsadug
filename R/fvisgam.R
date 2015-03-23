@@ -41,6 +41,10 @@
 #' @param rm.ranef Logical: whether or not to remove random effects. 
 #' Default is TRUE.
 #' @param print.summary Logical: whether or not to print a summary.
+#' Default set to the print info messages option 
+#' (see \code{\link{infoMessages}}).
+#' @param transform Function for transforming the fitted values. 
+#' Default is NULL.
 #' @param ... other options to pass on to persp, image or contour. In 
 #' particular ticktype="detailed" will add proper axes labeling to the plots.
 #'
@@ -72,7 +76,10 @@ fvisgam <- function(x, view = NULL, cond = list(),
     n.grid = 30, too.far = 0, col = NA, color = "topo", contour.col = NULL, 
     add.color.legend=TRUE,
     se = -1, plot.type = "contour", zlim = NULL, nCol = 50, 
-    rm.ranef=NULL, print.summary=TRUE, ...) {
+    rm.ranef=NULL, print.summary=getOption('itsadug_print'), 
+    transform=NULL,...) {
+
+    # check info me
        
     fac.seq <- function(fac, n.grid) {
         fn <- length(levels(fac))
@@ -135,6 +142,11 @@ fvisgam <- function(x, view = NULL, cond = list(),
         newd$se.fit[ex.tf] <- newd$fit[ex.tf] <- NA
     }
     if (se <= 0) {
+        z.fit <- newd$fit
+        if(!is.null(transform)){
+            z.fit <- sapply(z.fit, transform)
+            z <- matrix(z.fit, byrow=TRUE, n.grid, n.grid)
+        }
         old.warn <- options(warn = -1)
         av <- matrix(c(0.5, 0.5, rep(0, n.grid - 1)), byrow=TRUE, n.grid, n.grid - 1)
         options(old.warn)
@@ -149,8 +161,8 @@ fvisgam <- function(x, view = NULL, cond = list(),
             min.z <- zlim[1]
             max.z <- zlim[2]
         } else {
-            min.z <- min(newd$fit, na.rm = TRUE)
-            max.z <- max(newd$fit, na.rm = TRUE)
+            min.z <- min(z.fit, na.rm = TRUE)
+            max.z <- max(z.fit, na.rm = TRUE)
         }
         surf.col <- surf.col - min.z
         surf.col <- surf.col/(max.z - min.z)
@@ -188,7 +200,7 @@ fvisgam <- function(x, view = NULL, cond = list(),
         surf.col[surf.col > nCol] <- nCol
         if (is.na(col)) 
             col <- pal[as.array(surf.col)]
-        z <- matrix(newd$fit, byrow=TRUE, n.grid, n.grid)
+        z <- matrix(z, byrow=TRUE, n.grid, n.grid)
         if (plot.type == "contour") {
             stub <- paste(ifelse("xlab" %in% dnm, "", ",xlab=view[1]"), ifelse("ylab" %in% dnm, "", ",ylab=view[2]"), ifelse("main" %in% 
                 dnm, "", ",main=zlab"), ",...)", sep = "")
@@ -222,6 +234,15 @@ fvisgam <- function(x, view = NULL, cond = list(),
             }      
         }
     } else {
+        z.fit <- newd$fit
+        z.cil <- newd$fit - newd$CI
+        z.ciu <- newd$fit + newd$CI
+        if(!is.null(transform)){
+            z.fit <- sapply(z.fit, transform)
+            z.cil <- sapply(z.cil, transform)
+            z.ciu <- sapply(z.ciu, transform)
+        }
+
         if (color == "bw" || color == "gray") {
             subs <- paste("grey are +/-", se, "s.e.")
             lo.col <- "gray"
@@ -237,12 +258,11 @@ fvisgam <- function(x, view = NULL, cond = list(),
             min.z <- zlim[1]
             max.z <- zlim[2]
         } else {
-            z.max <- max(newd$fit + newd$CI, na.rm = TRUE)
-            z.min <- min(newd$fit - newd$CI, na.rm = TRUE)
+            z.max <- max(z.ciu, na.rm = TRUE)
+            z.min <- min(z.cil, na.rm = TRUE)
         }
         zlim <- c(z.min, z.max)
-        z <- newd$fit - newd$CI
-        z <- matrix(z, byrow=TRUE, n.grid, n.grid)
+        z <- matrix(z.cil, byrow=TRUE, n.grid, n.grid)
         if (plot.type == "contour") 
             warning("sorry no option for contouring with errors: try plot.gam")
         stub <- paste(ifelse("xlab" %in% dnm, "", ",xlab=view[1]"), ifelse("ylab" %in% dnm, "", ",ylab=view[2]"), ifelse("zlab" %in% 
@@ -250,17 +270,16 @@ fvisgam <- function(x, view = NULL, cond = list(),
         txt <- paste("persp(m1,m2,z,col=col,zlim=zlim", ifelse("border" %in% dnm, "", ",border=lo.col"), stub, sep = "")
         eval(parse(text = txt))
         par(new = TRUE)
-        z <- newd$fit
-        z <- matrix(z, byrow=TRUE, n.grid, n.grid)
+        z <- matrix(z.fit, byrow=TRUE, n.grid, n.grid)
         txt <- paste("persp(m1,m2,z,col=col,zlim=zlim", ifelse("border" %in% dnm, "", ",border=\"black\""), stub, sep = "")
         eval(parse(text = txt))
         par(new = TRUE)
-        z <- newd$fit + newd$CI
-        z <- matrix(z, byrow=TRUE, n.grid, n.grid)
+        z <- matrix(z.ciu, byrow=TRUE, n.grid, n.grid)
         txt <- paste("persp(m1,m2,z,col=col,zlim=zlim", ifelse("border" %in% dnm, "", ",border=hi.col"), stub, sep = "")
         eval(parse(text = txt))
     }
-    invisible(list(fv = newd, m1 = m1, m2 = m2))
+
+    invisible(list(fv = newd, m1 = m1, m2 = m2, note="type=lpmatrix, not on response scale"))    
 }
 
  

@@ -182,6 +182,66 @@ getCoords <- function(pos = 1.1, side = 1) {
     return(out)
 } 
 
+#' Get the figure region as coordinates of the current plot region.
+#'
+#' @param input Text string: 'f' (figure, default), 'p' (plot region), 
+#' 'hf' (half way figure region), or 'hp' (half way plot region)
+#' @return A vector of the form c(x1, x2, y1, y2) giving the 
+#' boundaries of the figure region as coordinates of the current 
+#' plot region.
+#' @author Jacolien van Rij
+#' @examples
+#' # setup plot region:
+#' emptyPlot(1,1, bty='o')
+#' fc <- getFigCoords()
+#' pc <- getFigCoords('p')
+#' arrows(x0=pc[c(1,2,1,2)], x1=fc[c(1,2,1,2)],
+#'     y0=pc[c(3,3,4,4)], y1=fc[c(3,3,4,4)], xpd=TRUE)
+#' 
+#' # Same plot with different axis:
+#' emptyPlot(c(250,500),c(331, 336), bty='o')
+#' fc <- getFigCoords()
+#' pc <- getFigCoords('p')
+#' arrows(x0=pc[c(1,2,1,2)], x1=fc[c(1,2,1,2)],
+#'     y0=pc[c(3,3,4,4)], y1=fc[c(3,3,4,4)], xpd=TRUE)
+#' hc <-  getFigCoords('h')
+#' 
+#' # other options:
+#' # 1. center of figure region:
+#' abline(v=getFigCoords('hf')[1], col='blue', xpd=TRUE)
+#' abline(h=getFigCoords('hf')[2], col='blue', xpd=TRUE)
+#' # 2. center of plot region:
+#' abline(v=getFigCoords('hp')[1], col='red', lty=3)
+#' abline(h=getFigCoords('hp')[2], col='red', lty=3)
+#' @family Utility functions for plotting
+
+getFigCoords <- function(input='f'){
+    p <- par()
+    x.width = p$usr[2] - p$usr[1]
+    y.width = p$usr[4] - p$usr[3]
+    x.w = p$plt[2] - p$plt[1]
+    y.w = p$plt[4] - p$plt[3]  
+
+    if(input=='f'){
+        return( c(p$usr[1]-p$plt[1]*x.width/x.w, # xmin
+            p$usr[2]+(1-p$plt[2])*x.width/x.w,   # xmax
+            p$usr[3]-p$plt[3]*y.width/y.w,       # ymin
+            p$usr[4]+(1-p$plt[4])*y.width/y.w    # ymax
+            ) )
+    }else if(input=='p'){
+        return(p$usr)
+    }else if(input=='hp'){
+        return( c( 0.5*x.width + p$usr[1], # x
+            0.5*y.width + p$usr[3] ) )    # y
+    }else if(input=='hf'){
+        return( c( p$usr[1]+(0.5-p$plt[1])*(x.width / x.w), # x
+                   p$usr[3]+(0.5-p$plt[3])*(y.width / y.w)  # y
+                ))
+    }else{
+        return(NULL)
+    }
+}
+
 
 #' Utility function.
 #'
@@ -565,6 +625,7 @@ addInterval <- function(pos, lowVals, highVals, horiz=TRUE, minmax=NULL, length=
         options(warn=0)
     }
 }
+
 
 
 

@@ -1,11 +1,19 @@
-library(itsadug)
-help(get_modelterm)
-help(get_modelterm)
-vignette("acf"0)
-vignette("acf")
 setwd('~/R Packages/itsadug/')#
 #
 library(devtools)#
 #
 devtools::document()#
 devtools::load_all()
+setwd('~/R Packages/itsadug/')#
+#
+library(devtools)#
+#
+devtools::document()#
+devtools::load_all()
+library(mgcv)
+versionInfo('mgcv')
+help(mgcv)
+help(sessionInfo)
+sessionInfo()
+packageVersion('mgcv')
+packageVersion('itsadug')

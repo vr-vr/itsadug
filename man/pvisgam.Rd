@@ -9,7 +9,7 @@ pvisgam(x, view = NULL, select = NULL, cond = list(), n.grid = 30,
   too.far = 0, col = NA, color = "topo", contour.col = NULL,
   add.color.legend = TRUE, se = -1, type = "link",
   plot.type = "contour", zlim = NULL, nCol = 50, labcex = 0.6,
-  print.summary = TRUE, ...)
+  print.summary = getOption("itsadug_print"), ...)
 }
 \arguments{
 \item{x}{A gam object, produced by \code{\link[mgcv]{gam}} or
@@ -64,7 +64,9 @@ axis scale. NULL to choose automatically.}
 
 \item{labcex}{Size of the contour labels.}
 
-\item{print.summary}{Logical: whether or not to print summary.}
+\item{print.summary}{Logical: whether or not to print summary.
+Default set to the print info messages option
+(see \code{\link{infoMessages}}).}
 
 \item{...}{other options to pass on to persp, image or contour. In
 particular ticktype="detailed" will add proper axes labeling to the plots.}

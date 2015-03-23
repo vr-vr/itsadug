@@ -7,8 +7,9 @@
 \usage{
 plot_diff(model, view, comp, cond = NULL, plotCI = TRUE, f = 1.96,
   eegAxis = FALSE, col = "black", shade = TRUE, n.grid = 100,
-  add = FALSE, print.summary = TRUE, plot = TRUE, rm.ranef = NULL,
-  main = NULL, ylab = NULL, xlab = NULL, ylim = NULL, ...)
+  add = FALSE, print.summary = getOption("itsadug_print"), plot = TRUE,
+  rm.ranef = NULL, main = NULL, ylab = NULL, xlab = NULL, ylim = NULL,
+  ...)
 }
 \arguments{
 \item{model}{A GAMM model, resulting from the functions
@@ -47,7 +48,8 @@ When no plot window is available and \code{add=TRUE},
 the function will generate an error.}
 
 \item{print.summary}{Logical: whether or not to print the summary.
-Default is TRUE.}
+Default set to the print info messages option
+(see \code{\link{infoMessages}}).}
 
 \item{plot}{Logical: whether or not to plot the difference. If FALSE, then
 the output is returned as a list, with the estimated difference

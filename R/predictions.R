@@ -15,7 +15,9 @@
 #' Default is FALSE. Alternatively a string (or vector of strings) with the 
 #' name of the random effect(s) to remove.
 #' @param print.summary Logical: whether or not to print a summary of the 
-#' values selected for each predictor. Defaults to TRUE.
+#' values selected for each predictor. 
+#' Default set to the print info messages option 
+#' (see \code{\link{infoMessages}}).
 #' @return A data frame with estimates and optionally errors.
 #' @examples
 #' # see the vignette for examples:
@@ -24,7 +26,7 @@
 #' @family functions for model predictions
 
 get_predictions <- function(model, cond=NULL, se=TRUE, f=1.96, rm.ranef=NULL, 
-	print.summary=TRUE){
+	print.summary=getOption('itsadug_print')){
 
 	if(is.null(cond)){
 		stop("Please specify values for at least one predictor in the parameter 'cond'.")
@@ -145,7 +147,9 @@ get_predictions <- function(model, cond=NULL, se=TRUE, f=1.96, rm.ranef=NULL,
 #' random predictor terms. When NULL (default) all levels are returned.
 #' @param n.grid Number of data points estimated for each random smooth.
 #' @param print.summary Logical: whether or not to print a summary of the 
-#' values selected for each predictor. Defaults to TRUE.
+#' values selected for each predictor. 
+#' Default set to the print info messages option 
+#' (see \code{\link{infoMessages}}).
 #' @return A data frame with estimates for random effects.
 #' @examples
 #' # see the vignette for examples:
@@ -153,7 +157,8 @@ get_predictions <- function(model, cond=NULL, se=TRUE, f=1.96, rm.ranef=NULL,
 #' @author Jacolien van Rij
 #' @family functions for model predictions
 
-get_random <- function(model, fun=NULL, cond=NULL, n.grid=30, print.summary=TRUE){
+get_random <- function(model, fun=NULL, cond=NULL, n.grid=30, 
+	print.summary=getOption('itsadug_print')){
 
 	if(!"lm" %in% class(model)){
 		stop("This function does not work for class %s models.", class(model)[1])
@@ -292,7 +297,9 @@ get_random <- function(model, fun=NULL, cond=NULL, n.grid=30, print.summary=TRUE
 #' in 95\% confidence intervals. For 99\% confidence intervals use a value of 
 #' 2.58.
 #' @param print.summary Logical: whether or not to print a summary of the 
-#' values selected for each predictor. Defaults to TRUE.
+#' values selected for each predictor. 
+#' Default set to the print info messages option 
+#' (see \code{\link{infoMessages}}).
 #' @return Returns a data frame with the estimates of the difference and 
 #' optionally the confidence intervals around that estimate.
 #' @section Notes:
@@ -317,7 +324,7 @@ get_random <- function(model, fun=NULL, cond=NULL, n.grid=30, print.summary=TRUE
 
 get_difference <- function(model, comp, cond=NULL,
 	rm.ranef=NULL,
-	se=TRUE, f=1.96, print.summary=TRUE){
+	se=TRUE, f=1.96, print.summary=getOption('itsadug_print')){
 
 
 	if(!"lm" %in% class(model)){
