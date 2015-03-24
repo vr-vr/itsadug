@@ -216,7 +216,7 @@ check_resid <- function(model, AR_start = NULL, split_by=NULL){
 		if(!is.null(res.rho)){
 			val <- acf_plot(res.rho, plot=F, split_by=split_by)
 			acf_plot(res, col=ifelse(is.null(res.rho), 'black','darkgray'), split_by=split_by, 
-				ylim=range(c(0, val, 1)),
+				ylim=range(c(0, val[!is.na(val)], 1)),
 				main=sprintf('resid(%s) - time series', deparse(substitute(model))), ylab='ACF')
 			lines(0:(length(val)-1), val, type='h', lwd=3, col=alpha('red', .5), lend=1, xpd=TRUE)
 		}else{

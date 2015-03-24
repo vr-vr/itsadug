@@ -5,10 +5,11 @@
 \alias{plot_diff2}
 \title{Plot difference surface based on model predictions.}
 \usage{
-plot_diff2(model, view, comp, cond = NULL, plotCI = FALSE, f = 1.96,
-  color = "topo", nCol = 100, col = NULL, add.color.legend = TRUE,
-  n.grid = 30, nlevels = 10, zlim = NULL, main = NULL,
-  print.summary = getOption("itsadug_print"))
+plot_diff2(model, view, comp, cond = NULL, color = "topo", nCol = 100,
+  col = NULL, add.color.legend = TRUE, plotCI = FALSE, f = 1.96,
+  n.grid = 30, nlevels = 10, zlim = NULL, main = NULL, xlab = NULL,
+  ylab = NULL, rm.ranef = NULL,
+  print.summary = getOption("itsadug_print"), ...)
 }
 \arguments{
 \item{model}{A GAMM model, resulting from the functions
@@ -23,12 +24,6 @@ and the 2 levels to calculate the difference for.}
 \item{cond}{Named list of the values to use for the other predictor terms
 (not in view).}
 
-\item{plotCI}{Logical: whether or not to plot confidence intervals.}
-
-\item{f}{A number to scale the standard error. Defaults to 1.96, resulting
-in 95\% confidence intervals. For 99\% confidence intervals use a value of
-2.58.}
-
 \item{color}{Colorpalette}
 
 \item{nCol}{Range of colors of background of contour plot.}
@@ -39,6 +34,12 @@ in 95\% confidence intervals. For 99\% confidence intervals use a value of
 Default is TRUE. If FALSE (omitted), one could use the function
 \code{\link{gradientLegend}} to add a legend manually at any position.}
 
+\item{plotCI}{Logical: whether or not to plot confidence intervals.}
+
+\item{f}{A number to scale the standard error. Defaults to 1.96, resulting
+in 95\% confidence intervals. For 99\% confidence intervals use a value of
+2.58.}
+
 \item{n.grid}{Resolution.}
 
 \item{nlevels}{Levels of contour lines.}
@@ -48,9 +49,19 @@ axis scale. NULL to choose automatically.}
 
 \item{main}{Title of plot.}
 
+\item{xlab}{Label x-axis.}
+
+\item{ylab}{Label y-axis.}
+
+\item{rm.ranef}{Logical: whether or not to remove random effects.
+Default is FALSE. Alternatively a string (or vector of strings) with the
+name of the random effect(s) to remove.}
+
 \item{print.summary}{Logical: whether or not to print a summary.
 Default set to the print info messages option
 (see \code{\link{infoMessages}}).}
+
+\item{...}{Optional arguments for \code{\link{plotsurface}}.}
 }
 \value{
 If the result is not being plotted, a list is
@@ -72,7 +83,7 @@ plot_diff2(m1, view=c('Time', 'Trial'),
 vignette("plotfunctions", package="itsadug")
 }
 \author{
-Martijn Wieling, adjusted by Jacolien van Rij
+Martijn Wieling, reimplemented by Jacolien van Rij
 }
 \seealso{
 Other functions for interpreting nonlinear effects: \code{\link{fvisgam}},

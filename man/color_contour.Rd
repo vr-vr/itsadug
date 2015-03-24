@@ -46,8 +46,8 @@ variable.}
 Default is TRUE. If FALSE (omitted), one could use the function
 \code{\link{gradientLegend}} to add a legend manually at any position.}
 
-\item{...}{Optional parameters for \code{\link[graphic]{image}}
-and \code{\link[graphic]{contour}}.}
+\item{...}{Optional parameters for \code{\link[graphics]{image}}
+and \code{\link[graphics]{contour}}.}
 }
 \description{
 This function is a wrapper around \code{\link[graphics]{image}}
@@ -77,7 +77,7 @@ color_contour(z=volcano, color=NULL, add.color.legend=FALSE)
 Jacolien van Rij
 }
 \seealso{
-\code{\link[graphic]{image}}, \code{\link[graphic]{contour}},
+\code{\link[graphics]{image}}, \code{\link[graphics]{contour}},
 \code{\link[graphics]{filled.contour}}. See \code{\link{plotsurface}}
 for plotting model predictions using \code{color_contour}.
 

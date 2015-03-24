@@ -1,19 +1,28 @@
-setwd('~/R Packages/itsadug/')#
-#
-library(devtools)#
-#
-devtools::document()#
-devtools::load_all()
-setwd('~/R Packages/itsadug/')#
-#
-library(devtools)#
-#
-devtools::document()#
-devtools::load_all()
 library(mgcv)
-versionInfo('mgcv')
-help(mgcv)
-help(sessionInfo)
-sessionInfo()
-packageVersion('mgcv')
-packageVersion('itsadug')
+help(gamObject)
+setwd('~/R Packages/itsadug/')#
+#
+library(devtools)#
+#
+devtools::document()#
+devtools::load_all()
+install.packages('~/R Packages/itsadug_0.91.tar.gz', repos=NULL, type='source')
+library(itsadug)
+help(pvisgam)
+help(get_modelterm)
+help(get_random)
+help(get_modelterm)
+help(getFigCoords)
+library(itsadug)
+color_contour(volcano)
+color_contour(z=volcano)
+color_contour(z=volcano, col='red')
+color_contour(z=volcano, color='terain')
+color_contour(z=volcano, color='terrain')
+color_contour(z=volcano, color='terrain', col='black')
+color_contour(z=volcano, color='terrain', col=alpha('black'))
+color_contour(z=volcano, color='terrain', col=alpha('black'), axes=FALSE)
+box()
+color_contour(z=volcano, color='terrain', col=alpha('black'), #
+  add.color.legend=FALSE, axes=FALSE)
+box()
