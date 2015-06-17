@@ -152,6 +152,54 @@ get_predictions <- function(model, cond=NULL, se=TRUE, f=1.96, rm.ranef=NULL,
 #' (see \code{\link{infoMessages}}).
 #' @return A data frame with estimates for random effects.
 #' @examples
+#' data(simdat)
+#'
+#' \dontrun{
+#' # Condition as factor, to have a random intercept
+#' # for illustration purposes:
+#' simdat$Condition <- as.factor(simdat$Condition)
+#'
+#' # Model with random effect and interactions:
+#' m2 <- bam(Y ~ s(Time) + s(Trial)
+#' + ti(Time, Trial)
+#' + s(Condition, bs='re')
+#' + s(Time, Subject, bs='fs', m=1),
+#' data=simdat)
+#'
+#' # extract all random effects combined:
+#' newd <- get_random(m2)
+#' head(newd)
+#' 
+#' # extract intercepts for Condition:
+#' a <- newd[!duplicated(newd[,c('Condition')]),1]
+#' names(a) <- newd[!duplicated(newd[,c('Condition')]),'Condition']
+#' # Make bar plot:
+#' barplot(a)
+#' abline(h=0)
+#' 
+#' # Alternatively, fix random effect of Condition, and plot 
+#' # random effects for subjects with lattice:
+#' newd <- get_random(m2, cond=list(Condition='0'))
+#' names(newd)[2] <- 'fit'
+#'
+#' # Make lattice plot:
+#' require(lattice)
+#' lattice::xyplot(fit~Time | Subject,
+#'     data=newd, type="l",
+#'     xlab="Time", ylab="Partial effect")
+#'
+#' # Using argument 'fun':
+#' newd.mean <- get_random(m2, fun=mean, cond=list(Condition='0'))
+#' newd.median <- get_random(m2, fun=median, cond=list(Condition='0'))
+#' 
+#' # plot mean and median of second random effect (random smooths):
+#' emptyPlot(2000, c(-5,5), h0=0)
+#' with(newd.mean[[2]], lines(Time, x, col='red') )
+#' with(newd.median[[2]], lines(Time, x, col='blue') )
+#' legend('topright', legend=c('mean', 'median'),
+#'     col=c('red', 'blue'), lwd=1, bty='n')
+#' }
+#'
 #' # see the vignette for examples:
 #' vignette("plotfunctions", package="itsadug")
 #' @author Jacolien van Rij
@@ -267,6 +315,17 @@ get_random <- function(model, fun=NULL, cond=NULL, n.grid=30,
 
 			return(fun.val)
 		}else{
+			# find random effects terms:
+			smoothterms <- unique( unlist( lapply(model$smooth, 
+					function(x){
+						if(x[['label']] %in% smoothlabels){
+							return(x[['term']])
+						}else{
+							return(NULL)
+						}
+					} ) ) )
+			newd <- newd[,c(paste('fit',smoothlabels,sep='.'), smoothterms)]
+
 			# print summary of chosen values
 			if(print.summary){
 				summary_data(newd)
@@ -489,6 +548,10 @@ get_difference <- function(model, comp, cond=NULL,
 #' 2.58.
 #' @param as.data.frame Logical: whether or not to return a data.frame. 
 #' Default is false, and a list will be returned.
+#' @param print.summary Logical: whether or not to print a summary of the 
+#' values selected for each predictor. 
+#' Default set to the print info messages option 
+#' (see \code{\link{infoMessages}}).
 #' @return A list with two or more elements:
 #' \itemize{
 #' \item \code{fit}: Numeric vector with the fitted values;
@@ -550,7 +613,8 @@ get_difference <- function(model, comp, cond=NULL,
 #' @family functions for model predictions
 
 get_modelterm <- function(model, select, cond=NULL, n.grid=30, 
-	se=TRUE, f=1.96, as.data.frame=FALSE){
+	se=TRUE, f=1.96, as.data.frame=FALSE, 
+	print.summary=getOption('itsadug_print')){
 
 	if(!"lm" %in% class(model)){
 		stop("This function does not work for class %s models.", class(model)[1])
@@ -589,7 +653,21 @@ get_modelterm <- function(model, select, cond=NULL, n.grid=30,
 		}
 
 		newd <- expand.grid(new.cond)
+		mysummary = summary_data(newd, print=FALSE)
+
 		p <- mgcv::predict.gam(model, newd, type='terms', se.fit=se)
+
+
+		# print summary of chosen values
+		if(print.summary==TRUE){
+			new_summary <- list()
+			for(i in names(mysummary)){
+				if(i %in% smoothterms){
+					new_summary[[i]] <- mysummary[[i]]
+				}
+			}
+			print_summary(new_summary)	
+		}
 
 		if(as.data.frame){
 			fv <- c()
@@ -599,11 +677,16 @@ get_modelterm <- function(model, select, cond=NULL, n.grid=30,
 				fv <- data.frame(st=newd[,smoothterms])
 				names(fv) <- smoothterms
 			}
-			fv$fit <-  p$fit[, smoothlabels]
+
 			if(se){
+				fv$fit <- p$fit[, smoothlabels]
 				fv$se.fit <- f*p$se.fit[,smoothlabels]
+			}else{
+				fv$fit <- p[, smoothlabels]
 			}
+
 			return(fv)
+
 		}else{
 			fv <- list()
 			

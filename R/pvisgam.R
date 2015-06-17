@@ -382,8 +382,8 @@ pvisgam <- function(x, view = NULL, select = NULL, cond = list(), n.grid = 30,
         if (!is.null(zlim)) {
             if (length(zlim) != 2 || zlim[1] >= zlim[2]) 
                 stop("Something wrong with zlim")
-            min.z <- zlim[1]
-            max.z <- zlim[2]
+            z.min <- zlim[1]
+            z.max <- zlim[2]
         } else {
             z.max <- max(fv$fit + fv$se.fit * se, na.rm = TRUE)
             z.min <- min(fv$fit - fv$se.fit * se, na.rm = TRUE)

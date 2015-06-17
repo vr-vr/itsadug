@@ -1,0 +1,6 @@
+library(itsadug)
+browseVignettes()
+install.packages('/Users/Jacolien/R Packages/itsadug_0.95.tar.gz', type='source', repos=NULL)
+library(itsadug)
+vignette(package='itsadug')
+vignette('random')

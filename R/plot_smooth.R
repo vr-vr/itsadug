@@ -15,6 +15,8 @@
 #' @param cond A named list of the values to use for the other predictor terms 
 #' (not in view). Used for choosing between smooths that share the same view 
 #' predictors.
+#' @param plot_all A vector with a name / names of model predictors, 
+#' for which all levels should be plotted.
 #' @param rm.ranef Logical: whether or not to remove random effects. 
 #' Default is TRUE.
 #' @param n.grid  The number of grid nodes in each direction used for 
@@ -51,6 +53,10 @@
 #' reference. By default no values provided.
 #' @param transform Function for transforming the fitted values. 
 #' Default is NULL.
+#' @param legend_plot_all Legend location. This could be a keyword from 
+#' the list "bottomright", "bottom", "bottomleft", "left", "topleft", "top", 
+#' "topright", "right" and "center", or a list with \code{x} and \code{y} 
+#' coordinate (e.g., \code{list(x=0,y=0)}). 
 #' @param ... other options to pass on to lines and plot, 
 #' see \code{\link[graphics]{par}}
 #' @section Notes:
@@ -87,6 +93,16 @@
 #'     code=2, length=.1, lwd=2, xpd=TRUE)
 #' plot_smooth(m1, view='Time', cond=list(Trial=-5),
 #'     main='Trial=-5', rm.ranef=TRUE)
+#'
+#' # Plot all levels of a predictor:
+#' plot_smooth(m1, view='Time', cond=list(Trial=-5),
+#'     main='Trial=-5', plot_all="Group",
+#'     rm.ranef=TRUE)
+#' # It also possible to combine predictors in plot_all.
+#' # Note: this is not a meaningfull plot, 
+#' # just for illustration purposes!
+#' plot_smooth(m1, view='Time', cond=list(Trial=-5),
+#'     main='Trial=-5', plot_all=c("Group", "Subject"))
 #' }
 #'
 #' # see the vignette for more examples:
@@ -99,12 +115,13 @@
 #'
 #' @family functions for interpreting nonlinear effects
 
-plot_smooth <- function(x, view = NULL, cond = list(), rm.ranef=NULL,
+plot_smooth <- function(x, view = NULL, cond = list(), 
+    plot_all=NULL, rm.ranef=NULL,
     n.grid = 30, rug = TRUE, col = 'black', add=FALSE, 
     se = 1.96, shade = TRUE, eegAxis=FALSE, 
     print.summary=getOption('itsadug_print'),
     main=NULL, xlab=NULL, ylab=NULL, ylim=NULL, h0=0, v0=NULL, 
-    transform=NULL,...) {
+    transform=NULL, legend_plot_all=NULL, ...) {
        
     dnm <- names(list(...))
 
@@ -134,6 +151,33 @@ plot_smooth <- function(x, view = NULL, cond = list(), rm.ranef=NULL,
                 TRUE
             }
         })
+    }
+    if(!is.null(plot_all)){
+        if(!is.vector(plot_all)){
+            stop("Argument plot_all should be a vector with predictor names.")
+        }else{
+            # check if plot_all in cond
+            if(any(plot_all %in% names(cond))){
+                warning(sprintf("%s in cond and in plot_all. plot_all is being ignored.",
+                    paste(plot_all[plot_all %in% names(cond)], collapse=', ')))
+                plot_all <- plot_all[!plot_all %in% names(cond)]
+            }
+            # check if plot_all are column names
+            if(any(! plot_all %in% v.names)){
+                warning(sprintf("%s (specified in plot_all) is not a model predictor. Will be ignored.",
+                    paste(plot_all[!plot_all %in% v.names], collapse=', ')))
+                plot_all <- plot_all[plot_all %in% v.names]
+            }
+            # check length:
+            if(length(plot_all)>0){
+                for(i in plot_all){
+                    cond[[i]] <- unique(as.character(x$model[,i]))
+                }
+            }else{
+                plot_all <- NULL
+            }           
+        }
+
     }
     
 
@@ -182,10 +226,71 @@ plot_smooth <- function(x, view = NULL, cond = list(), rm.ranef=NULL,
         rug(x$model[,view[1]])
     }
 
-    if(se > 0){
-        plot_error(newd[,view[1]], newd$fit, newd$ul, se.fit2=newd$ll, shade=shade, f=1, col=col, ...)
+    if(!is.null(plot_all)){
+        alllevels <- c()
+        plotlevels <- c()
+        if(length(plot_all)>1){
+            tmpname <- sub("/", "", tempfile(pattern = "event", tmpdir = "plotsmooth", fileext = ""), fixed=TRUE)
+            newd[,tmpname] <- interaction(newd[, plot_all])
+
+            alllevels <- length(levels(newd[,tmpname]))
+            plotlevels <- levels(newd[,tmpname])
+            cnt <- 1
+            for(i in levels(newd[,tmpname])){
+                if(se > 0){
+                    plot_error(newd[newd[,tmpname]==i,view[1]], 
+                        newd[newd[,tmpname]==i,]$fit, 
+                        newd[newd[,tmpname]==i,]$ul, 
+                        se.fit2=newd[newd[,tmpname]==i,]$ll, 
+                        shade=shade, f=1, col=rainbow(alllevels)[cnt], ...)
+                }else{
+                    lines(newd[newd[,tmpname]==i,view[1]], 
+                        newd[newd[,tmpname]==i,]$fit, 
+                        col=rainbow(alllevels)[cnt], ...)
+                }
+                cnt <- cnt+1
+            }
+            newd[, tmpname] <- NULL
+        }else{
+            alllevels <- length(levels(newd[,plot_all]))
+            plotlevels <- levels(newd[,plot_all])
+            cnt <- 1
+            for(i in levels(newd[,plot_all])){
+                if(se > 0){
+                    plot_error(newd[newd[,plot_all]==i,view[1]], 
+                        newd[newd[,plot_all]==i,]$fit, 
+                        newd[newd[,plot_all]==i,]$ul, 
+                        se.fit2=newd[newd[,plot_all]==i,]$ll, 
+                        shade=shade, f=1, col=rainbow(alllevels)[cnt], ...)
+                }else{
+                    lines(newd[newd[,plot_all]==i,view[1]], 
+                        newd[newd[,plot_all]==i,]$fit, col=rainbow(alllevels)[cnt], ...)
+                }
+                cnt <- cnt+1
+            }       
+        }
+        # add legend:
+        if(is.null(legend_plot_all)){
+            gfc <- getFigCoords()
+            legend(gfc[2], gfc[4],
+                legend=plotlevels,
+                text.col=rainbow(alllevels),
+                text.font=2,
+                xjust=1, yjust=1,
+                bty='n', xpd=TRUE)
+        }else{
+            legend(legend_plot_all,
+                legend=plotlevels,
+                text.col=rainbow(alllevels),
+                text.font=2,
+                bty='n', xpd=TRUE)
+        }
     }else{
-        lines(newd[,view[1]], newd$fit, col=col, ...)
+        if(se > 0){
+            plot_error(newd[,view[1]], newd$fit, newd$ul, se.fit2=newd$ll, shade=shade, f=1, col=col, ...)
+        }else{
+            lines(newd[,view[1]], newd$fit, col=col, ...)
+        }
     }
     
     invisible(list(fv = newd, rm.ranef=rm.ranef, transform=transform))

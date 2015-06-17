@@ -252,6 +252,25 @@ group_sort <- function(x, group=NULL, decreasing=FALSE){
     }
 }
 
+#' Defining timebins.
+#' 
+#' @description Function for calculating timebins.
+#' @param x Numerical vector with timestamp information.
+#' @param binsize Size of the timebin, measured in the same units (often ms) 
+#' as \code{x}.
+#' @param pos Numerical value that determines the label of the binsize 
+#' as proportion of the binsize. A value of 0 will provide the minimum 
+#' timestamp within the bin as label, a value of 1 will provide the maximum 
+#' value within the bin as label. Defaults to 0.5, the center of the bin.
+#' @return Anumerical vector of the same size as \code{x} with timebin 
+#' information.
+#' @author Jacolien van Rij
+#' @family Functions for gaze data
+#' @seealso \code{\link{getCountData}}
+
+timeBins <- function(x, binsize, pos=.5){
+  return( ( floor( x / binsize )+ pos ) * binsize ) 
+}
 
 #' Utility function.
 #' 
@@ -263,6 +282,7 @@ group_sort <- function(x, group=NULL, decreasing=FALSE){
 #' @return A table with count information.
 #' @section Note:
 #' Values that are not specified in \code{values} will be ignored.
+#' @author Jacolien van Rij
 #' @seealso \code{\link[base]{table}}
 #' @family Functions for binomial count data.
 
@@ -276,7 +296,7 @@ countValues <- function(x, values, incl_na=FALSE){
 
 
 
-#' Utility function.
+#' Reducing fixations to count data.
 #' 
 #' @description Function uses \code{\link[base]{table}} with factors
 #' to count the occurrances of each value in the predictor.
@@ -287,14 +307,71 @@ countValues <- function(x, values, incl_na=FALSE){
 #' grouping predictors.
 #' @param values Values of \code{x} that should be counted. 
 #' If NULL (default) all values are counted.
+#' @param sumvalues Named list that specifies wchich counts can be combined
+#'  (summed). The values listed in \code{sumvalues} must be specified in 
+#'  \code{values}. If \code{incl_na} is TRUE, \code{sumvalues} can also 
+#' include 'NA' (with quotes).
 #' @param incl_na Logical: whether or not to return a count of missing values.
+#' @param cbind Logical: whether or not to include the counts as cbinded
+#' values. Defaults to FALSE, i.e., each countwill be included as new column.
 #' @return A data frame with cbinded count information.
 #' @section Note:
 #' Values that are not specified in \code{values} will be ignored.
 #' @seealso \code{\link[base]{table}}
-#' @family Functions for binomial count data.
+#' @family Functions for gaze data
+#' @author Jacolien van Rij
+#' @examples
+#' # simulate some gaze data:
+#' dat <- data.frame(
+#'  Subject = rep(1:3, 500),
+#'  Timestamp = rep(1:500, 3),
+#'  AOI = rep( rep( c('other','competitor', 'target'), 3), 
+#'  c(184, 172, 144, 51, 264, 185, 127, 2, 371)) )
+#' # add missing data:
+#' dat[sample(nrow(dat), size=15),]$AOI <- NA
+#'
+#' # add timebins:
+#' dat$Timebin <- timeBins(dat$Timestamp, 100)
+#'
+#' # calculate counts:
+#' c1 <- getCountData('AOI', data=dat, split_by=c('Subject', 'Timebin'))
+#' head(c1)
+#' colnames(c1)
+#' # calculating proportions:
+#' c1$prop <- c1$AOI.target / ( c1$AOI.competitor+c1$AOI.other )
+#'
+#' # Using cbinds:
+#' c2 <- getCountData('AOI', data=dat, split_by=c('Subject', 'Timebin'),
+#'      cbind=FALSE)
+#' head(c2)
+#' colnames(c2)
+#' # calculating proportions:
+#' c2$prop <- c2$AOI[,'target'] / ( c2$AOI[,'competitor']+c2$AOI[,'other'])
+#'
+#' # calculating counts for specific values, including missing data.
+#' # Note that 'distractor' is not in the data:
+#' c3 <- getCountData('AOI', data=dat, split_by=c('Subject', 'Timebin'),
+#' values=c('target', 'distractor', 'competitor', 'other'), incl_na=TRUE)
+#' head(c3)
+#' 
+#' # summing up specific values:
+#' c4 <- getCountData('AOI', data=dat, split_by=c('Subject', 'Timebin'),
+#' values=levels(dat$AOI), 
+#' sumvalues=list('correct'=c('target', 'competitor'), 
+#' 'incorrect'=c('other','NA')), incl_na=TRUE, cbind=TRUE)
+#' head(c4)
+#' names(c4)
+#' # or as separate columns:
+#' c4 <- getCountData('AOI', data=dat, split_by=c('Subject', 'Timebin'),
+#' values=levels(dat$AOI), 
+#' sumvalues=list('correct'=c('target', 'competitor'), 
+#' 'incorrect'=c('other','NA')), incl_na=TRUE)
+#' head(c4)
+#' names(c4)
 
-getCountData <- function(x, split_by, data=NULL, values=NULL, incl_na=FALSE){
+
+getCountData <- function(x, split_by, data=NULL, values=NULL, 
+    sumvalues=NULL, incl_na=FALSE, cbind=FALSE){
     
     dat <- c()
     if(is.null(data)){
@@ -309,6 +386,11 @@ getCountData <- function(x, split_by, data=NULL, values=NULL, incl_na=FALSE){
     }else{
         split_by <- unlist(split_by)
         cn <- colnames(data)
+
+        if('x' %in% cn){
+            stop("Data cannot include column 'x', because this column will be overwritten. Rename column 'x'.")
+        }
+
         if(! x %in% cn){
             stop(sprintf('Column %s not found in data %s.', 
                 deparse(substitute(x)),
@@ -346,6 +428,7 @@ getCountData <- function(x, split_by, data=NULL, values=NULL, incl_na=FALSE){
     ## make more efficient with dplyr or data.table
     newd <- aggregate(dat$x, by=split, 
         function(x){unlist(countValues(x,values=values, incl_na=incl_na))})
+    colnames(newd$x) <- sprintf('%s', colnames(newd$x) )
 
     ## Convert numeric split predictors back to numeric:
     for(i in names(split)){
@@ -353,9 +436,37 @@ getCountData <- function(x, split_by, data=NULL, values=NULL, incl_na=FALSE){
             newd[,i] <- as.numeric(as.character(newd[,i]))
         }
     }
-    
-    colnames(newd)[colnames(newd)=='x'] <- deparse(substitute(x))
-    colnames(newd) <- gsub('"','', colnames(newd))
+
+    ## Combine:
+    if( !is.null(sumvalues) ){
+        values2 <- colnames(newd$x) 
+        for(cv in names(sumvalues)){
+            cnames <- sumvalues[[cv]]
+            if( all(cnames %in% values2) ){
+                newd[,cv] <- 0
+                for(add in cnames){
+                    newd[,cv] <- newd[,cv]+newd$x[,add]
+                }
+            }           
+        }
+        if(cbind==TRUE){
+            newd$x <- cbind(newd[, names(sumvalues)])
+            for(cv in names(sumvalues)){
+                newd[,cv] <- NULL
+            }
+        }
+    }
+
+    inputname <- gsub('"','', deparse(substitute(x)) )
+    colnames(newd)[colnames(newd)=='x'] <- inputname
+
+    if(cbind==FALSE){
+        for(v in colnames(newd[,inputname]) ){
+            newd[,sprintf("%s.%s", inputname, v)] <- newd[,inputname][,v]
+        }
+        newd[, inputname] <- NULL
+    }
+
     return(newd)
 }
 
@@ -419,37 +530,3 @@ convertToBinom <- function(success, failure, data=NULL, name="cbind"){
     }
 }
 
-
-#' Reducing cbind binomial count data to avoid autocorrelation issues.
-#'
-#' @param x cbind data column (leave \code{y} NULL), or a vector 
-#' specify \code{y}).
-#' @param y Vector, in case \code{x} is vector, otherwise NULL.
-#' @return cbind count data, which sums up to 2 for each row.
-#' @author Jacolien van Rij
-#' @family Functions for binomial count data.
-
-reduceCounts <- function(x,y=NULL){
-  check <- function(a,b){
-    if(any(is.na(c(a,b)))){
-      return(NA)
-    }else if(a==b){
-        if(a==0){
-            return(cbind(0,0))
-        }else{
-            return(cbind(1,1))
-        }
-    }else if(a > b){
-      return(cbind(2,0))
-    }else if(a < b){
-      return(cbind(0,2))
-    }else{
-      return(NA)
-    }
-  }  
-  if(is.null(y)){
-    return( t(mapply(function(x,y){check(x,y)}, x[,1], x[,2])) )
-  }else{
-    return( t(mapply(function(x,y){check(x,y)}, x, y)) )
-  }
-}

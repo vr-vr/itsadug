@@ -36,10 +36,10 @@
 #' @param add.color.legend Logical: whether or not to add a color legend. 
 #' Default is TRUE. If FALSE (omitted), one could use the function
 #' \code{\link{gradientLegend}} to add a legend manually at any position.
-#' @param ... Optional parameters for \code{\link[graphic]{image}}
-#' and \code{\link[graphic]{contour}}.
+#' @param ... Optional parameters for \code{\link[graphics]{image}}
+#' and \code{\link[graphics]{contour}}.
 #' @author Jacolien van Rij
-#' @seealso \code{\link[graphic]{image}}, \code{\link[graphic]{contour}}, 
+#' @seealso \code{\link[graphics]{image}}, \code{\link[graphics]{contour}}, 
 #' \code{\link{color_contour}}
 #' @examples
 #'
