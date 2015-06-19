@@ -30,6 +30,7 @@ length(na.el)
 Jacolien van Rij
 }
 \seealso{
-Other utility functions: \code{\link{diff_terms}}
+Other utility functions: \code{\link{convertNonAlphanumeric}};
+  \code{\link{diff_terms}}
 }
 

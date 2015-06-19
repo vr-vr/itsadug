@@ -5,7 +5,7 @@
 \title{Get model predictions for the random effects.}
 \usage{
 get_random(model, fun = NULL, cond = NULL, n.grid = 30,
-  print.summary = getOption("itsadug_print"))
+  print.summary = getOption("itsadug_print"), return.coefs = FALSE)
 }
 \arguments{
 \item{model}{A gam object, produced by \code{\link[mgcv]{gam}} or
@@ -24,9 +24,16 @@ random predictor terms. When NULL (default) all levels are returned.}
 values selected for each predictor.
 Default set to the print info messages option
 (see \code{\link{infoMessages}}).}
+
+\item{return.coefs}{Logical: whether or not to return the coefficients
+of the random intercepts and slopes instead of the estimates.
+Note that only the coefficients of random effects (with \code{bs="re"})
+are returned.}
 }
 \value{
-A data frame with estimates for random effects.
+A data frame with estimates for random effects, or
+(when \code{return.coefs=TRUE}) the coefficients of the random intercepts
+and slopes.
 }
 \description{
 Get model predictions for the random effects.
@@ -50,11 +57,10 @@ data=simdat)
 newd <- get_random(m2)
 head(newd)
 
-# extract intercepts for Condition:
-a <- newd[!duplicated(newd[,c('Condition')]),1]
-names(a) <- newd[!duplicated(newd[,c('Condition')]),'Condition']
+# extract coefficients for the random intercept for Condition:
+b <- get_random(m2, return.coefs=TRUE)
 # Make bar plot:
-barplot(a)
+barplot(b[[1]])
 abline(h=0)
 
 # Alternatively, fix random effect of Condition, and plot

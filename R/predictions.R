@@ -150,7 +150,13 @@ get_predictions <- function(model, cond=NULL, se=TRUE, f=1.96, rm.ranef=NULL,
 #' values selected for each predictor. 
 #' Default set to the print info messages option 
 #' (see \code{\link{infoMessages}}).
-#' @return A data frame with estimates for random effects.
+#' @param return.coefs Logical: whether or not to return the coefficients
+#' of the random intercepts and slopes instead of the estimates. 
+#' Note that only the coefficients of random effects (with \code{bs="re"}) 
+#' are returned.
+#' @return A data frame with estimates for random effects, or 
+#' (when \code{return.coefs=TRUE}) the coefficients of the random intercepts 
+#' and slopes.
 #' @examples
 #' data(simdat)
 #'
@@ -170,11 +176,10 @@ get_predictions <- function(model, cond=NULL, se=TRUE, f=1.96, rm.ranef=NULL,
 #' newd <- get_random(m2)
 #' head(newd)
 #' 
-#' # extract intercepts for Condition:
-#' a <- newd[!duplicated(newd[,c('Condition')]),1]
-#' names(a) <- newd[!duplicated(newd[,c('Condition')]),'Condition']
+#' # extract coefficients for the random intercept for Condition:
+#' b <- get_random(m2, return.coefs=TRUE)
 #' # Make bar plot:
-#' barplot(a)
+#' barplot(b[[1]])
 #' abline(h=0)
 #' 
 #' # Alternatively, fix random effect of Condition, and plot 
@@ -206,7 +211,8 @@ get_predictions <- function(model, cond=NULL, se=TRUE, f=1.96, rm.ranef=NULL,
 #' @family functions for model predictions
 
 get_random <- function(model, fun=NULL, cond=NULL, n.grid=30, 
-	print.summary=getOption('itsadug_print')){
+	print.summary=getOption('itsadug_print'),
+	return.coefs=FALSE){
 
 	if(!"lm" %in% class(model)){
 		stop("This function does not work for class %s models.", class(model)[1])
@@ -221,6 +227,24 @@ get_random <- function(model, fun=NULL, cond=NULL, n.grid=30,
 						Class = attr(x, "class")[1],
 						stringsAsFactors=FALSE)
 				} ) ) )
+
+		coefs <- list()
+		if(return.coefs==TRUE){
+			coeflabels <- as.vector( smoothlabels[smoothlabels$Class %in% c("random.effect"), "Label"] )
+			for(i in coeflabels){
+				coefs[[i]] = coef(model)[grepl(convertNonAlphanumeric(i), names(coef(model)))]
+				components = model$smooth[[which(smoothlabels$Label == i)]]$term
+				components = components[sapply(components, function(x){ class(model$model[,x])})=="factor"]
+				if(length(components)==1){
+					names(coefs[[i]]) <- levels(model$model[,components])
+				}else if(length(components)>1){
+					names(coefs[[i]]) = levels( interaction(model$model[,components]) )
+				}
+			}
+			return(coefs)
+		}
+
+
 		# smoothlabels <- smoothlabels[smoothlabels$Dim==0,c("Label", "Class")]
 		smoothlabels <- as.vector( smoothlabels[smoothlabels$Class %in% c("random.effect","fs.interaction"), "Label"] )
 
@@ -330,7 +354,9 @@ get_random <- function(model, fun=NULL, cond=NULL, n.grid=30,
 			if(print.summary){
 				summary_data(newd)
 			}
+
 			return(newd)
+
 		}
 	}
 }
@@ -444,7 +470,14 @@ get_difference <- function(model, comp, cond=NULL,
 		p1 <- mgcv::predict.gam(model, newd1, type='lpmatrix') 
 		p2 <- mgcv::predict.gam(model, newd2, type='lpmatrix')
 
-		newd <- as.data.frame(newd1[,!names(newd1) %in% names(comp)])
+		newd <- as.data.frame(newd1)
+		newd.names <- colnames(newd)
+		for(nn in newd.names){
+			if(nn %in% names(comp)){
+				newd[,nn] <- NULL
+			}
+			
+		}
 		mysummary <- summary_data(newd, print=FALSE)	
 
 		# Check for random effects:

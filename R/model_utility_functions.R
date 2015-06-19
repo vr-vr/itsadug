@@ -70,3 +70,29 @@ diff_terms <- function(model1, model2){
 	out[[deparse(substitute(model2))]] <- d2
 	return(out)
 }
+
+#' Utility unction.
+#' 
+#' @param text A text string (smooth term label) that needs to be converted 
+#' to a regular expression. 
+#' @return A regular expression string.
+#' @author Jacolien van Rij
+#' @examples
+#' data(simdat)
+#' # Model for illustrating coefficients:
+#' m0 <- bam(Y ~ s(Time) + s(Subject, bs='re') 
+#' + s(Time, Subject, bs='re'), data=simdat)
+#' 
+#' # get all coefficients:
+#' coef(m0)
+#' # to get only the Subject intercepts:
+#' coef(m0)[grepl(convertNonAlphanumeric("s(Subject)"), names(coef(m0)))]
+#' # to get only the Subject slopes:
+#' coef(m0)[grepl(convertNonAlphanumeric("s(Time,Subject)"), names(coef(m0)))]
+#'
+#' @family utility functions
+
+convertNonAlphanumeric <- function(text){
+	return( gsub("([^a-zA-Z0-9])", "\\\\\\1", as.character(text)) )
+}
+

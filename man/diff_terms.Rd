@@ -29,6 +29,7 @@ diff_terms(gam1, gam2)
 Jacolien van Rij
 }
 \seealso{
-Other utility functions: \code{\link{missing_est}}
+Other utility functions: \code{\link{convertNonAlphanumeric}};
+  \code{\link{missing_est}}
 }
 
