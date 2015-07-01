@@ -38,15 +38,36 @@ A data frame with estimates and optionally errors.
 Get model predictions for specific conditions.
 }
 \examples{
-# see the vignette for examples:
-vignette("plotfunctions", package="itsadug")
+data(simdat)
+
+m1 <- bam(Y ~ Group + s(Time, by=Group), data=simdat)
+
+# Time value is automatically set:
+pp <- get_predictions(m1, cond=list(Group="Adults"))
+head(pp)
+
+# Range of time values:
+pp <- get_predictions(m1,
+    cond=list(Group="Adults", Time=seq(0,500,length=100)))
+# plot:
+emptyPlot(500, range(pp$fit), h=0)
+plot_error(pp$Time, pp$fit, pp$CI, shade=TRUE, xpd=TRUE)
+
+# Warning: also unrealistical values are possible
+range(simdat$Time)
+pp <- get_predictions(m1,
+    cond=list(Group="Adults", Time=seq(-500,0,length=100)))
+# plot of predictions that are not supported by data:
+emptyPlot(c(-500,0), range(pp$fit), h=0)
+plot_error(pp$Time, pp$fit, pp$CI, shade=TRUE, xpd=TRUE)
 }
 \author{
 Jacolien van Rij
 }
 \seealso{
-Other functions for model predictions: \code{\link{get_difference}};
+Other functions for model predictions: \code{\link{get_coefs}};
+  \code{\link{get_difference}};
   \code{\link{get_modelterm}}; \code{\link{get_random}};
-  \code{\link{plotsurface}}
+  \code{\link{inspect_random}}; \code{\link{plotsurface}}
 }
 

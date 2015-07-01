@@ -69,9 +69,15 @@ gradientLegend(valRange=c(-14,14),pos=.5, side=3)
 gradientLegend(valRange=c(-14,14),pos=.125, side=4, inside=FALSE)
 gradientLegend(valRange=c(-14,14),pos=.75, length=.5,
 color=alphaPalette('white', f.seq=seq(0,1, by=.1)), border.col='white')
+
 # when defining custom points, it is still important to specify side:
 gradientLegend(valRange=c(-14,14), pos=c(500,-5,1250,-4), coords=TRUE,
 border.col='red', side=1)
+
+# The functions fvisgam, pvisgam, and plot_diff2 output the zlim:
+fvg <- fvisgam(m1, view=c("Time", "Trial"), add.color.legend=FALSE)
+fadeRug(simdat$Time, simdat$Trial)
+gradientLegend(round(fvg$zlim,2), pos=.875)
 }
 \author{
 Jacolien van Rij

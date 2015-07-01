@@ -66,8 +66,9 @@ head(diff)
 Jacolien van Rij, Martijn Wieling
 }
 \seealso{
-Other functions for model predictions: \code{\link{get_modelterm}};
+Other functions for model predictions: \code{\link{get_coefs}};
+  \code{\link{get_modelterm}};
   \code{\link{get_predictions}}; \code{\link{get_random}};
-  \code{\link{plotsurface}}
+  \code{\link{inspect_random}}; \code{\link{plotsurface}}
 }
 

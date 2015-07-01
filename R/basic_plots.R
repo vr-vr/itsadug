@@ -153,11 +153,7 @@ emptyPlot <- function(xlim, ylim,
 #' emptyPlot(range(avg$Time), c(-20,20), h0=0)
 #' plot_error(avg$Time, avg$x[,'mean'], avg$x[,'sd'], 
 #'    shade=TRUE, lty=3, lwd=3)
-
-#' 
-#' # see the vignette on visualization, 
-#' # section 'Using predictions to customize plots', for an example:
-#' vignette(topic="plotfunctions")
+#'
 #' @family Utility functions for plotting
 
 plot_error <- function(x, fit, se.fit, se.fit2=NULL, 

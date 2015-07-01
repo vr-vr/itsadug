@@ -59,7 +59,7 @@
 #' }
 #' 
 #' # see the vignette for examples:
-#' vignette("plotfunctions", package="itsadug")
+#' vignette("overview", package="itsadug")
 #' @author Jacolien van Rij, based on a function of Fabian Tomaschek 
 #' @seealso \code{\link[mgcv]{plot.gam}}, \code{\link{plot_diff}} 
 #'

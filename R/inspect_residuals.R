@@ -85,7 +85,9 @@ check_normaldist <- function(res, col='red', col.normal='black',
 #'    data=simdat, rho=.5, AR.start=simdat$start.event)
 #' # No time series specified:
 #' check_resid(m1)
-#' # Time series specified:
+#' # Time series specified, results in a "standard" ACF plot, 
+#' # treating all residuals as single time seriesand,
+#' # and an ACF plot with the average ACF over time series:
 #' check_resid(m1, split_by=list(Subject=simdat$Subject, Trial=simdat$Trial))
 #' # Note: residuals do not look very good.
 #'
@@ -94,11 +96,13 @@ check_normaldist <- function(res, col='red', col.normal='black',
 #' # However, it does work for included predictors:
 #' check_resid(m1, split_by=c("Group"))
 #' }
+#' # see the vignette for examples:
+#' vignette("acf", package="itsadug")
+#'
 #' @author Jacolien van Rij
 
 check_resid <- function(model, AR_start = NULL, split_by=NULL){
-	par(mfrow=c(2,2), cex=1.1)
-
+	
 	el.narm <- NULL
 	res <- resid(model)
 	res.rho <- NULL
@@ -187,9 +191,19 @@ check_resid <- function(model, AR_start = NULL, split_by=NULL){
 		}
 	}
 
-	
+	par(mfrow=c(2,2), cex=1.1)
+
 	# plot 1: qqnorm residuals
-	qqnorm(res)
+	tryCatch( qqnorm(res), 
+		error = function(e){
+			if(getOption('itsadug_print')==TRUE){
+				message("Window too small for 4 panels. Plotting 2 x 2 panels. Click ENTER to show plots.")
+			}
+			par(mfrow=c(1,2), cex=1.1)
+			par(ask=TRUE)
+			qqnorm(res)
+
+		} )
 	qqline(res, col='red')
 
 	# plot 2: density
@@ -228,5 +242,8 @@ check_resid <- function(model, AR_start = NULL, split_by=NULL){
 			message("No predictors specified to split the residuals. Last plot is canceled.")
 		}
 	}
+
+	par(mfrow=c(1,1))
+	par(ask=FALSE)
 }
 

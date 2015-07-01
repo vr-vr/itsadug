@@ -48,8 +48,14 @@
 #' @param plot.type one of "contour" or "persp" (default is "contour").
 #' @param zlim A two item array giving the lower and upper limits for the z-
 #' axis scale. NULL to choose automatically.
+#' @param xlim A two item array giving the lower and upper limits for the x-
+#' axis scale. NULL to choose automatically.
+#' @param ylim A two item array giving the lower and upper limits for the y-
+#' axis scale. NULL to choose automatically.
 #' @param nCol The number of colors to use in color schemes.
 #' @param labcex Size of the contour labels.
+#' @param hide.label Logical: whether or not to hide the label 
+#' (i.e., "partial effect"). Default is FALSE.
 #' @param print.summary Logical: whether or not to print summary.
 #' Default set to the print info messages option 
 #' (see \code{\link{infoMessages}}).
@@ -78,10 +84,10 @@
 #' pvisgam(m1, view=c("Trial", "Time"), select=1, zlim=c(-20,20))
 #' }
 #' # see the vignette for examples:
-#' vignette("plotfunctions", package="itsadug")
+#' vignette("overview", package="itsadug")
 #' @author Jacolien van Rij. Modification of \code{\link[mgcv]{vis.gam}} from 
 #' package \code{\link[mgcv]{mgcv}} of Simon N. Wood.
-#' @seealso \code{\link[mgcv]{vis.gam}}, \code{\link[mgcv]{plot.gam}} 
+#' @seealso \code{\link[mgcv]{vis.gam}}, \code{\link[mgcv]{plot.gam}}
 #'
 #' @family functions for interpreting nonlinear effects
 
@@ -89,7 +95,9 @@ pvisgam <- function(x, view = NULL, select = NULL, cond = list(), n.grid = 30,
     too.far = 0, col = NA, color = "topo", contour.col = NULL, 
     add.color.legend=TRUE,
     se = -1, type = "link", plot.type = "contour", zlim = NULL, 
-    nCol = 50, labcex=.6, print.summary=getOption('itsadug_print'),...) {
+    xlim=NULL, ylim=NULL,
+    nCol = 50, labcex=.6, hide.label=FALSE,
+    print.summary=getOption('itsadug_print'),...) {
     
     # This modfication of vis.gam allows the user to specify one condition to plot as partial effect surface.  Use: 1)
     # view=c('Time','Trial') to specify which surface to plot, and 2) select=2 to select a specific smooth term (necessary
@@ -156,12 +164,27 @@ pvisgam <- function(x, view = NULL, select = NULL, cond = list(), n.grid = 30,
     } else {
         r1 <- range(x$var.summary[[view[1]]])
         m1 <- seq(r1[1], r1[2], length = n.grid)
+
+        if(!is.null(xlim)){
+            if(length(xlim) != 2){
+                warning("Invalid xlim values specified. Argument xlim is being ignored.")
+            }else{ 
+                m1 <- seq(xlim[1], xlim[2], length=n.grid)
+            }
+        }
     }
     if (is.factor(x$var.summary[[view[2]]])) {
         m2 <- fac.seq(x$var.summary[[view[2]]], n.grid)
     } else {
         r2 <- range(x$var.summary[[view[2]]])
         m2 <- seq(r2[1], r2[2], length = n.grid)
+        if(!is.null(ylim)){
+            if(length(ylim) != 2){
+                warning("Invalid ylim values specified. Argument ylim is being ignored.")
+            }else{ 
+                m2 <- seq(ylim[1], ylim[2], length=n.grid)
+            }
+        }
     }
     v1 <- rep(m1, n.grid)
     v2 <- rep(m2, rep(n.grid, n.grid))
@@ -354,6 +377,10 @@ pvisgam <- function(x, view = NULL, select = NULL, cond = list(), n.grid = 30,
             if(add.color.legend){
                 gradientLegend(round(c(min.z, max.z), 3), n.seg=3, pos=.875, color=pal)
             }
+            if(hide.label==FALSE){
+                mtext("partial effect", side=4, line=0, adj=0, 
+                    cex=.75, col='gray35', xpd=TRUE)
+            }
         }else{
              stub <- paste(ifelse("xlab" %in% dnm, "", ",xlab=view[1]"), ifelse("ylab" %in% dnm, "", ",ylab=view[2]"), ifelse("main" %in% 
                 dnm, "", ",main=zlab"), ",...)", sep = "")
@@ -367,7 +394,11 @@ pvisgam <- function(x, view = NULL, select = NULL, cond = list(), n.grid = 30,
                 txt <- paste("persp(m1,m2,z,col=col,zlim=c(min.z,max.z)", 
                   stub, sep = "")
                 eval(parse(text = txt))
-            }           
+            } 
+            if(hide.label==FALSE){
+                mtext("partial effect", side=4, line=0, adj=0, 
+                    cex=.75, col='gray35', xpd=TRUE)
+            }                      
         }
     } else {
         if (color == "bw" || color == "gray") {
@@ -407,9 +438,13 @@ pvisgam <- function(x, view = NULL, select = NULL, cond = list(), n.grid = 30,
         z <- matrix(z, n.grid, n.grid)
         txt <- paste("persp(m1,m2,z,col=col,zlim=zlim", ifelse("border" %in% dnm, "", ",border=hi.col"), stub, sep = "")
         eval(parse(text = txt))
+        if(hide.label==FALSE){
+            mtext("partial effect", side=4, line=0, adj=0, 
+                cex=.75, col='gray35', xpd=TRUE)
+        }
     }
 
-    invisible(list(fv = fv, m1 = m1, m2 = m2))
+    invisible(list(fv = fv, m1 = m1, m2 = m2, zlim=c(min.z,max.z)))
 }
 
  

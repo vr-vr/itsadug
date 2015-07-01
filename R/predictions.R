@@ -20,8 +20,29 @@
 #' (see \code{\link{infoMessages}}).
 #' @return A data frame with estimates and optionally errors.
 #' @examples
-#' # see the vignette for examples:
-#' vignette("plotfunctions", package="itsadug")
+#' data(simdat)
+#'
+#' m1 <- bam(Y ~ Group + s(Time, by=Group), data=simdat)
+#' 
+#' # Time value is automatically set:
+#' pp <- get_predictions(m1, cond=list(Group="Adults"))
+#' head(pp)
+#' 
+#' # Range of time values:
+#' pp <- get_predictions(m1, 
+#'     cond=list(Group="Adults", Time=seq(0,500,length=100)))
+#' # plot:
+#' emptyPlot(500, range(pp$fit), h=0)
+#' plot_error(pp$Time, pp$fit, pp$CI, shade=TRUE, xpd=TRUE)
+#'
+#' # Warning: also unrealistical values are possible
+#' range(simdat$Time)
+#' pp <- get_predictions(m1, 
+#'     cond=list(Group="Adults", Time=seq(-500,0,length=100)))
+#' # plot of predictions that are not supported by data:
+#' emptyPlot(c(-500,0), range(pp$fit), h=0)
+#' plot_error(pp$Time, pp$fit, pp$CI, shade=TRUE, xpd=TRUE) 
+#'
 #' @author Jacolien van Rij
 #' @family functions for model predictions
 
@@ -134,232 +155,6 @@ get_predictions <- function(model, cond=NULL, se=TRUE, f=1.96, rm.ranef=NULL,
 	}
 }
 
-
-#' Get model predictions for the random effects.
-#' 
-#' @export
-#' @param model A gam object, produced by \code{\link[mgcv]{gam}} or 
-#' \code{\link[mgcv]{bam}}.
-#' @param fun A string or function description to apply to the random effects 
-#' estimates. When NULL (default), the estimates for the random effects are 
-#' returned. 
-#' @param cond A named list of the values to restrict the estimates for the 
-#' random predictor terms. When NULL (default) all levels are returned.
-#' @param n.grid Number of data points estimated for each random smooth.
-#' @param print.summary Logical: whether or not to print a summary of the 
-#' values selected for each predictor. 
-#' Default set to the print info messages option 
-#' (see \code{\link{infoMessages}}).
-#' @param return.coefs Logical: whether or not to return the coefficients
-#' of the random intercepts and slopes instead of the estimates. 
-#' Note that only the coefficients of random effects (with \code{bs="re"}) 
-#' are returned.
-#' @return A data frame with estimates for random effects, or 
-#' (when \code{return.coefs=TRUE}) the coefficients of the random intercepts 
-#' and slopes.
-#' @examples
-#' data(simdat)
-#'
-#' \dontrun{
-#' # Condition as factor, to have a random intercept
-#' # for illustration purposes:
-#' simdat$Condition <- as.factor(simdat$Condition)
-#'
-#' # Model with random effect and interactions:
-#' m2 <- bam(Y ~ s(Time) + s(Trial)
-#' + ti(Time, Trial)
-#' + s(Condition, bs='re')
-#' + s(Time, Subject, bs='fs', m=1),
-#' data=simdat)
-#'
-#' # extract all random effects combined:
-#' newd <- get_random(m2)
-#' head(newd)
-#' 
-#' # extract coefficients for the random intercept for Condition:
-#' b <- get_random(m2, return.coefs=TRUE)
-#' # Make bar plot:
-#' barplot(b[[1]])
-#' abline(h=0)
-#' 
-#' # Alternatively, fix random effect of Condition, and plot 
-#' # random effects for subjects with lattice:
-#' newd <- get_random(m2, cond=list(Condition='0'))
-#' names(newd)[2] <- 'fit'
-#'
-#' # Make lattice plot:
-#' require(lattice)
-#' lattice::xyplot(fit~Time | Subject,
-#'     data=newd, type="l",
-#'     xlab="Time", ylab="Partial effect")
-#'
-#' # Using argument 'fun':
-#' newd.mean <- get_random(m2, fun=mean, cond=list(Condition='0'))
-#' newd.median <- get_random(m2, fun=median, cond=list(Condition='0'))
-#' 
-#' # plot mean and median of second random effect (random smooths):
-#' emptyPlot(2000, c(-5,5), h0=0)
-#' with(newd.mean[[2]], lines(Time, x, col='red') )
-#' with(newd.median[[2]], lines(Time, x, col='blue') )
-#' legend('topright', legend=c('mean', 'median'),
-#'     col=c('red', 'blue'), lwd=1, bty='n')
-#' }
-#'
-#' # see the vignette for examples:
-#' vignette("plotfunctions", package="itsadug")
-#' @author Jacolien van Rij
-#' @family functions for model predictions
-
-get_random <- function(model, fun=NULL, cond=NULL, n.grid=30, 
-	print.summary=getOption('itsadug_print'),
-	return.coefs=FALSE){
-
-	if(!"lm" %in% class(model)){
-		stop("This function does not work for class %s models.", class(model)[1])
-	}else{
-
-		# find random effects:
-		smoothlabels <- as.data.frame( do.call('rbind', 
-			lapply(model$smooth, 
-				function(x){
-					data.frame(Label=x[['label']], 
-						Dim=x[['null.space.dim']], 
-						Class = attr(x, "class")[1],
-						stringsAsFactors=FALSE)
-				} ) ) )
-
-		coefs <- list()
-		if(return.coefs==TRUE){
-			coeflabels <- as.vector( smoothlabels[smoothlabels$Class %in% c("random.effect"), "Label"] )
-			for(i in coeflabels){
-				coefs[[i]] = coef(model)[grepl(convertNonAlphanumeric(i), names(coef(model)))]
-				components = model$smooth[[which(smoothlabels$Label == i)]]$term
-				components = components[sapply(components, function(x){ class(model$model[,x])})=="factor"]
-				if(length(components)==1){
-					names(coefs[[i]]) <- levels(model$model[,components])
-				}else if(length(components)>1){
-					names(coefs[[i]]) = levels( interaction(model$model[,components]) )
-				}
-			}
-			return(coefs)
-		}
-
-
-		# smoothlabels <- smoothlabels[smoothlabels$Dim==0,c("Label", "Class")]
-		smoothlabels <- as.vector( smoothlabels[smoothlabels$Class %in% c("random.effect","fs.interaction"), "Label"] )
-
-
-
-		if(length(smoothlabels) == 0){
-			warning("No random effects specified in the model.")
-			return(NULL)
-		}
-
-		su <- model$var.summary
-		newd <- NULL
-		new.cond <- list()
-
-		for(i in names(su)){
-			if(i %in% names(cond)){
-				new.cond[[i]] <- cond[[i]]
-			}else{
-				if(any(grepl(i, smoothlabels))){
-					if(inherits(su[[i]],"factor")){
-						new.cond[[i]] <- levels(su[[i]])
-					}else if(inherits(su[[i]],"numeric")){
-						new.cond[[i]] <- seq(su[[i]][1], su[[i]][3], length=n.grid)
-					}
-				}else{
-					if(inherits(su[[i]],"factor")){
-						new.cond[[i]] <- as.character(su[[i]][1])
-					}else if(inherits(su[[i]],"numeric")){
-						new.cond[[i]] <- su[[i]][2]
-					}
-				}
-			}
-		}
-
-		newd <- expand.grid(new.cond)
-
-		p <- mgcv::predict.gam(model, newd, type='terms')
-
-		select <- p[,smoothlabels]
-		cnames <- smoothlabels
-		if(is.null(dim(select))){
-			if(length(select) != length(smoothlabels)){
-				# if length smoothlabels equals 1			
-				newd <- cbind(select, newd)
-				colnames(newd)[1] <- paste("fit",smoothlabels, sep='.')
-				cnames <- paste("fit",smoothlabels, sep='.')
-			}else{
-				names(select) <- paste("fit",smoothlabels, sep='.')
-				cnames <- names(select)
-				newd <- cbind(t(select), newd)
-			}
-		}else{
-			colnames(select) <- paste("fit",smoothlabels, sep='.')
-			cnames <- colnames(select)
-			newd <- cbind(select, newd)
-		}
-		
-
-		if(!is.null(fun)){
-
-
-			val <- NULL
-			if(length(cnames) > 1){
-				val <- as.list(newd[, cnames])
-			}else{
-				val <- list(newd[, cnames])
-			}
-			
-			names(val) <- smoothlabels
-			el <- sapply(model$smooth, function(x){return(x[['label']])})
-
-			fun.val = list()
-			for(i in names(val)){
-
-				fun.cond <- list()
-
-				for(j in model$smooth[[which(el==i)]][['term']]){
-					if(!inherits(su[[j]],"factor")){
-						fun.cond[[j]] <- newd[,j]
-					}
-				}			
-
-				if(length(fun.cond) > 0){
-					fun.val[[i]] <- aggregate(list(x=val[[i]]), by=fun.cond, fun)
-				} else {
-					fun.val[[i]] <- unlist(lapply(list(val[[i]]), fun))
-
-				}
-
-			}
-			fun.val[['function']] <- fun
-
-			return(fun.val)
-		}else{
-			# find random effects terms:
-			smoothterms <- unique( unlist( lapply(model$smooth, 
-					function(x){
-						if(x[['label']] %in% smoothlabels){
-							return(x[['term']])
-						}else{
-							return(NULL)
-						}
-					} ) ) )
-			newd <- newd[,c(paste('fit',smoothlabels,sep='.'), smoothterms)]
-
-			# print summary of chosen values
-			if(print.summary){
-				summary_data(newd)
-			}
-
-			return(newd)
-
-		}
-	}
-}
 
 
 #' Get model predictions for differences between conditions.
@@ -569,7 +364,7 @@ get_difference <- function(model, comp, cond=NULL,
 #' \code{\link[mgcv]{bam}}.
 #' @param select A number, indicating the model term to be selected. 
 #' @param cond A named list of the values to restrict the estimates for the 
-#' random predictor terms. When NULL (default) all levels are returned.
+#' predictor terms. When NULL (default) values are automatically selected.
 #' Only relevant for complex interactions, which involve more than two 
 #' dimensions.
 #' @param n.grid Number of data points estimated for each random smooth.
@@ -640,8 +435,6 @@ get_difference <- function(model, comp, cond=NULL,
 #' pg + ggplot2::guides(col = guide_legend(nrow = 18))
 #' }
 #' 
-#' # see the vignette for plot examples:
-#' vignette("plotfunctions", package="itsadug")
 #' @author Jacolien van Rij
 #' @family functions for model predictions
 
@@ -747,4 +540,177 @@ get_modelterm <- function(model, select, cond=NULL, n.grid=30,
 	}
 }
 
+
+#' Get coefficients for the random intercepts and random slopes.
+#' 
+#' @export
+#' @param model A gam object, produced by \code{\link[mgcv]{gam}} or 
+#' \code{\link[mgcv]{bam}}.
+#' @param cond A named list of the values to restrict the estimates for the 
+#' random predictor terms. When NULL (default) all levels are returned.
+#' Only relevant for complex interactions, which involve more than two 
+#' dimensions.
+#' @param print.summary Logical: whether or not to print a summary of the 
+#' values selected for each predictor. 
+#' Default set to the print info messages option 
+#' (see \code{\link{infoMessages}}).
+#' @return The coefficients of the random intercepts 
+#' and slopes.
+#' @examples
+#' data(simdat)
+#'
+#' \dontrun{
+#' # Condition as factor, to have a random intercept
+#' # for illustration purposes:
+#' simdat$Condition <- as.factor(simdat$Condition)
+#'
+#' # Model with random effect and interactions:
+#' m2 <- bam(Y ~ s(Time) + s(Trial)
+#' + ti(Time, Trial)
+#' + s(Condition, bs='re')
+#' + s(Time, Subject, bs='re'),
+#' data=simdat)
+#'
+#' # extract all random effects combined:
+#' newd <- get_random(m2)
+#' head(newd)
+#' 
+#' # extract coefficients for the random intercept for Condition:
+#' # Make bar plot:
+#' barplot(newd[[1]])
+#' abline(h=0)
+#' 
+#' # or select:
+#' get_random(m2, cond=list(Condition=c('2','3')))
+#' }
+#'
+#' @author Jacolien van Rij
+#' @family functions for model predictions
+
+get_random <- function(model, cond=NULL,
+	print.summary=getOption('itsadug_print')){
+
+	if(!"lm" %in% class(model)){
+		stop("This function does not work for class %s models.", class(model)[1])
+	}else{
+
+		# find random effects:
+		smoothlabels <- as.data.frame( do.call('rbind', 
+			lapply(model$smooth, 
+				function(x){
+					data.frame(Label=x[['label']], 
+						Dim=x[['null.space.dim']], 
+						Class = attr(x, "class")[1],
+						stringsAsFactors=FALSE)
+				} ) ) )
+
+		randomeffects <- which(smoothlabels$Class %in% c("random.effect"))
+		if(length(randomeffects) == 0){
+			warning("No random effects specified in the model.")
+			return(NULL)
+		}
+
+		coefs <- list()
+		
+		coeflabels <- as.vector( smoothlabels[smoothlabels$Class %in% c("random.effect"), "Label"] )
+
+		for(i in coeflabels){
+			coefs[[i]] = coef(model)[grepl(convertNonAlphanumeric(i), names(coef(model)))]
+			components = model$smooth[[which(smoothlabels$Label == i)]]$term
+			components = components[sapply(components, function(x){ class(model$model[,x])})=="factor"]
+			if(length(components)==1){
+				names(coefs[[i]]) <- levels(model$model[,components])
+				if(!is.null(cond)){
+					for(j in names(cond)){
+						if(j %in% components){
+							coefs[[i]] = coefs[[i]][cond[[j]]]
+						}
+					}
+				}
+			}else if(length(components)>1){
+				model$model[,paste(components, collapse='.')] <- interaction(model$model[,components])
+				names(coefs[[i]]) = levels( model$model[,paste(components, collapse='.')] )
+
+				if(!is.null(cond)){
+					for(j in names(cond)){
+						if(j %in% components){
+							incl.levels <- sort(unique(model$model[model$model[,j]==cond[[j]],paste(components, collapse='.')]))
+							incl.levels[incl.levels %in% names(coefs[[i]])]
+							coefs[[i]] = coefs[[i]][incl.levels]
+						}
+					}
+				}
+			}
+		}
+		return(coefs)
+		
+	}
+}
+
+
+
+#' Get coefficients for the parametric terms (intercepts and random slopes).
+#'
+#' @description Wrapper around the function \code{\link[stats]{coef}}, 
+#' and loosely based on \code{\link[mgcv]{summary.gam}}. This function 
+#' provides a much faster alternative for \code{summary(model)$p.table}.
+#' The function \code{\link[mgcv]{summary.gam}}) may take considerably 
+#' more time for large models, because it additionally needs to calculate 
+#' estimates for the smooth term table.
+#' 
+#' @export
+#' @param model A gam object, produced by \code{\link[mgcv]{gam}} or 
+#' \code{\link[mgcv]{bam}}.
+#' @param se Logical: whether or not to return the standard errors.
+#' @return The coefficients of the parametric terms.
+#' @examples
+#' data(simdat)
+#'
+#' # Condition as factor, to have a random intercept
+#' # for illustration purposes:
+#' simdat$Condition <- as.factor(simdat$Condition)
+#'
+#' # Model with random effect and interactions:
+#' m1 <- bam(Y ~ Group * Condition + s(Time),
+#'     data=simdat)
+#'
+#' # extract all parametric coefficients:
+#' get_coefs(m1)
+#' # calculate t-values:
+#' test <- get_coefs(m1)
+#' test <- cbind(test, test[,1] / test[,2] )
+#' colnames(test)[3] <- 't-value'
+#' test
+#' 
+#' # get_coefs returns the same numbers as shown in the parametric summary:
+#' summary(m1)
+#' # get_coefs is based on the function coef. This function returns 
+#' # values of all coefficients, and does not provide SE:
+#' coef(m1)
+#' 
+#' @author Jacolien van Rij
+#' @family functions for model predictions
+
+get_coefs <- function (model, se=TRUE) {
+
+    # number of parametric terms including intercept:
+    n <- model$nsdf
+    coefs <- coef(model)[1:n]
+    p.table <- NULL
+
+    if(se==TRUE){
+        covmat <- model$Vp[1:n, 1:n]
+        name <- names(coefs)
+        dimnames(covmat) <- list(name, name)
+        se <- diag(covmat)^.5
+        p.table <- cbind(coefs, se)
+        dimnames(p.table) <- list(names(coefs), 
+                c("Estimate", "Std. Error"))
+    }else{
+        p.table <- coefs[1:n]
+    }
+    return(p.table)
+
+
+}
 

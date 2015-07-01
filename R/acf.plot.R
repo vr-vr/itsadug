@@ -61,8 +61,9 @@
 #' simdat[!is.na(simdat$Y),]$res <- resid(m1)
 #' acf_plot(simdat$res, split_by=list(simdat$Subject, simdat$Trial))
 #'
-#' # see also the vignette for an example:
-#' vignette(topic="plotfunctions", package="itsadug")
+#' # see the vignette for examples:
+#' vignette("acf", package="itsadug")
+#'
 #' @family functions for model criticism
 
 acf_plot <- function(x, split_by = NULL, max_lag = NULL, plot = TRUE, 

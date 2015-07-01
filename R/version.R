@@ -3,7 +3,7 @@
   	options(itsadug_print=TRUE)
   }
   if(getOption('itsadug_print')){
-  	packageStartupMessage('Loaded package itsadug 0.96 (see \'help("itsadug")\' ).')
+  	packageStartupMessage('Loaded package itsadug 1.0 (see \'help("itsadug")\' ).')
   }
 }
 

@@ -4,8 +4,7 @@
 \alias{getCountData}
 \title{Reducing fixations to count data.}
 \usage{
-getCountData(x, split_by, data = NULL, values = NULL, sumvalues = NULL,
-  incl_na = FALSE, cbind = FALSE)
+getCountData(x, split_by, data = NULL, values = NULL, incl_na = FALSE)
 }
 \arguments{
 \item{x}{Name of a column in \code{data} or vector with values
@@ -19,15 +18,7 @@ grouping predictors.}
 \item{values}{Values of \code{x} that should be counted.
 If NULL (default) all values are counted.}
 
-\item{sumvalues}{Named list that specifies wchich counts can be combined
- (summed). The values listed in \code{sumvalues} must be specified in
- \code{values}. If \code{incl_na} is TRUE, \code{sumvalues} can also
-include 'NA' (with quotes).}
-
 \item{incl_na}{Logical: whether or not to return a count of missing values.}
-
-\item{cbind}{Logical: whether or not to include the counts as cbinded
-values. Defaults to FALSE, i.e., each countwill be included as new column.}
 }
 \value{
 A data frame with cbinded count information.
@@ -39,6 +30,11 @@ to count the occurrances of each value in the predictor.
 \section{Note}{
 
 Values that are not specified in \code{values} will be ignored.
+}
+
+\section{Note}{
+
+Will be moved to other package.
 }
 \examples{
 # simulate some gaze data:
@@ -56,45 +52,19 @@ dat$Timebin <- timeBins(dat$Timestamp, 100)
 # calculate counts:
 c1 <- getCountData('AOI', data=dat, split_by=c('Subject', 'Timebin'))
 head(c1)
-colnames(c1)
 # calculating proportions:
-c1$prop <- c1$AOI.target / ( c1$AOI.competitor+c1$AOI.other )
-
-# Using cbinds:
-c2 <- getCountData('AOI', data=dat, split_by=c('Subject', 'Timebin'),
-     cbind=FALSE)
-head(c2)
-colnames(c2)
-# calculating proportions:
-c2$prop <- c2$AOI[,'target'] / ( c2$AOI[,'competitor']+c2$AOI[,'other'])
+c1$prop <- c1$AOI[,'target'] / ( c1$AOI[,'competitor']+c1$AOI[,'other'])
 
 # calculating counts for specific values, including missing data.
 # Note that 'distractor' is not in the data:
-c3 <- getCountData('AOI', data=dat, split_by=c('Subject', 'Timebin'),
+c2 <- getCountData('AOI', data=dat, split_by=c('Subject', 'Timebin'),
 values=c('target', 'distractor', 'competitor', 'other'), incl_na=TRUE)
-head(c3)
-
-# summing up specific values:
-c4 <- getCountData('AOI', data=dat, split_by=c('Subject', 'Timebin'),
-values=levels(dat$AOI),
-sumvalues=list('correct'=c('target', 'competitor'),
-'incorrect'=c('other','NA')), incl_na=TRUE, cbind=TRUE)
-head(c4)
-names(c4)
-# or as separate columns:
-c4 <- getCountData('AOI', data=dat, split_by=c('Subject', 'Timebin'),
-values=levels(dat$AOI),
-sumvalues=list('correct'=c('target', 'competitor'),
-'incorrect'=c('other','NA')), incl_na=TRUE)
-head(c4)
-names(c4)
+head(c2)
 }
 \author{
 Jacolien van Rij
 }
 \seealso{
 \code{\link[base]{table}}
-
-Other Functions for gaze data: \code{\link{timeBins}}
 }
 

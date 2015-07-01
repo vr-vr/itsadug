@@ -24,12 +24,15 @@ to count the occurrances of each value in the predictor.
 
 Values that are not specified in \code{values} will be ignored.
 }
+
+\section{Note}{
+
+Will be moved to other package.
+}
 \author{
 Jacolien van Rij
 }
 \seealso{
 \code{\link[base]{table}}
-
-Other Functions for binomial count data.: \code{\link{convertToBinom}}
 }
 

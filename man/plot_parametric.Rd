@@ -81,7 +81,7 @@ print(out)
 }
 
 # see the vignette for examples:
-vignette("plotfunctions", package="itsadug")
+vignette("overview", package="itsadug")
 }
 \author{
 Jacolien van Rij, based on a function of Fabian Tomaschek
@@ -93,6 +93,7 @@ Other functions for interpreting nonlinear effects: \code{\link{fvisgam}},
   \code{\link{vis.gam2}}; \code{\link{plotDiff2D}},
   \code{\link{plot_diff2}}; \code{\link{plotDiff}},
   \code{\link{plot_diff}}; \code{\link{plot_smooth}};
-  \code{\link{pvis.gam}}, \code{\link{pvisgam}}
+  \code{\link{plot_topo}}; \code{\link{pvis.gam}},
+  \code{\link{pvisgam}}
 }
 

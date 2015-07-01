@@ -15,7 +15,7 @@ get_modelterm(model, select, cond = NULL, n.grid = 30, se = TRUE,
 \item{select}{A number, indicating the model term to be selected.}
 
 \item{cond}{A named list of the values to restrict the estimates for the
-random predictor terms. When NULL (default) all levels are returned.
+predictor terms. When NULL (default) values are automatically selected.
 Only relevant for complex interactions, which involve more than two
 dimensions.}
 
@@ -97,16 +97,14 @@ pg <- ggplot2::qplot(Time, fit, data = pp,
     geom = c("point", "line"), colour = Subject)
 pg + ggplot2::guides(col = guide_legend(nrow = 18))
 }
-
-# see the vignette for plot examples:
-vignette("plotfunctions", package="itsadug")
 }
 \author{
 Jacolien van Rij
 }
 \seealso{
-Other functions for model predictions: \code{\link{get_difference}};
+Other functions for model predictions: \code{\link{get_coefs}};
+  \code{\link{get_difference}};
   \code{\link{get_predictions}}; \code{\link{get_random}};
-  \code{\link{plotsurface}}
+  \code{\link{inspect_random}}; \code{\link{plotsurface}}
 }
 

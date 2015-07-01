@@ -1,18 +1,8 @@
-setwd('~/R Packages/appsNonlinearRegression/')#
-#
-library(devtools)#
-#
-devtools::document()#
-devtools::load_all()
-install.packages('~/R Packages/itsadug_0.93.tar.gz', repos=NULL, type='source')
-install.packages('~/R Packages/itsadug_0.95.tar.gz', repos=NULL, type='source')
-install.packages('~/R Packages/appsNonlinearRegression_0.1.tar.gz', repos=NULL, type='source')
-library(appsNonlinearRegression)
-demoRandom()
+library(mgcv)
+library(itsadug)
 setwd('~/R Packages/itsadug/')#
 #
 library(devtools)#
 #
 devtools::document()#
 devtools::load_all()
-install.packages('~/R Packages/itsadug_0.95.tar.gz', repos=NULL, type='source')

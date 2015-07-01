@@ -9,7 +9,7 @@ plot_smooth(x, view = NULL, cond = list(), plot_all = NULL,
   add = FALSE, se = 1.96, shade = TRUE, eegAxis = FALSE,
   print.summary = getOption("itsadug_print"), main = NULL, xlab = NULL,
   ylab = NULL, ylim = NULL, h0 = 0, v0 = NULL, transform = NULL,
-  legend_plot_all = NULL, ...)
+  legend_plot_all = NULL, hide.label = FALSE, ...)
 }
 \arguments{
 \item{x}{A gam object, produced by \code{\link[mgcv]{gam}} or
@@ -84,6 +84,9 @@ the list "bottomright", "bottom", "bottomleft", "left", "topleft", "top",
 "topright", "right" and "center", or a list with \code{x} and \code{y}
 coordinate (e.g., \code{list(x=0,y=0)}).}
 
+\item{hide.label}{Logical: whether or not to hide the label
+(i.e., "fitted values"). Default is FALSE.}
+
 \item{...}{other options to pass on to lines and plot,
 see \code{\link[graphics]{par}}}
 }
@@ -129,19 +132,21 @@ arrows(x0=0, x1=2200, y0=-5, y1=-5, col='red',
 plot_smooth(m1, view='Time', cond=list(Trial=-5),
     main='Trial=-5', rm.ranef=TRUE)
 
+
+# Model with random effect and interactions:
+m2 <- bam(Y ~ Group + s(Time, by=Group)
+    +s(Time, Subject, bs='fs', m=1),
+    data=simdat)
+
 # Plot all levels of a predictor:
-plot_smooth(m1, view='Time', cond=list(Trial=-5),
-    main='Trial=-5', plot_all="Group",
+plot_smooth(m2, view='Time', plot_all="Group",
     rm.ranef=TRUE)
 # It also possible to combine predictors in plot_all.
 # Note: this is not a meaningfull plot,
 # just for illustration purposes!
-plot_smooth(m1, view='Time', cond=list(Trial=-5),
-    main='Trial=-5', plot_all=c("Group", "Subject"))
+plot_smooth(m2, view='Time', plot_all=c("Group", "Subject"))
 }
 
-# see the vignette for more examples:
-vignette("plotfunctions", package="itsadug")
 # and for a quick overview of plotfunctions:
 vignette("overview", package="itsadug")
 }
@@ -155,6 +160,7 @@ Other functions for interpreting nonlinear effects: \code{\link{fvisgam}},
   \code{\link{vis.gam2}}; \code{\link{plotDiff2D}},
   \code{\link{plot_diff2}}; \code{\link{plotDiff}},
   \code{\link{plot_diff}}; \code{\link{plot_parametric}};
-  \code{\link{pvis.gam}}, \code{\link{pvisgam}}
+  \code{\link{plot_topo}}; \code{\link{pvis.gam}},
+  \code{\link{pvisgam}}
 }
 

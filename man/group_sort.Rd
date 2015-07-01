@@ -38,6 +38,6 @@ Jacolien van Rij
 Other Data utility functions: \code{\link{findAbsMin}};
   \code{\link{find_n_neighbors}};
   \code{\link{move_n_point}}; \code{\link{print_summary}};
-  \code{\link{summary_data}}
+  \code{\link{summary_data}}; \code{\link{timeBins}}
 }
 

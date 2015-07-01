@@ -7,6 +7,13 @@
 #' transparent) to 1 (not transparent).
 #'
 #' @family Utility functions for plotting
+#' @section Note: 
+#' Does not always work for x11 panels.
+#' @examples
+#' emptyPlot(100,100, h=50, v=50)
+#' rect(25,25,75,75, col=alpha('red',f=1))
+#' rect(35,41,63,81, col=alpha(rgb(0,1,.5),f=.25), 
+#'    border=alpha(rgb(0,1,.5), f=.65), lwd=4)
 
 alpha <- function(x, f = 0.5) {
     if(f > 1 | f < 0){
@@ -295,9 +302,15 @@ getFigCoords <- function(input='f'){
 #' gradientLegend(valRange=c(-14,14),pos=.125, side=4, inside=FALSE)
 #' gradientLegend(valRange=c(-14,14),pos=.75, length=.5,
 #' color=alphaPalette('white', f.seq=seq(0,1, by=.1)), border.col='white')
+#' 
 #' # when defining custom points, it is still important to specify side:
 #' gradientLegend(valRange=c(-14,14), pos=c(500,-5,1250,-4), coords=TRUE, 
 #' border.col='red', side=1)
+#'
+#' # The functions fvisgam, pvisgam, and plot_diff2 output the zlim:
+#' fvg <- fvisgam(m1, view=c("Time", "Trial"), add.color.legend=FALSE)
+#' fadeRug(simdat$Time, simdat$Trial)
+#' gradientLegend(round(fvg$zlim,2), pos=.875)
 #' 
 #' @family Utility functions for plotting
 

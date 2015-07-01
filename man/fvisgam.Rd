@@ -7,9 +7,10 @@
 \usage{
 fvisgam(x, view = NULL, cond = list(), n.grid = 30, too.far = 0,
   col = NA, color = "topo", contour.col = NULL, add.color.legend = TRUE,
-  se = -1, plot.type = "contour", zlim = NULL, nCol = 50,
-  rm.ranef = NULL, print.summary = getOption("itsadug_print"),
-  transform = NULL, ...)
+  se = -1, plot.type = "contour", xlim = NULL, ylim = NULL,
+  zlim = NULL, nCol = 50, rm.ranef = NULL,
+  print.summary = getOption("itsadug_print"), transform = NULL,
+  hide.label = FALSE, ...)
 }
 \arguments{
 \item{x}{A gam object, produced by \code{\link[mgcv]{gam}} or
@@ -51,6 +52,12 @@ one at the predicted values plus se standard errors.}
 
 \item{plot.type}{one of "contour" or "persp" (default is "contour").}
 
+\item{xlim}{A two item array giving the lower and upper limits for the x-
+axis scale. NULL to choose automatically.}
+
+\item{ylim}{A two item array giving the lower and upper limits for the y-
+axis scale. NULL to choose automatically.}
+
 \item{zlim}{A two item array giving the lower and upper limits for the z-
 axis scale. NULL to choose automatically.}
 
@@ -65,6 +72,9 @@ Default set to the print info messages option
 
 \item{transform}{Function for transforming the fitted values.
 Default is NULL.}
+
+\item{hide.label}{Logical: whether or not to hide the label
+(i.e., "fitted values"). Default is FALSE.}
 
 \item{...}{other options to pass on to persp, image or contour. In
 particular ticktype="detailed" will add proper axes labeling to the plots.}
@@ -91,7 +101,7 @@ fvisgam(m1, view=c("Time", "Trial"), rm.ranef=FALSE)
 fvisgam(m1, view=c("Time", "Trial"), rm.ranef=TRUE)
 }
 # see the vignette for examples:
-vignette("plotfunctions", package="itsadug")
+vignette("overview", package="itsadug")
 }
 \author{
 Jacolien van Rij and Martijn Wieling.
@@ -104,7 +114,7 @@ package \code{\link[mgcv]{mgcv}} of Simon N. Wood.
 Other functions for interpreting nonlinear effects: \code{\link{plotDiff2D}},
   \code{\link{plot_diff2}}; \code{\link{plotDiff}},
   \code{\link{plot_diff}}; \code{\link{plot_parametric}};
-  \code{\link{plot_smooth}}; \code{\link{pvis.gam}},
-  \code{\link{pvisgam}}
+  \code{\link{plot_smooth}}; \code{\link{plot_topo}};
+  \code{\link{pvis.gam}}, \code{\link{pvisgam}}
 }
 

@@ -62,7 +62,8 @@ settings of some or all of the model predictors;
 two conditions or two smooths or two surfaces.
   \item \code{\link{get_modelterm}} for extracting the smooth term (
 partial) estimates.
-  \item \code{\link{get_random}} for extracting random effects only.
+  \item \code{\link{inspect_random}} and \code{\link{get_random}} for
+extracting random effects only.
 }
 }
 
@@ -78,16 +79,15 @@ argument \code{AR.start} in \code{\link[mgcv]{gam}} or
   \item The function \code{\link{gamtabs}} is a wrapper around
 \code{print.xtable} (package xtable) for including model summaries
 in a \code{knitr} file.
+  \item The function \code{\link{plot_topo}} is a wrapper around
+\code{\link{pvisgam}}, \code{\link{fvisgam}}, and \code{\link{plot_diff2}}
+that creates an EEG topo plot with electrode locations.
   \item \code{\link{find_difference}} returns where a smooth is
 significantly different from zero.
   \item \code{\link{fadeRug}} uses transparency to overlay data
 observations on a surface.
   \item \code{\link{gradientLegend}} for adding a color legend to a plot.
 }
-The additional functions are mostly convenience functions for plotting,
-such as \code{\link{emptyPlot}}, \code{\link{plot_error}} for quickly
-plotting smooth terms with shaded errors, and \code{\link{addInterval}}
-for drawing interval indication.
 }
 
 \section{Notes}{

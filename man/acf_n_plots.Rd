@@ -66,9 +66,9 @@ acf_n_plots(simdat$Y, add=TRUE, n=4)
 acf_n_plots(simdat$Y, random=TRUE, n=4, add=TRUE,
     split_by=list(simdat$Subject, simdat$Trial))
 
-# See also the vignette for an example:
-vignette(topic="plotfunctions", package="itsadug")
 }
+# see the vignette for examples:
+vignette("acf", package="itsadug")
 
 #---------------------------------------------
 # When using model residuals

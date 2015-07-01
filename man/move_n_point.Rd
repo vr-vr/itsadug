@@ -39,6 +39,7 @@ Jacolien van Rij
 \seealso{
 Other Data utility functions: \code{\link{findAbsMin}};
   \code{\link{find_n_neighbors}}; \code{\link{group_sort}};
-  \code{\link{print_summary}}; \code{\link{summary_data}}
+  \code{\link{print_summary}}; \code{\link{summary_data}};
+  \code{\link{timeBins}}
 }
 

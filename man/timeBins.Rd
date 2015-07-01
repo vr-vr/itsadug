@@ -24,12 +24,23 @@ information.
 \description{
 Function for calculating timebins.
 }
+\examples{
+data(simdat)
+# grouping Time values in bins:
+simdat$Timebin <- timeBins(simdat$Time, 200)
+head(simdat)
+
+# different labels:
+simdat$Timebin2 <- timeBins(simdat$Time, 200, pos=0)
+head(simdat)
+}
 \author{
 Jacolien van Rij
 }
 \seealso{
-\code{\link{getCountData}}
-
-Other Functions for gaze data: \code{\link{getCountData}}
+Other Data utility functions: \code{\link{findAbsMin}};
+  \code{\link{find_n_neighbors}}; \code{\link{group_sort}};
+  \code{\link{move_n_point}}; \code{\link{print_summary}};
+  \code{\link{summary_data}}
 }
 

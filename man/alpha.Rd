@@ -15,6 +15,16 @@ transparent) to 1 (not transparent).}
 \description{
 Wrapper around \code{\link[grDevices]{adjustcolor}}.
 }
+\section{Note}{
+
+Does not always work for x11 panels.
+}
+\examples{
+emptyPlot(100,100, h=50, v=50)
+rect(25,25,75,75, col=alpha('red',f=1))
+rect(35,41,63,81, col=alpha(rgb(0,1,.5),f=.25),
+   border=alpha(rgb(0,1,.5), f=.65), lwd=4)
+}
 \seealso{
 Other Utility functions for plotting: \code{\link{addInterval}};
   \code{\link{alphaPalette}}; \code{\link{color_contour}};

@@ -7,9 +7,9 @@
 \usage{
 plot_diff2(model, view, comp, cond = NULL, color = "topo", nCol = 100,
   col = NULL, add.color.legend = TRUE, plotCI = FALSE, f = 1.96,
-  n.grid = 30, nlevels = 10, zlim = NULL, main = NULL, xlab = NULL,
-  ylab = NULL, rm.ranef = NULL,
-  print.summary = getOption("itsadug_print"), ...)
+  n.grid = 30, nlevels = 10, zlim = NULL, xlim = NULL, ylim = NULL,
+  main = NULL, xlab = NULL, ylab = NULL, rm.ranef = NULL,
+  hide.label = FALSE, print.summary = getOption("itsadug_print"), ...)
 }
 \arguments{
 \item{model}{A GAMM model, resulting from the functions
@@ -47,6 +47,12 @@ in 95\% confidence intervals. For 99\% confidence intervals use a value of
 \item{zlim}{A two item array giving the lower and upper limits for the z-
 axis scale. NULL to choose automatically.}
 
+\item{xlim}{A two item array giving the lower and upper limits for the x-
+axis scale. NULL to choose automatically.}
+
+\item{ylim}{A two item array giving the lower and upper limits for the y-
+axis scale. NULL to choose automatically.}
+
 \item{main}{Title of plot.}
 
 \item{xlab}{Label x-axis.}
@@ -56,6 +62,9 @@ axis scale. NULL to choose automatically.}
 \item{rm.ranef}{Logical: whether or not to remove random effects.
 Default is FALSE. Alternatively a string (or vector of strings) with the
 name of the random effect(s) to remove.}
+
+\item{hide.label}{Logical: whether or not to hide the label
+(i.e., "difference"). Default is FALSE.}
 
 \item{print.summary}{Logical: whether or not to print a summary.
 Default set to the print info messages option
@@ -89,7 +98,7 @@ Martijn Wieling, reimplemented by Jacolien van Rij
 Other functions for interpreting nonlinear effects: \code{\link{fvisgam}},
   \code{\link{vis.gam2}}; \code{\link{plotDiff}},
   \code{\link{plot_diff}}; \code{\link{plot_parametric}};
-  \code{\link{plot_smooth}}; \code{\link{pvis.gam}},
-  \code{\link{pvisgam}}
+  \code{\link{plot_smooth}}; \code{\link{plot_topo}};
+  \code{\link{pvis.gam}}, \code{\link{pvisgam}}
 }
 

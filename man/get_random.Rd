@@ -2,41 +2,30 @@
 % Please edit documentation in R/predictions.R
 \name{get_random}
 \alias{get_random}
-\title{Get model predictions for the random effects.}
+\title{Get coefficients for the random intercepts and random slopes.}
 \usage{
-get_random(model, fun = NULL, cond = NULL, n.grid = 30,
-  print.summary = getOption("itsadug_print"), return.coefs = FALSE)
+get_random(model, cond = NULL, print.summary = getOption("itsadug_print"))
 }
 \arguments{
 \item{model}{A gam object, produced by \code{\link[mgcv]{gam}} or
 \code{\link[mgcv]{bam}}.}
 
-\item{fun}{A string or function description to apply to the random effects
-estimates. When NULL (default), the estimates for the random effects are
-returned.}
-
 \item{cond}{A named list of the values to restrict the estimates for the
-random predictor terms. When NULL (default) all levels are returned.}
-
-\item{n.grid}{Number of data points estimated for each random smooth.}
+random predictor terms. When NULL (default) all levels are returned.
+Only relevant for complex interactions, which involve more than two
+dimensions.}
 
 \item{print.summary}{Logical: whether or not to print a summary of the
 values selected for each predictor.
 Default set to the print info messages option
 (see \code{\link{infoMessages}}).}
-
-\item{return.coefs}{Logical: whether or not to return the coefficients
-of the random intercepts and slopes instead of the estimates.
-Note that only the coefficients of random effects (with \code{bs="re"})
-are returned.}
 }
 \value{
-A data frame with estimates for random effects, or
-(when \code{return.coefs=TRUE}) the coefficients of the random intercepts
+The coefficients of the random intercepts
 and slopes.
 }
 \description{
-Get model predictions for the random effects.
+Get coefficients for the random intercepts and random slopes.
 }
 \examples{
 data(simdat)
@@ -50,7 +39,7 @@ simdat$Condition <- as.factor(simdat$Condition)
 m2 <- bam(Y ~ s(Time) + s(Trial)
 + ti(Time, Trial)
 + s(Condition, bs='re')
-+ s(Time, Subject, bs='fs', m=1),
++ s(Time, Subject, bs='re'),
 data=simdat)
 
 # extract all random effects combined:
@@ -58,43 +47,22 @@ newd <- get_random(m2)
 head(newd)
 
 # extract coefficients for the random intercept for Condition:
-b <- get_random(m2, return.coefs=TRUE)
 # Make bar plot:
-barplot(b[[1]])
+barplot(newd[[1]])
 abline(h=0)
 
-# Alternatively, fix random effect of Condition, and plot
-# random effects for subjects with lattice:
-newd <- get_random(m2, cond=list(Condition='0'))
-names(newd)[2] <- 'fit'
-
-# Make lattice plot:
-require(lattice)
-lattice::xyplot(fit~Time | Subject,
-    data=newd, type="l",
-    xlab="Time", ylab="Partial effect")
-
-# Using argument 'fun':
-newd.mean <- get_random(m2, fun=mean, cond=list(Condition='0'))
-newd.median <- get_random(m2, fun=median, cond=list(Condition='0'))
-
-# plot mean and median of second random effect (random smooths):
-emptyPlot(2000, c(-5,5), h0=0)
-with(newd.mean[[2]], lines(Time, x, col='red') )
-with(newd.median[[2]], lines(Time, x, col='blue') )
-legend('topright', legend=c('mean', 'median'),
-    col=c('red', 'blue'), lwd=1, bty='n')
+# or select:
+get_random(m2, cond=list(Condition=c('2','3')))
 }
-
-# see the vignette for examples:
-vignette("plotfunctions", package="itsadug")
 }
 \author{
 Jacolien van Rij
 }
 \seealso{
-Other functions for model predictions: \code{\link{get_difference}};
+Other functions for model predictions: \code{\link{get_coefs}};
+  \code{\link{get_difference}};
   \code{\link{get_modelterm}};
-  \code{\link{get_predictions}}; \code{\link{plotsurface}}
+  \code{\link{get_predictions}};
+  \code{\link{inspect_random}}; \code{\link{plotsurface}}
 }
 

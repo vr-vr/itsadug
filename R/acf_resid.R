@@ -31,9 +31,9 @@
 #' # Run GAMM model:
 #' m1 <- bam(Y ~ te(Time, Trial)+s(Subject, bs='re'), data=simdat)
 #'
-#' # This will generate an error (see examples in acf_plot):
+#' # Using a list to split the data:
 #' acf_resid(m1, split_pred=list(simdat$Subject, simdat$Trial))
-#' # However, this will work:
+#' # ...or using model predictors:
 #' acf_resid(m1, split_pred=c("Subject", "Trial"))
 #' 
 #' # Calling acf_n_plots:
@@ -44,16 +44,13 @@
 #' # This does not work...
 #' m2 <- lm(Y ~ Time, data=simdat)
 #' acf_resid(m2, split_pred=c("Subject", "Trial"))
-#' # ... and this also doesn't work (because of the NA's)
-#' acf_resid(m2, split_pred=list(simdat$Subject, simdat$Trial))
 #' # ... but this is ok:
-#' el.na <- missing_est(m2)
-#' acf_resid(m2, split_pred=list(simdat$Subject[-el.na], simdat$Trial[-el.na]))
+#' acf_resid(m2, split_pred=list(simdat$Subject, simdat$Trial))
 #' 
 #' # See acf_plot for how to deal wit missing data
 #' }
-#' # see also the vignette for an example:
-#' vignette(topic="plotfunctions", package="itsadug")
+#' # see the vignette for examples:
+#' vignette("acf", package="itsadug")
 #' @family functions for model criticism
 
 
@@ -96,6 +93,9 @@ acf_resid <- function(model, split_pred=NULL, n=1, plot=TRUE, ...){
 			if(is.null(split_pred)){
 				out <- acf_n_plots(resid_gam(model), split_by=split_by, n=n, plot=plot, ...)
 				invisible(out)
+			}else if( !is.list(split_pred)){
+				out <- acf_n_plots(resid_gam(model), split_by=split_by, n=n, plot=plot, ...)
+				invisible(out)
 			}else{
 				out <- acf_n_plots(resid_gam(model, incl_na=TRUE), split_by=split_by, n=n, plot=plot, ...)
 				invisible(out)
@@ -104,6 +104,9 @@ acf_resid <- function(model, split_pred=NULL, n=1, plot=TRUE, ...){
 	}else{
 		if(!all(is.na(resid_gam(model, incl_na=TRUE)))){
 			if(is.null(split_pred)){
+				out <- acf_plot(resid_gam(model), split_by=split_by, plot=plot, ...)
+				invisible(out)
+			}else if( !is.list(split_pred)){
 				out <- acf_plot(resid_gam(model), split_by=split_by, plot=plot, ...)
 				invisible(out)
 			}else{

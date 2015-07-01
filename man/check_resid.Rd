@@ -42,7 +42,9 @@ m1 <- bam(Y ~ Group + te(Time, Trial, by=Group),
    data=simdat, rho=.5, AR.start=simdat$start.event)
 # No time series specified:
 check_resid(m1)
-# Time series specified:
+# Time series specified, results in a "standard" ACF plot,
+# treating all residuals as single time seriesand,
+# and an ACF plot with the average ACF over time series:
 check_resid(m1, split_by=list(Subject=simdat$Subject, Trial=simdat$Trial))
 # Note: residuals do not look very good.
 
@@ -51,6 +53,8 @@ check_resid(m1, split_by=c("Subject", "Trial"))
 # However, it does work for included predictors:
 check_resid(m1, split_by=c("Group"))
 }
+# see the vignette for examples:
+vignette("acf", package="itsadug")
 }
 \author{
 Jacolien van Rij

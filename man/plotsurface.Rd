@@ -110,8 +110,10 @@ Jacolien van Rij
 \code{\link[graphics]{image}}, \code{\link[graphics]{contour}},
 \code{\link{color_contour}}
 
-Other functions for model predictions: \code{\link{get_difference}};
+Other functions for model predictions: \code{\link{get_coefs}};
+  \code{\link{get_difference}};
   \code{\link{get_modelterm}};
-  \code{\link{get_predictions}}; \code{\link{get_random}}
+  \code{\link{get_predictions}}; \code{\link{get_random}};
+  \code{\link{inspect_random}}
 }
 

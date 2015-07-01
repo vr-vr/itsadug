@@ -29,13 +29,12 @@
 #' # Corrected residuals:
 #' acf(resid_gam(m1))
 #'
-#' # Without AR.start included in the model, resid_gam returns an error:
+#' # Without AR.start included in the model:
 #' m2 <- bam(Y ~ Group + te(Time, Trial, by=Group), 
 #'    data=simdat)
-#' acf(resid_gam(m2))
-#' # Use resid(m2) instead!
-#' # Alternatively, this also works, essentially the same as resid(m2):
-#' acf(resid_gam(m2, AR_start=simdat$start.event))
+#' acf(resid_gam(m2), plot=F)
+#' # Same as resid(m2)!
+#' acf(resid(m2), plot=F)
 #'
 #' ### MISSING VALUES ###
 #' # Note that corrected residuals cannot be calculated for the last 

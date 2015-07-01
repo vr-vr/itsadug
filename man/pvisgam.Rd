@@ -8,7 +8,8 @@
 pvisgam(x, view = NULL, select = NULL, cond = list(), n.grid = 30,
   too.far = 0, col = NA, color = "topo", contour.col = NULL,
   add.color.legend = TRUE, se = -1, type = "link",
-  plot.type = "contour", zlim = NULL, nCol = 50, labcex = 0.6,
+  plot.type = "contour", zlim = NULL, xlim = NULL, ylim = NULL,
+  nCol = 50, labcex = 0.6, hide.label = FALSE,
   print.summary = getOption("itsadug_print"), ...)
 }
 \arguments{
@@ -60,9 +61,18 @@ on the response scale.}
 \item{zlim}{A two item array giving the lower and upper limits for the z-
 axis scale. NULL to choose automatically.}
 
+\item{xlim}{A two item array giving the lower and upper limits for the x-
+axis scale. NULL to choose automatically.}
+
+\item{ylim}{A two item array giving the lower and upper limits for the y-
+axis scale. NULL to choose automatically.}
+
 \item{nCol}{The number of colors to use in color schemes.}
 
 \item{labcex}{Size of the contour labels.}
+
+\item{hide.label}{Logical: whether or not to hide the label
+(i.e., "partial effect"). Default is FALSE.}
 
 \item{print.summary}{Logical: whether or not to print summary.
 Default set to the print info messages option
@@ -110,7 +120,7 @@ pvisgam(m1, view=c("Trial", "Time"), select=1)
 pvisgam(m1, view=c("Trial", "Time"), select=1, zlim=c(-20,20))
 }
 # see the vignette for examples:
-vignette("plotfunctions", package="itsadug")
+vignette("overview", package="itsadug")
 }
 \author{
 Jacolien van Rij. Modification of \code{\link[mgcv]{vis.gam}} from
@@ -123,6 +133,6 @@ Other functions for interpreting nonlinear effects: \code{\link{fvisgam}},
   \code{\link{vis.gam2}}; \code{\link{plotDiff2D}},
   \code{\link{plot_diff2}}; \code{\link{plotDiff}},
   \code{\link{plot_diff}}; \code{\link{plot_parametric}};
-  \code{\link{plot_smooth}}
+  \code{\link{plot_smooth}}; \code{\link{plot_topo}}
 }
 

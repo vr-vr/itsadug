@@ -38,6 +38,8 @@
 #' the output is returned as a list, with the estimated difference 
 #' (\code{est}) and the standard error over the estimate (\code{se.est}) and 
 #' the x-values (\code{x}). Default is TRUE.
+#' @param hide.label Logical: whether or not to hide the label 
+#' (i.e., "difference"). Default is FALSE.
 #' @param print.summary Logical: whether or not to print the summary. 
 #' Default set to the print info messages option 
 #' (see \code{\link{infoMessages}}).
@@ -63,15 +65,14 @@
 #' # add lines:
 #' arrows(x0=x$start, x1=x$end, y0=0, y1=0,code=3, length=.1, col='red')
 #' }
-#' # see the vignette for examples:
-#' vignette("plotfunctions", package="itsadug")
 #'
 #' @family functions for interpreting nonlinear effects
 
 plot_diff <- function(model, view, comp, cond=NULL, plotCI=TRUE, f=1.96, 
 	eegAxis=FALSE, col="black", shade=TRUE, n.grid=100, add=FALSE,
 	print.summary=getOption('itsadug_print'), plot=TRUE, rm.ranef=NULL,
-	main=NULL, ylab=NULL, xlab=NULL, ylim=NULL, ...) { 
+	main=NULL, ylab=NULL, xlab=NULL, ylim=NULL, 
+	hide.label=FALSE, ...) { 
 
 	dat = model$model
 
@@ -127,6 +128,16 @@ plot_diff <- function(model, view, comp, cond=NULL, plotCI=TRUE, f=1.96,
 			emptyPlot(range(newd[,xvar]), ylim, 
 				main=main, xlab=xlab, ylab=ylab, h0=0,
 				eegAxis=eegAxis, ...)
+			if(hide.label==FALSE){
+	            addlabel = "difference"
+	            if(!is.null(rm.ranef)){
+	                if(rm.ranef !=FALSE){
+	                    addlabel = paste(addlabel, "excl. random", sep=", ")
+	                }
+	            }
+	            mtext(addlabel, side=4, line=0, adj=0, 
+	                cex=.75, col='gray35', xpd=TRUE)
+	        }        			
 		}
 		if(plotCI==TRUE){
 			plot_error(newd[,xvar], newd$difference, newd$CI, shade=shade, col=col, ...)
@@ -171,6 +182,10 @@ plot_diff <- function(model, view, comp, cond=NULL, plotCI=TRUE, f=1.96,
 #' @param nlevels Levels of contour lines.
 #' @param zlim A two item array giving the lower and upper limits for the z-
 #' axis scale. NULL to choose automatically.
+#' @param xlim A two item array giving the lower and upper limits for the x-
+#' axis scale. NULL to choose automatically.
+#' @param ylim A two item array giving the lower and upper limits for the y-
+#' axis scale. NULL to choose automatically.
 #' @param main Title of plot.
 #' @param xlab Label x-axis.
 #' @param ylab Label y-axis.
@@ -180,6 +195,8 @@ plot_diff <- function(model, view, comp, cond=NULL, plotCI=TRUE, f=1.96,
 #' @param print.summary Logical: whether or not to print a summary.
 #' Default set to the print info messages option 
 #' (see \code{\link{infoMessages}}).
+#' @param hide.label Logical: whether or not to hide the label 
+#' (i.e., "difference"). Default is FALSE.
 #' @param ... Optional arguments for \code{\link{plotsurface}}.
 #' @return If the result is not being plotted, a list is 
 #' returned with the estimated difference (\code{est}) and the standard error 
@@ -203,9 +220,10 @@ plot_diff <- function(model, view, comp, cond=NULL, plotCI=TRUE, f=1.96,
 plot_diff2 <- function(model, view, comp, cond=NULL, 
 	color='topo', nCol=100, col=NULL, add.color.legend=TRUE,
 	plotCI=FALSE, f=1.96, n.grid=30, nlevels=10, 
-	zlim=NULL, 
+	zlim=NULL, xlim=NULL, ylim=NULL, 
 	main=NULL, xlab=NULL, ylab=NULL,
 	rm.ranef=NULL,
+	hide.label=FALSE,
 	print.summary=getOption('itsadug_print'), ...) { 
 
 	dat = model$model
@@ -225,12 +243,26 @@ plot_diff2 <- function(model, view, comp, cond=NULL,
 			warning(sprintf('Predictor %s specified in view and cond. Values in cond being used, rather than the whole range of %s.', xvar, xvar))
 		}else{
 			cond[[xvar]] <- seq(min(na.exclude(dat[,xvar])), max(na.exclude(dat[,xvar])), length=n.grid)
+			if(!is.null(xlim)){
+        		if(length(xlim) != 2){
+            		warning("Invalid xlim values specified. Argument xlim is being ignored.")
+        		}else{ 
+            		cond[[xvar]] <- seq(xlim[1], xlim[2], length=n.grid)
+        		}
+    		}
 		}
 		if(yvar %in% names(cond)){
 			warning(sprintf('Predictor %s specified in view and cond. Values in cond being used, rather than the whole range of %s.', yvar, yvar))
 			cond[[yvar]] <- NULL
 		}else{
 			cond[[yvar]] <- seq(min(na.exclude(dat[,yvar])), max(na.exclude(dat[,yvar])), length=n.grid)
+			if(!is.null(ylim)){
+        		if(length(ylim) != 2){
+            		warning("Invalid ylim values specified. Argument ylim is being ignored.")
+        		}else{ 
+            		cond[[yvar]] <- seq(ylim[1], ylim[2], length=n.grid)
+        		}
+    		}
 		}
 	}
 
@@ -257,13 +289,34 @@ plot_diff2 <- function(model, view, comp, cond=NULL,
 			zlim=zlim, 
 			col=col, color=color, nCol=nCol, add.color.legend=add.color.legend,
 			nlevels=nlevels, ...)
+        if(hide.label==FALSE){
+            addlabel = "difference"
+            if(!is.null(rm.ranef)){
+                if(rm.ranef !=FALSE){
+                    addlabel = paste(addlabel, "excl. random", sep=", ")
+                }
+            }
+            mtext(addlabel, side=4, line=0, adj=0, 
+                cex=.75, col='gray35', xpd=TRUE)
+        }     		
 	}else{
 		p <- plotsurface(newd, view=view, predictor="difference", 
 			main=main, xlab=xlab, ylab=ylab, 
 			zlim=zlim, 
 			col=col, color=color, nCol=nCol, add.color.legend=add.color.legend,
-			nlevels=nlevels, ...)		
+			nlevels=nlevels, ...)	
+        if(hide.label==FALSE){
+            addlabel = "difference"
+            if(!is.null(rm.ranef)){
+                if(rm.ranef !=FALSE){
+                    addlabel = paste(addlabel, "excl. random", sep=", ")
+                }
+            }
+            mtext(addlabel, side=4, line=0, adj=0, 
+                cex=.75, col='gray35', xpd=TRUE)
+        }  	
 	}
 	
+	p[['zlim']] <- zlim
 	invisible(p)
 }

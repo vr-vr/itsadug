@@ -57,6 +57,8 @@
 #' the list "bottomright", "bottom", "bottomleft", "left", "topleft", "top", 
 #' "topright", "right" and "center", or a list with \code{x} and \code{y} 
 #' coordinate (e.g., \code{list(x=0,y=0)}). 
+#' @param hide.label Logical: whether or not to hide the label 
+#' (i.e., "fitted values"). Default is FALSE.
 #' @param ... other options to pass on to lines and plot, 
 #' see \code{\link[graphics]{par}}
 #' @section Notes:
@@ -94,19 +96,21 @@
 #' plot_smooth(m1, view='Time', cond=list(Trial=-5),
 #'     main='Trial=-5', rm.ranef=TRUE)
 #'
+#'
+#' # Model with random effect and interactions:
+#' m2 <- bam(Y ~ Group + s(Time, by=Group)
+#'     +s(Time, Subject, bs='fs', m=1),
+#'     data=simdat)
+#' 
 #' # Plot all levels of a predictor:
-#' plot_smooth(m1, view='Time', cond=list(Trial=-5),
-#'     main='Trial=-5', plot_all="Group",
+#' plot_smooth(m2, view='Time', plot_all="Group",
 #'     rm.ranef=TRUE)
 #' # It also possible to combine predictors in plot_all.
 #' # Note: this is not a meaningfull plot, 
 #' # just for illustration purposes!
-#' plot_smooth(m1, view='Time', cond=list(Trial=-5),
-#'     main='Trial=-5', plot_all=c("Group", "Subject"))
+#' plot_smooth(m2, view='Time', plot_all=c("Group", "Subject"))
 #' }
 #'
-#' # see the vignette for more examples:
-#' vignette("plotfunctions", package="itsadug")
 #' # and for a quick overview of plotfunctions:
 #' vignette("overview", package="itsadug")
 #'
@@ -121,7 +125,8 @@ plot_smooth <- function(x, view = NULL, cond = list(),
     se = 1.96, shade = TRUE, eegAxis=FALSE, 
     print.summary=getOption('itsadug_print'),
     main=NULL, xlab=NULL, ylab=NULL, ylim=NULL, h0=0, v0=NULL, 
-    transform=NULL, legend_plot_all=NULL, ...) {
+    transform=NULL, legend_plot_all=NULL, 
+    hide.label=FALSE, ...) {
        
     dnm <- names(list(...))
 
@@ -220,6 +225,21 @@ plot_smooth <- function(x, view = NULL, cond = list(),
         emptyPlot(range(newd[,view[1]]), ylim,
             main=main, xlab=xlab, ylab=ylab,
             h0=h0, v0=v0, eegAxis=eegAxis, ...)
+        if(hide.label==FALSE){
+            addlabel = "fitted values"
+            if(!is.null(rm.ranef)){
+                if(rm.ranef !=FALSE){
+                    addlabel = paste(addlabel, "excl. random", sep=", ")
+                }
+            }
+            mtext(addlabel, side=4, line=0, adj=0, 
+                cex=.75, col='gray35', xpd=TRUE)
+
+            if(!is.null(transform)){
+                mtext("transformed", side=4, line=.75, adj=0, 
+                cex=.75, col='gray35', xpd=TRUE)
+            }
+        }        
     }
 
     if(rug==TRUE){
@@ -230,7 +250,8 @@ plot_smooth <- function(x, view = NULL, cond = list(),
         alllevels <- c()
         plotlevels <- c()
         if(length(plot_all)>1){
-            tmpname <- sub("/", "", tempfile(pattern = "event", tmpdir = "plotsmooth", fileext = ""), fixed=TRUE)
+            tmpname <- sub("/", "", tempfile(pattern = "event", 
+                tmpdir = "plotsmooth", fileext = ""), fixed=TRUE)
             newd[,tmpname] <- interaction(newd[, plot_all])
 
             alllevels <- length(levels(newd[,tmpname]))

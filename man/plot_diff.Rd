@@ -9,7 +9,7 @@ plot_diff(model, view, comp, cond = NULL, plotCI = TRUE, f = 1.96,
   eegAxis = FALSE, col = "black", shade = TRUE, n.grid = 100,
   add = FALSE, print.summary = getOption("itsadug_print"), plot = TRUE,
   rm.ranef = NULL, main = NULL, ylab = NULL, xlab = NULL, ylim = NULL,
-  ...)
+  hide.label = FALSE, ...)
 }
 \arguments{
 \item{model}{A GAMM model, resulting from the functions
@@ -69,6 +69,9 @@ name of the random effect(s) to remove.}
 \item{ylim}{Range of y-axis. If not specified, the function automatically
 generates an appropriate y-axis.}
 
+\item{hide.label}{Logical: whether or not to hide the label
+(i.e., "difference"). Default is FALSE.}
+
 \item{...}{Optional arguments for plot.}
 }
 \value{
@@ -96,8 +99,6 @@ x <- find_difference(out$est, out$se, f=1.96, xVals=out$xVals)
 # add lines:
 arrows(x0=x$start, x1=x$end, y0=0, y1=0,code=3, length=.1, col='red')
 }
-# see the vignette for examples:
-vignette("plotfunctions", package="itsadug")
 }
 \author{
 Martijn Wieling, Jacolien van Rij
@@ -106,7 +107,7 @@ Martijn Wieling, Jacolien van Rij
 Other functions for interpreting nonlinear effects: \code{\link{fvisgam}},
   \code{\link{vis.gam2}}; \code{\link{plotDiff2D}},
   \code{\link{plot_diff2}}; \code{\link{plot_parametric}};
-  \code{\link{plot_smooth}}; \code{\link{pvis.gam}},
-  \code{\link{pvisgam}}
+  \code{\link{plot_smooth}}; \code{\link{plot_topo}};
+  \code{\link{pvis.gam}}, \code{\link{pvisgam}}
 }
 
