@@ -1,6 +1,10 @@
 #' Inspection of random factor smooths.
 #' 
 #' @export
+#' @import mgcv
+#' @import stats
+#' @import grDevices
+#' @import graphics
 #' @param model A gam object, produced by \code{\link[mgcv]{gam}} or 
 #' \code{\link[mgcv]{bam}}.
 #' @param select A number, indicating the model term to be selected. 

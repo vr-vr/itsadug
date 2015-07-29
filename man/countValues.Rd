@@ -34,5 +34,7 @@ Jacolien van Rij
 }
 \seealso{
 \code{\link[base]{table}}
+
+Other Functions for binomial count data.: \code{\link{cbindToColumn}}
 }
 

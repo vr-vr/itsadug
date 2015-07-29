@@ -4,12 +4,18 @@
 \alias{compareML}
 \title{Function for comparing two GAMM models.}
 \usage{
-compareML(model1, model2)
+compareML(model1, model2, print.output = getOption("itsadug_print"))
 }
 \arguments{
 \item{model1}{First model.}
 
 \item{model2}{Second model.}
+
+\item{print.output}{Logical: whether or not to print the output.
+By default controlled globally in the package options:
+If the function \code{\link{infoMessages}} is set to TRUE, the output
+will be automatically printed.
+Could be also set by explicitly providing TRUE or FALSE. See notes.}
 }
 \value{
 Optionally returns the Chi-Square test table.
@@ -40,15 +46,28 @@ than 5.
 The order of the two models is not important.
 Model comparison is only implemented for the methods GCV, fREML, REML, and ML.
 }
+\section{Notes}{
+
+If no output is provided in the command window, set info messages to TRUE:
+\code{infoMessages("on")} and try again.
+For suppressing the output and all warnings, set infoMessages to FALSE
+(\code{infoMessages("on")} ) and use the function
+\code{\link{suppressWarnings}} to suppress warning messages.
+}
 \examples{
 data(simdat)
 
 \dontrun{
+infoMessages("on")
 # some arbitrary models:
 m1 <- bam(Y~Group + s(Time, by=Group), method="fREML", data=simdat)
 m2 <- bam(Y~Group + s(Time), method="fREML", data=simdat)
 
 compareML(m1, m2)
+
+m3 <- bam(Y~Group + s(Time, by=Group, k=25), method="fREML",
+    data=simdat)
+compareML(m1, m3)
 
 }
 }

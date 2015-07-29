@@ -1,6 +1,8 @@
 #' Find the regions in which the smooth is significantly different from zero.
 #' 
 #' @export
+#' @import grDevices
+#' @import graphics
 #' @param mean A vector with smooth predictions.
 #' @param se A vector with the standard error on the smooth predictions.
 #' @param xVals Optional vector with x values for the smooth. 

@@ -1,6 +1,10 @@
 #' Compare distribution of data with normal distribution.
 #' 
 #' @export
+#' @import mgcv
+#' @import stats
+#' @import grDevices
+#' @import graphics
 #' @param res Vector with residuals or other data for which the distribution .
 #' @param col Color for filling the area. Default is black.
 #' @param col.normal Color for shading and line of normal distribution.

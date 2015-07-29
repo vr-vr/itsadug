@@ -1,0 +1,106 @@
+# itsadug 1.0
+
+## Major changes:
+
+### a. New functions:
+
+- inspect_random: plot random smooths, calculate averages, retrieve values
+
+- plot_topo: plotting EEG too plots, based on fvisgam, pvisgam and plot_diff2
+
+- Function infoMessages: infoMessages('off') to silent all info
+messages in the current session (infoMessages('on') will show these
+again). Useful when generating knitr reports. Note: the argument
+print.summary=FALSE can still be used.
+
+- Function color_contour: for colored contour plot.
+
+- Function plotSurface: for plotting a surface plot from a data frame
+with fitted values based on the predict functions get_modelterm,
+get_predictions.
+
+### b. Bugs fixed:
+- compareML with GCV or other (not REML, fREML, or ML) gives correct
+EDF and different output
+
+- Bug in get_difference, which caused errors in plot_diff and
+plot_diff2
+
+- Bug from acf_resid removed 
+
+- resid_gam now also works for matrix input (cbind predictors).
+
+- Fixed bug in check_resid: " Error in plot.window(...) : need finite
+'ylim' values "
+
+- gamtabs now also works for parametric models (thanks to Christian and
+Samuel)
+
+- fadeRug reimplemented, bugs fixed, examples added.
+
+- Fixed bug in addInterval: color vectors went wrong with zero length
+elements, now fixed.
+
+
+### c. New functionality / arguments of existing functions
+
+- plot_smooths: argument plot_all added to plot all levels of a certain
+predictor
+
+- Added optional argument transform in plot_smooth and fvsigam to
+transform model values.
+
+- plot_diff is completely reimplemented to add some functionality. Now
+it’s possible to specify more than one predictor to define groups; The
+argument cond is added for specifying other predictors as a named list.
+The argument rm.ranef is added to cancel random effects. Random slopes
+and random smooths may change the difference curve. 
+
+- Reimplemented plot_diff2: It's now possible to remove random effects, and to
+change plot settings.
+
+- get_difference: changed input arguments cond1 and cond2 into one
+argument comp, to keep the input arguments more consistent between
+different functions. In addition, it’s now possible to use rm.ranef,
+and to specify more than one predictor to define groups.
+
+- Labels added to plots that are produced by fvisgam, pvisgam,
+plot_diff, plot_diff2, and plot_smooth to make a clear distinction
+between the plots. The argument hide.label could be used to remove
+these labels.
+
+- Function get_random changed: Now it only outputs the coefficients of random intercepts and slopes. Use the new function inspect_random for extracting random factor smooths.
+
+
+## Minor changes:
+
+### a. Vignettes:
+
+- Changed vignettes, because vignette “plot functions” became to big.
+Will be published on my website soon. Instead, vignette(“overview”) and
+vignette(“acf”) for short descriptions.
+n)
+
+### b. Other changes:
+
+- acf_resid, acf_plot, and acf_n_plots now can plot confidence lines.
+The argument return_all in acf_resid and acf_plot provides more
+advanced output. See vignette("acf") for all possibilities that these
+ACF functions offer.
+
+- summary output is changed: "Canceled as random effect." was confusing
+in some cases. Now changed in "Might be canceled as random effect,
+check below."
+
+- resid_gam also possible to use for models without AR1 included.
+
+- resid_gam and acf_resid should now also work for lme4 linear mixed
+models.
+
+- find_difference now optionally returns a vector with logical values
+instead of list with start and end points (use as.vector=TRUE)
+
+- Added possibility to extend or change xlim and ylim for pvisgam,
+fvisgam, and plot_diff2
+
+

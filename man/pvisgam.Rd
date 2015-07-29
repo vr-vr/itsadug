@@ -10,7 +10,7 @@ pvisgam(x, view = NULL, select = NULL, cond = list(), n.grid = 30,
   add.color.legend = TRUE, se = -1, type = "link",
   plot.type = "contour", zlim = NULL, xlim = NULL, ylim = NULL,
   nCol = 50, labcex = 0.6, hide.label = FALSE,
-  print.summary = getOption("itsadug_print"), ...)
+  print.summary = getOption("itsadug_print"), dec = -1, ...)
 }
 \arguments{
 \item{x}{A gam object, produced by \code{\link[mgcv]{gam}} or
@@ -78,6 +78,11 @@ axis scale. NULL to choose automatically.}
 Default set to the print info messages option
 (see \code{\link{infoMessages}}).}
 
+\item{dec}{Numeric: number of decimals for rounding the color legend.
+If -1 (default), automatically determined. When NULL, no rounding.
+Note: if value = -1 (default), rounding will be applied also when
+\code{zlim} is provided.}
+
 \item{...}{other options to pass on to persp, image or contour. In
 particular ticktype="detailed" will add proper axes labeling to the plots.}
 }
@@ -118,6 +123,20 @@ plot(m1, select=1)
 # Alternatives:
 pvisgam(m1, view=c("Trial", "Time"), select=1)
 pvisgam(m1, view=c("Trial", "Time"), select=1, zlim=c(-20,20))
+
+# Notes on the color legend:
+# Labels can easily fall off the plot, therefore the numbers are
+# automatically rounded.
+# To undo the rounding, set dec=NULL:
+pvisgam(m1, view=c("Time", "Trial"), dec=NULL)
+# For custom rounding, set dec to a value:
+pvisgam(m1, view=c("Time", "Trial"), dec=3)
+# To increase the left marging of the plot (so that the numbers fit):
+oldmar <- par()$mar
+par(mar=oldmar + c(0,0,0,1) ) # add one line to the right
+pvisgam(m1, view=c("Time", "Trial"), dec=3)
+par(mar=oldmar) # restore to default settings
+
 }
 # see the vignette for examples:
 vignette("overview", package="itsadug")

@@ -1,6 +1,10 @@
 #' Visualization of nonlinear interactions.
 #'
 #' @export
+#' @import mgcv
+#' @import stats
+#' @import grDevices
+#' @import graphics
 #' @aliases pvis.gam
 #' @description Produces perspective or contour plot views of gam model 
 #' predictions of the partial effects interactions. Combines the function 
@@ -59,6 +63,10 @@
 #' @param print.summary Logical: whether or not to print summary.
 #' Default set to the print info messages option 
 #' (see \code{\link{infoMessages}}).
+#' @param dec Numeric: number of decimals for rounding the color legend. 
+#' If -1 (default), automatically determined. When NULL, no rounding. 
+#' Note: if value = -1 (default), rounding will be applied also when 
+#' \code{zlim} is provided.
 #' @param ... other options to pass on to persp, image or contour. In 
 #' particular ticktype="detailed" will add proper axes labeling to the plots.
 #' @section Warnings:
@@ -82,6 +90,20 @@
 #' # Alternatives:
 #' pvisgam(m1, view=c("Trial", "Time"), select=1)
 #' pvisgam(m1, view=c("Trial", "Time"), select=1, zlim=c(-20,20))
+#'
+#' # Notes on the color legend:
+#' # Labels can easily fall off the plot, therefore the numbers are 
+#' # automatically rounded.
+#' # To undo the rounding, set dec=NULL:
+#' pvisgam(m1, view=c("Time", "Trial"), dec=NULL)
+#' # For custom rounding, set dec to a value:
+#' pvisgam(m1, view=c("Time", "Trial"), dec=3)
+#' # To increase the left marging of the plot (so that the numbers fit):
+#' oldmar <- par()$mar
+#' par(mar=oldmar + c(0,0,0,1) ) # add one line to the right
+#' pvisgam(m1, view=c("Time", "Trial"), dec=3)
+#' par(mar=oldmar) # restore to default settings
+#' 
 #' }
 #' # see the vignette for examples:
 #' vignette("overview", package="itsadug")
@@ -97,7 +119,8 @@ pvisgam <- function(x, view = NULL, select = NULL, cond = list(), n.grid = 30,
     se = -1, type = "link", plot.type = "contour", zlim = NULL, 
     xlim=NULL, ylim=NULL,
     nCol = 50, labcex=.6, hide.label=FALSE,
-    print.summary=getOption('itsadug_print'),...) {
+    print.summary=getOption('itsadug_print'),
+    dec=-1,...) {
     
     # This modfication of vis.gam allows the user to specify one condition to plot as partial effect surface.  Use: 1)
     # view=c('Time','Trial') to specify which surface to plot, and 2) select=2 to select a specific smooth term (necessary
@@ -318,12 +341,32 @@ pvisgam <- function(x, view = NULL, select = NULL, cond = list(), n.grid = 30,
         if (!is.null(zlim)) {
             if (length(zlim) != 2 || zlim[1] >= zlim[2]) 
                 stop("Something wrong with zlim")
+
+            if(!is.null(dec)){
+                if(dec == -1){
+                    dec <- getDec(min(zlim))
+                }
+                zlim <- getRange(zlim, step=(.1^dec), n.seg=2)
+            }
+
             min.z <- zlim[1]
             max.z <- zlim[2]
         } else {
-            min.z <- min(fv$fit, na.rm = TRUE)
-            max.z <- max(fv$fit, na.rm = TRUE)
+            if(!is.null(dec)){
+                if(dec == -1){
+                    dec <- getDec(min(fv$fit, na.rm = TRUE))
+                }
+                tmp <- getRange(range(fv$fit, na.rm = TRUE, n.seg=2), step=(.1^dec))
+            }else{
+                tmp <- range(fv$fit, na.rm = TRUE)
+            }
+
+            # min.z <- min(z.fit, na.rm = TRUE)
+            # max.z <- max(z.fit, na.rm = TRUE)
+            min.z <- tmp[1]
+            max.z <- tmp[2]
         }
+
         surf.col <- surf.col - min.z
         surf.col <- surf.col/(max.z - min.z)
         surf.col <- round(surf.col * nCol)
@@ -375,7 +418,7 @@ pvisgam <- function(x, view = NULL, select = NULL, cond = list(), n.grid = 30,
                 eval(parse(text = txt))
             }
             if(add.color.legend){
-                gradientLegend(round(c(min.z, max.z), 3), n.seg=3, pos=.875, color=pal)
+                gradientLegend(round(c(min.z, max.z), 3), n.seg=3, pos=.875, color=pal, dec=dec)
             }
             if(hide.label==FALSE){
                 mtext("partial effect", side=4, line=0, adj=0, 

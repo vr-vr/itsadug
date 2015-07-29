@@ -1,8 +1,145 @@
-library(mgcv)
-library(itsadug)
 setwd('~/R Packages/itsadug/')#
 #
 library(devtools)#
 #
 devtools::document()#
 devtools::load_all()
+library(itsadug)#
+val1 <- qnorm(ppoints(500))#
+val2 <- qt(ppoints(500), df = 2)#
+#
+quartz(,8,4)#
+par(mfrow=c(1,2), cex=1.1)#
+#
+oldmar <- par()$mar #
+par(mar=oldmar + c(0,0,0,5))#
+#
+qqnorm(val1, main='Normal distribution',#
+       pch="*", col='steelblue',#
+       xlim=c(-3,3), ylim=c(-9,9), bty='n')#
+qqline(val1)#
+abline(h=0, lty=3)#
+abline(v=0, lty=3)#
+#
+dens1 <- density(val1)#
+dens2 <- density(val2)#
+#
+marginDensityPlot(dens1, side=4, otherDensities=list(dens1, dens2),col='red', border='purple', lwd=2)
+plot(,col="steelblue", lwd=2,#
+     axes=FALSE, main='Densities',#
+     xlab="Sample Quantiles",#
+     xlim=c(-10,10))#
+axis(1)#
+lines(density(val2), col='red', lwd=2)#
+abline(v=0, lty=3)
+tmp <- hist(val1)
+tmp <- hist(val1, plot=FALSE, frequency=TRUE)
+par(mfrow=c(1,2), cex=1.1)#
+#
+oldmar <- par()$mar #
+par(mar=oldmar + c(0,0,0,5))#
+#
+qqnorm(val1, main='Normal distribution',#
+       pch="*", col='steelblue',#
+       xlim=c(-3,3), ylim=c(-9,9), bty='n')#
+qqline(val1)#
+abline(h=0, lty=3)#
+abline(v=0, lty=3)#
+#
+dens1 <- density(val1)#
+dens2 <- density(val2)#
+#
+marginDensityPlot(dens1, side=4, otherDensities=list(dens1, dens2),col='red', border='purple', lwd=2)
+val1 <- qnorm(ppoints(500))#
+val2 <- qt(ppoints(500), df = 2)#
+#
+quartz(,8,4)#
+par(mfrow=c(1,2), cex=1.1)#
+#
+oldmar <- par()$mar #
+par(mar=oldmar + c(0,0,0,5))#
+#
+qqnorm(val1, main='Normal distribution',#
+       pch="*", col='steelblue',#
+       xlim=c(-3,3), ylim=c(-9,9), bty='n')#
+qqline(val1)#
+abline(h=0, lty=3)#
+abline(v=0, lty=3)#
+#
+dens1 <- density(val1)#
+dens2 <- density(val2)#
+#
+marginDensityPlot(dens1, side=4, otherDensities=list(dens1, dens2),col='red', border='purple', lwd=2)
+tmp <- hist(val1, plot=FALSE, frequency=TRUE)
+tmp
+help(hist)
+tmp <- hist(val1, plot=FALSE, freq=TRUE)
+tmp <- hist(val1, plot=FALSE)
+tmp
+tmp <- hist(val1, freq=TRUE, plot=FALSE)
+tmp <- hist(val1, plot=FALSE)
+marginDensityPlot(tmp$breaks, tmp$counts, side=3, otherDensities=list(dens1, dens2),col='red', border='purple', lwd=2)
+tmp$counts
+marginDensityPlot(tmp$mids, tmp$counts, side=3, otherDensities=list(dens1, dens2),col='red', border='purple', lwd=2)
+marginDensityPlot(tmp$mids, tmp$counts, side=3, otherDensities=list(dens1, dens2),#
+    col='red', border='purple', lwd=2, type='h')
+marginDensityPlot(tmp$mids, tmp$counts, side=3, otherDensities=list(dens1, dens2),#
+    col='red', border='purple', lwd=2, type='p')
+qqnorm(val1, main='Normal distribution',#
+       pch="*", col='steelblue',#
+       xlim=c(-3,3), ylim=c(-9,9), bty='n')#
+qqline(val1)#
+abline(h=0, lty=3)#
+abline(v=0, lty=3)#
+#
+dens1 <- density(val1)#
+dens2 <- density(val2)#
+#
+marginDensityPlot(dens1, side=4, otherDensities=list(dens1, dens2),col='red', border='purple', lwd=2)#
+#
+tmp <- hist(val1, plot=FALSE)#
+#
+marginDensityPlot(tmp$mids, tmp$counts, side=3, otherDensities=list(dens1, dens2),#
+    col='red', border='purple', lwd=2, type='p')
+qqnorm(val1, main='Normal distribution',#
+       pch="*", col='steelblue',#
+       xlim=c(-3,3), ylim=c(-9,9), bty='n')#
+qqline(val1)#
+abline(h=0, lty=3)#
+abline(v=0, lty=3)#
+#
+dens1 <- density(val1)#
+dens2 <- density(val2)#
+#
+marginDensityPlot(dens1, side=4, otherDensities=list(dens1, dens2),col='red', border='purple', lwd=2)#
+#
+tmp <- hist(val1, plot=FALSE)#
+#
+marginDensityPlot(tmp$mids, tmp$counts, side=3, otherDensities=list(dens1, dens2),#
+    col=NA, border='purple', lwd=2, type='p')
+qqnorm(val1, main='Normal distribution',#
+       pch="*", col='steelblue',#
+       xlim=c(-3,3), ylim=c(-9,9), bty='n')#
+qqline(val1)#
+abline(h=0, lty=3)#
+abline(v=0, lty=3)#
+#
+dens1 <- density(val1)#
+dens2 <- density(val2)#
+#
+marginDensityPlot(dens1, side=4, otherDensities=list(dens1, dens2),col='red', border='purple', lwd=2)#
+#
+tmp <- hist(val1, plot=FALSE)#
+#
+marginDensityPlot(tmp$mids, tmp$counts, side=3, otherDensities=list(dens1, dens2),#
+    col=NA, border='purple', lwd=2, type='p', pch=16)
+test <- marginDensityPlot(tmp$mids, tmp$counts, side=3, otherDensities=list(dens1, dens2),#
+    col=NA, border='purple', lwd=2, type='p', pch=16)
+test
+setwd('~/R Packages/itsadug/')#
+#
+library(devtools)#
+#
+devtools::document()#
+devtools::load_all()
+install.packages('~/R Packages/itsadug_1.0.2.tar.gz', repos=NULL, type='source')

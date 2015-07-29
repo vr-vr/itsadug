@@ -1,6 +1,10 @@
 #' Visualization of nonlinear interactions.
 #'
 #' @export
+#' @import mgcv
+#' @import stats
+#' @import grDevices
+#' @import graphics
 #' @aliases vis.gam2
 #' @description Produces perspective or contour plot views of gam model 
 #' predictions of the additive effects interactions.
@@ -51,6 +55,10 @@
 #' Default is NULL.
 #' @param hide.label Logical: whether or not to hide the label 
 #' (i.e., "fitted values"). Default is FALSE.
+#' @param dec Numeric: number of decimals for rounding the color legend. 
+#' If -1 (default), automatically determined. When NULL, no rounding. 
+#' Note: if value = -1 (default), rounding will be applied also when 
+#' \code{zlim} is provided.
 #' @param ... other options to pass on to persp, image or contour. In 
 #' particular ticktype="detailed" will add proper axes labeling to the plots.
 #'
@@ -68,6 +76,22 @@
 #' fvisgam(m1, view=c("Time", "Trial"), rm.ranef=FALSE)
 #' # Without random effects included:
 #' fvisgam(m1, view=c("Time", "Trial"), rm.ranef=TRUE)
+#'
+#' # Notes on the color legend:
+#' # Labels can easily fall off the plot, therefore the numbers are 
+#' # automatically rounded.
+#' # To undo the rounding, set dec=NULL:
+#' fvisgam(m1, view=c("Time", "Trial"), rm.ranef=TRUE,
+#'      dec=NULL)
+#' # For custom rounding, set dec to a value:
+#' fvisgam(m1, view=c("Time", "Trial"), rm.ranef=TRUE,
+#'      dec=3)
+#' # To increase the left marging of the plot (so that the numbers fit):
+#' oldmar <- par()$mar
+#' par(mar=oldmar + c(0,0,0,1) ) # add one line to the right
+#' fvisgam(m1, view=c("Time", "Trial"), rm.ranef=TRUE,
+#'      dec=3)
+#' par(mar=oldmar) # restore to default settings
 #' }
 #' # see the vignette for examples:
 #' vignette("overview", package="itsadug")
@@ -83,7 +107,8 @@ fvisgam <- function(x, view = NULL, cond = list(),
     add.color.legend=TRUE, se = -1, plot.type = "contour", 
     xlim=NULL, ylim=NULL, zlim = NULL, nCol = 50, 
     rm.ranef=NULL, print.summary=getOption('itsadug_print'), 
-    transform=NULL, hide.label=FALSE, ...) {
+    transform=NULL, hide.label=FALSE, 
+    dec=-1, ...) {
 
     # check info me
        
@@ -179,11 +204,31 @@ fvisgam <- function(x, view = NULL, cond = list(),
         if (!is.null(zlim)) {
             if (length(zlim) != 2 || zlim[1] >= zlim[2]) 
                 stop("Something wrong with zlim")
+
+            if(!is.null(dec)){
+                if(dec == -1){
+                    dec <- getDec(min(zlim))
+                }
+                zlim <- getRange(zlim, step=(.1^dec), n.seg=2)
+            }
+
             min.z <- zlim[1]
             max.z <- zlim[2]
         } else {
-            min.z <- min(z.fit, na.rm = TRUE)
-            max.z <- max(z.fit, na.rm = TRUE)
+            if(!is.null(dec)){
+                if(dec == -1){
+                    dec <- getDec(min(z.fit, na.rm = TRUE))
+                }
+                tmp <- getRange(range(z.fit, na.rm = TRUE, n.seg=2), step=(.1^dec))
+            }else{
+                tmp <- range(z.fit, na.rm = TRUE)
+            }
+
+            # min.z <- min(z.fit, na.rm = TRUE)
+            # max.z <- max(z.fit, na.rm = TRUE)
+            min.z <- tmp[1]
+            max.z <- tmp[2]
+
         }
         surf.col <- surf.col - min.z
         surf.col <- surf.col/(max.z - min.z)
@@ -237,8 +282,8 @@ fvisgam <- function(x, view = NULL, cond = list(),
                 eval(parse(text = txt))
             }
             if(add.color.legend){
-                gradientLegend(round(c(min.z, max.z), 3), n.seg=3, pos=.875, 
-                    color=pal)
+                gradientLegend(c(min.z, max.z), n.seg=3, pos=.875, 
+                    color=pal, dec=dec)
             }
 	        if(hide.label==FALSE){
 	        	addlabel = "fitted values"

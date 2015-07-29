@@ -5,7 +5,7 @@
 \title{Utility function}
 \usage{
 fill_area(x, y, from = 0, col = "black", alpha = 0.25, border = NA,
-  na.rm = TRUE, ...)
+  na.rm = TRUE, horiz = TRUE, outline = FALSE, ...)
 }
 \arguments{
 \item{x}{Vector with values on x-axis.}
@@ -20,12 +20,15 @@ is colored. Defaults to 0.}
 \item{alpha}{Transparency of shaded area. Number between 0
 (completely transparent) and 1 (not transparent). Default is .25.}
 
-\item{border}{A number, indicating the linewidth of the border around
+\item{border}{A color, indicating the color of the border around
 shaded area. No border with value NA (default).}
 
 \item{na.rm}{Logical: whether or not to remove the missing values in
 \code{x} and \code{y}. Defaults to TRUE. If set to FALSE, missing values
 may cause that the filled area is split in various smaller areas.}
+
+\item{horiz}{Logical: whether or not to plot with respect to the
+x-axis (TRUE) or y-xis (FALSE). Defaults to TRUE.}
 
 \item{...}{Optional arguments for the lines. See \code{\link{par}}.}
 }
@@ -54,6 +57,6 @@ Other Utility functions for plotting: \code{\link{addInterval}};
   \code{\link{fadeRug}}; \code{\link{find_difference}};
   \code{\link{getCoords}}; \code{\link{getFigCoords}};
   \code{\link{gradientLegend}}; \code{\link{horiz_error}};
-  \code{\link{plot_error}}
+  \code{\link{marginDensityPlot}}; \code{\link{plot_error}}
 }
 

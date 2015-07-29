@@ -6,7 +6,7 @@
 \usage{
 gradientLegend(valRange, color = "topo", nCol = 30, pos = 0.5, side = 4,
   length = 0.25, depth = 0.05, inside = TRUE, coords = FALSE,
-  n.seg = 3, border.col = "black")
+  n.seg = 3, border.col = "black", dec = NULL)
 }
 \arguments{
 \item{valRange}{Range of the values that is represented by the color
@@ -51,6 +51,9 @@ Note: when \code{pos} is defined by 1 number, \code{inside} is ignored.}
 \item{n.seg}{Number of ticks and markers on the scale.}
 
 \item{border.col}{Color of the border and the ticks.}
+
+\item{dec}{Number of decimals for rounding the numbers, set to NULL on
+default (no rounding).}
 }
 \description{
 Add a gradient legend to a contour plot (or other plot) to
@@ -90,6 +93,6 @@ Other Utility functions for plotting: \code{\link{addInterval}};
   \code{\link{fadeRug}}; \code{\link{fill_area}};
   \code{\link{find_difference}}; \code{\link{getCoords}};
   \code{\link{getFigCoords}}; \code{\link{horiz_error}};
-  \code{\link{plot_error}}
+  \code{\link{marginDensityPlot}}; \code{\link{plot_error}}
 }
 

@@ -1,8 +1,10 @@
 #' Utility function
 #' 
-#' @export
 #' @description Generate an empty plot window.
 #' 
+#' @export
+#' @import grDevices
+#' @import graphics
 #' @param xlim A one- or two-value vector indicating the range of the x-axis. 
 #' If \code{xlim} is a number, then it is assumed that the other value is 0. 
 #' Thus, \code{xlim=3000} wil result in a x-axis ranging from 0 to 3000, 
@@ -97,9 +99,11 @@ emptyPlot <- function(xlim, ylim,
 
 #' Utility function
 #' 
-#' @export
 #' @description Plot line with confidence intervals.
 #' 
+#' @export
+#' @import grDevices
+#' @import graphics
 #' @param x Vector with values on x-axis.
 #' @param fit Vector with values on y-axis.
 #' @param se.fit Vector with standard error; or when \code{se.fit2}
@@ -184,6 +188,9 @@ plot_error <- function(x, fit, se.fit, se.fit2=NULL,
 #' 
 #' @description Fill area under line or plot.
 #' 
+#' @export
+#' @import grDevices
+#' @import graphics
 #' @param x Vector with values on x-axis.
 #' @param y Vector with values on y-axis.
 #' @param from A number indicating until which value on the y-axis the graph 
@@ -191,11 +198,13 @@ plot_error <- function(x, fit, se.fit, se.fit2=NULL,
 #' @param col Color for filling the area. Default is black.
 #' @param alpha Transparency of shaded area. Number between 0 
 #' (completely transparent) and 1 (not transparent). Default is .25.
-#' @param border A number, indicating the linewidth of the border around 
+#' @param border A color, indicating the color of the border around 
 #' shaded area. No border with value NA (default). 
 #' @param na.rm Logical: whether or not to remove the missing values in 
 #' \code{x} and \code{y}. Defaults to TRUE. If set to FALSE, missing values 
 #' may cause that the filled area is split in various smaller areas.
+#' @param horiz Logical: whether or not to plot with respect to the 
+#' x-axis (TRUE) or y-xis (FALSE). Defaults to TRUE.
 #' @param ... Optional arguments for the lines. See \code{\link{par}}.
 #' @author Jacolien van Rij
 #' @examples
@@ -210,7 +219,8 @@ plot_error <- function(x, fit, se.fit, se.fit2=NULL,
 #' @seealso \code{\link{check_normaldist}}
 #' @family Utility functions for plotting
 
-fill_area <- function(x, y, from=0, col='black', alpha=.25,  border=NA, na.rm=TRUE, ...){
+fill_area <- function(x, y, from=0, col='black', alpha=.25,  border=NA, na.rm=TRUE, 
+    horiz=TRUE, outline=FALSE, ...){
     el.narm <- c()
     if(na.rm){
         el.narm <- which(is.na(x) | is.na(y))
@@ -220,6 +230,7 @@ fill_area <- function(x, y, from=0, col='black', alpha=.25,  border=NA, na.rm=TR
         x <- x[!is.na(x) | !is.na(y)]
         y <- y[!is.na(x) | !is.na(y)]
     }
+
     xval <- c(x, rev(x))
     yval <- c()
     if(length(from)==1){
@@ -230,13 +241,48 @@ fill_area <- function(x, y, from=0, col='black', alpha=.25,  border=NA, na.rm=TR
         warning("Argument from has more than 1 element. Only first element being used.")
         yval <- c(y, rep(from, length(y)))
     }
-    polygon(x=xval, y=yval, border=border, col=alpha(col, f=alpha), ...)
+
+    if(names(dev.cur())[1] %in% c("X11", "postscript", "xfig", "pictex") ){
+        alpha = 1
+    }
+
+    line.args <- list2str(x=c("type", "pch", "lty", "bg", "cex", "lwd", "lend", "ljoin", "lmitre"), inputlist=list(...))
+    fill.args <- list2str(x= c("density", "angle", "lty", "fillOddEven", "lwd", "lend", "ljoin", "lmitre"), inputlist=list(...))
+    
+
+    if(horiz){  
+        if(!is.na(border) ){
+            if( outline==TRUE){
+                eval(parse(text=sprintf("polygon(x=xval, y=yval, border=border, col=alpha(col, f=alpha), %s, xpd=TRUE)", fill.args )  ))
+            }else{
+                eval(parse(text=sprintf("polygon(x=xval, y=yval, border=NA, col=alpha(col, f=alpha), %s, xpd=TRUE)", fill.args )  ))
+                eval(parse(text=sprintf("lines(x=x, y=y, col=border, %s, xpd=TRUE)", line.args )  ))
+            }
+        }else{
+            eval(parse(text=sprintf("polygon(x=xval, y=yval, border=NA, col=alpha(col, f=alpha), %s, xpd=TRUE)", fill.args )  ))
+        }
+    }else{  
+        if(!is.na(border) ){
+            if( outline==TRUE){
+                eval(parse(text=sprintf("polygon(x=yval, y=xval, border=border, col=alpha(col, f=alpha), %s, xpd=TRUE)", fill.args )  ))
+            }else{
+                eval(parse(text=sprintf("polygon(x=yval, y=xval, border=NA, col=alpha(col, f=alpha), %s, xpd=TRUE)", fill.args )  ))
+                eval(parse(text=sprintf("lines(x=y, y=x, col=border, %s, xpd=TRUE)", line.args )  ))
+            }
+        }else{
+            eval(parse(text=sprintf("polygon(x=yval, y=xval, border=NA, col=alpha(col, f=alpha), %s, xpd=TRUE)", fill.args )  ))
+        }     
+    }
 }
 
 
 #' Utility function
 #' 
 #' @export
+#' @export
+#' @import grDevices
+#' @import graphics
+#' @import stats
 #' @description Adjusted version of the a Cleveland dot plot implemented in 
 #' \code{\link[graphics]{dotchart}} with the option to add confidence 
 #' intervals.
@@ -413,6 +459,9 @@ dotplot_error <- function (x, se.val=NULL, labels = NULL, groups = NULL,
 #' for an example of how you could use \code{\link[graphics]{image}} and 
 #' \code{\link[graphics]{contour}}.
 #'
+#' @export
+#' @import grDevices
+#' @import graphics
 #' @param x Locations of grid lines at which the values in z are measured. 
 #' These must be in ascending order. By default, equally spaced values from 0 
 #' to 1 are used. If x is a list, its components x$x and x$y are used for x 

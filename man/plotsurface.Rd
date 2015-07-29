@@ -7,7 +7,7 @@
 plotsurface(data, view, predictor = NULL, valCI = NULL, main = NULL,
   xlab = NULL, ylab = NULL, xlim = NULL, ylim = NULL, zlim = NULL,
   col = NULL, color = topo.colors(50), ci.col = c("red", "green"),
-  nCol = 50, add.color.legend = TRUE, ...)
+  nCol = 50, add.color.legend = TRUE, dec = -1, ...)
 }
 \arguments{
 \item{data}{Data frame or list with plot data. A data frame needs to have a
@@ -55,6 +55,11 @@ and for the upper CI contour lines.}
 \item{add.color.legend}{Logical: whether or not to add a color legend.
 Default is TRUE. If FALSE (omitted), one could use the function
 \code{\link{gradientLegend}} to add a legend manually at any position.}
+
+\item{dec}{Numeric: number of decimals for rounding the color legend.
+If -1 (default), automatically determined. When NULL, no rounding.
+Note: if value = -1 (default), rounding will be applied also when
+\code{zlim} is provided.}
 
 \item{...}{Optional parameters for \code{\link[graphics]{image}}
 and \code{\link[graphics]{contour}}.}

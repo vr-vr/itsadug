@@ -1,6 +1,8 @@
 #' Extract model residuals and remove the autocorrelation accounted for. 
 #' 
 #' @export
+#' @import mgcv
+#' @import stats
 #' @aliases resid.gam
 #' @param model A GAMM model build with \code{\link[mgcv]{gam}} or 
 #' \code{\link[mgcv]{bam}}.

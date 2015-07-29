@@ -1,7 +1,10 @@
 #' Visualization of EEG topo maps.
 #'
 #' @export
-#'
+#' @import mgcv
+#' @import stats
+#' @import grDevices
+#' @import graphics
 #' @param model A gam object, produced by \code{\link[mgcv]{gam}} or 
 #' \code{\link[mgcv]{bam}}.
 #' @param view A two-value vector containing the names of the two main effect 

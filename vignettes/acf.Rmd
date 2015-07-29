@@ -180,8 +180,7 @@ out[['series']]
 out[['FUN']]
 ```
 
-
-The data frames are useful for plotting the ACFs using other packages. This is an example from <span style="background:yellow">REFERENCE</span>:
+The data frames are useful for plotting the ACFs using other packages. This is an example from the vignette of the article of @BatesEtal :
 
 ```{r, eval=FALSE}
 # Plot individual participants with the package lattice:
@@ -243,4 +242,7 @@ The function `acf_n_plots` is used for generating $N$ ACF plots of individual ti
 ```{r, fig.width=8, fig.height=6, results='hold'}
 acf_n_plots(resid_gam(m1, incl_na=TRUE), split_by=list(simdat$Subject), n=6, random=TRUE)
 ```
+
+# References
+
 

@@ -1,8 +1,15 @@
 #' Function for comparing two GAMM models.
 #' 
 #' @export
+#' @import mgcv
+#' @import stats
 #' @param model1 First model.
 #' @param model2 Second model.
+#' @param print.output Logical: whether or not to print the output. 
+#' By default controlled globally in the package options:  
+#' If the function \code{\link{infoMessages}} is set to TRUE, the output 
+#' will be automatically printed.
+#' Could be also set by explicitly providing TRUE or FALSE. See notes.
 #' @details
 #' 
 #' As an Chi-Square test is performed on two times the difference in 
@@ -27,6 +34,12 @@
 #' The order of the two models is not important.
 #' Model comparison is only implemented for the methods GCV, fREML, REML, and ML.
 #'
+#' @section Notes:
+#' If no output is provided in the command window, set info messages to TRUE: 
+#' \code{infoMessages("on")} and try again.
+#' For suppressing the output and all warnings, set infoMessages to FALSE 
+#' (\code{infoMessages("on")} ) and use the function 
+#' \code{\link{suppressWarnings}} to suppress warning messages.
 #' @return Optionally returns the Chi-Square test table.
 #' @author Jacolien van Rij. With many thanks to Simon N. Wood for his feedback.
 #' @seealso For models without AR1 model or random effects \code{\link{AIC}} can be used.
@@ -35,16 +48,22 @@
 #' data(simdat)
 #'
 #' \dontrun{
+#' infoMessages("on")
 #' # some arbitrary models:
 #' m1 <- bam(Y~Group + s(Time, by=Group), method="fREML", data=simdat)
 #' m2 <- bam(Y~Group + s(Time), method="fREML", data=simdat)
 #' 
 #' compareML(m1, m2)
+#'
+#' m3 <- bam(Y~Group + s(Time, by=Group, k=25), method="fREML", 
+#'     data=simdat)
+#' compareML(m1, m3)
 #' 
 #' }
 
 
-compareML <- function(model1, model2) {
+compareML <- function(model1, model2,
+    print.output=getOption('itsadug_print')) {
     # check gam or bam model:
     if((!"gam" %in% class(model1)) | (!"gam" %in% class(model2))){
         stop("Models are not gam objects (i.e., build with bam()/gam()).")
@@ -91,44 +110,53 @@ compareML <- function(model1, model2) {
     
     # pchisq(4, .5, lower.tail=F) # p < .1 pchisq(-4, .5, lower.tail=F) # p = 1 pchisq(4, -.5, lower.tail=F) # NaN
     
-    # Situation 1: model 1 has lower score, but model 2 has lower df. Is it significantly better model than model 2?
-    cat(sprintf("%s: ", deparse(substitute(model1))))
-    cat(sprintf("%s\n", deparse(model1$formula)))
-    cat(sprintf("\n%s: ", deparse(substitute(model2))))
-    cat(sprintf("%s\n", deparse(model2$formula)))
+    # Book keeping;
+    info <- sprintf("%s: %s\n\n%s: %s\n", deparse(substitute(model1)), deparse(model1$formula),
+        deparse(substitute(model2)), deparse(model2$formula))
+
+    if(print.output){
+        cat(info)
+    }
     
-    out <- NULL
+    out      <- NULL
+    advice   <- NULL
+    warning  <- NULL
     
     # if (type != 'AIC') {
+    # Situation 1: model 1 has lower score, but model 2 has lower df. Is it significantly better model than model 2?
 	# Situation 0: equal df
 	if(abs(round(ndf2 - ndf1)) < .5){
 		if( ml1 < ml2){
-            cat(sprintf("\nModel %s preferred: lower %s score (%.3f), and equal df (%.3f).\n-----\n", 
+            advice <- sprintf("\nModel %s preferred: lower %s score (%.3f), and equal df (%.3f).\n-----\n", 
             	deparse(substitute(model1)), 
-                type, ml2 - ml1, ndf2 - ndf1))
-            print(out <- data.frame(Model = c(deparse(substitute(model2)), deparse(substitute(model1))), 
+                type, ml2 - ml1, ndf2 - ndf1)
+
+            out <- data.frame(Model = c(deparse(substitute(model2)), deparse(substitute(model1))), 
             	Score = c(ml2, ml1), 
             	Edf = c(ndf2, ndf1), 
             	Difference = c("", sprintf("%.3f", ml2 - ml1)), 
-            	Df = c("", sprintf("%.3f", ndf1 - ndf2))))
+            	Df = c("", sprintf("%.3f", ndf1 - ndf2)),
+                p.value = c("",NA),
+                Sign. = c("", ""))
 		}else{
-            cat(sprintf("\nModel %s preferred: lower %s score (%.3f), and equal df (%.3f).\n-----\n", 
+            advice <- sprintf("\nModel %s preferred: lower %s score (%.3f), and equal df (%.3f).\n-----\n", 
             	deparse(substitute(model2)), 
-                type, ml1 - ml2, ndf1 - ndf2))
-            print(out <- data.frame(Model = c(deparse(substitute(model1)), deparse(substitute(model2))), 
+                type, ml1 - ml2, ndf1 - ndf2)
+            out <- data.frame(Model = c(deparse(substitute(model1)), deparse(substitute(model2))), 
             	Score = c(ml1, ml2), 
             	Edf = c(ndf1, ndf2),
             	Difference = c("", sprintf("%.3f", ml2 - ml1)), 
-            	Df = c("", sprintf("%.3f", ndf1 - ndf2))))
+            	Df = c("", sprintf("%.3f", ndf1 - ndf2)),
+                p.value = c("",NA),
+                Sign. = c("", ""))
 		}
 	# Situation 1: model 1 has lower score, but model 2 has lower df. Is it significantly better model than model 2?
     }else if ((ml1 < ml2) & (ndf2 < ndf1)) {
-        cat(sprintf("\nChi-square test of %s scores\n-----\n", type))
         
         # twice the amount of difference in likelihood
         h1 <- pchisq(2 * (ml2 - ml1), abs(ndf1 - ndf2), lower.tail = F)
         
-        print(out <- data.frame(Model = c(deparse(substitute(model2)), deparse(substitute(model1))), 
+        out <- data.frame(Model = c(deparse(substitute(model2)), deparse(substitute(model1))), 
         	Score = c(ml2, ml1), 
         	Edf = c(ndf2, ndf1), 
             Chisq = c("", sprintf("%.3f", ml2 - ml1)), 
@@ -139,16 +167,14 @@ compareML <- function(model1, model2) {
             	ifelse(h1 < 0.05, sprintf("%.3f", h1), sprintf("%.3f", h1)))))), 
             Sig. = c("", ifelse(h1 < 0.001, sprintf("***", h1), 
             	ifelse(h1 < 0.01, sprintf("** ", h1), 
-            	ifelse(h1 < 0.05, sprintf("*  ", h1), sprintf("   ", h1)))))))
+            	ifelse(h1 < 0.05, sprintf("*  ", h1), sprintf("   ", h1))))))
         
     # Situation 2: model 2 has lower score, but model 1 has lower df. Is it significantly better model than model 1?
     } else if ((ml2 < ml1) & (ndf1 < ndf2)) {
         
-        cat(sprintf("\nChi-square test of %s scores\n-----\n", type))
-        
         h1 <- pchisq(2 * (ml1 - ml2), abs(ndf1 - ndf2), lower.tail = F)
         
-        print(out <- data.frame(Model = c(deparse(substitute(model1)), deparse(substitute(model2))), 
+        out <- data.frame(Model = c(deparse(substitute(model1)), deparse(substitute(model2))), 
         	Score = c(ml1, ml2), 
         	Edf = c(ndf1, ndf2), 
         	Chisq = c("", sprintf("%.3f", ml1 - ml2)), 
@@ -159,39 +185,58 @@ compareML <- function(model1, model2) {
             	ifelse(h1 < 0.05, sprintf("%.3f", h1), sprintf("%.3f", h1)))))), 
             Sig. = c("", ifelse(h1 < 0.001, sprintf("***", h1), 
             	ifelse(h1 < 0.01, sprintf("** ", h1), 
-            	ifelse(h1 < 0.05, sprintf("*  ", h1), sprintf("   ", h1)))))))
+            	ifelse(h1 < 0.05, sprintf("*  ", h1), sprintf("   ", h1))))))
         
     # Situation 3: model 1 has lower score, and also lower df.
     } else if ((ml1 < ml2) & (ndf1 < ndf2)) {
-        cat(sprintf("\nModel %s preferred: lower %s score (%.3f), and lower df (%.3f).\n-----\n", 
+        advice <- sprintf("\nModel %s preferred: lower %s score (%.3f), and lower df (%.3f).\n-----\n", 
         	deparse(substitute(model1)), 
-        	type, ml2 - ml1, ndf2 - ndf1))
-        print(out <- data.frame(Model = c(deparse(substitute(model2)), deparse(substitute(model1))), 
+        	type, ml2 - ml1, ndf2 - ndf1)
+        out <- data.frame(Model = c(deparse(substitute(model2)), deparse(substitute(model1))), 
         	Score = c(ml2, ml1), 
         	Edf = c(ndf2, ndf1), 
         	Difference = c("", sprintf("%.3f", ml2 - ml1)), 
-        	Df = c("", sprintf("%.3f", ndf1 - ndf2))))
+        	Df = c("", sprintf("%.3f", ndf1 - ndf2)),
+            p.value = c("",NA),
+            Sign. = c("", ""))
         
     # Situation 4: model 2 has lower score, and also lower df.
     } else if ((ml2 < ml1) & (ndf2 < ndf1)) {
-        cat(sprintf("\nModel %s preferred: lower %s score (%.3f), and lower df (%.3f).\n-----\n", 
+        advice <- sprintf("\nModel %s preferred: lower %s score (%.3f), and lower df (%.3f).\n-----\n", 
         	deparse(substitute(model2)), 
-            type, ml1 - ml2, ndf1 - ndf2))
-        print(out <- data.frame(Model = c(deparse(substitute(model1)), deparse(substitute(model2))), 
+            type, ml1 - ml2, ndf1 - ndf2)
+        out <- data.frame(Model = c(deparse(substitute(model1)), deparse(substitute(model2))), 
         	Score = c(ml1, ml2), 
         	Edf = c(ndf1, ndf2), 
         	Difference = c("", sprintf("%.3f", ml2 - ml1)), 
-        	Df = c("", sprintf("%.3f", ndf1 - ndf2))))
+        	Df = c("", sprintf("%.3f", ndf1 - ndf2)),
+            p.value = c("",NA),
+            Sign. = c("", ""))
     # Other cases:
     } else {
-        cat("No preference:\n-----\n")
-        print(out <- data.frame(Model = c(deparse(substitute(model1)), deparse(substitute(model2))), 
+        advice <- "No preference:\n-----\n"
+        out <- data.frame(Model = c(deparse(substitute(model1)), deparse(substitute(model2))), 
         	Score = c(ml1, ml2), Edf = c(ndf1, ndf2), 
         	Difference = c("", sprintf("%.3f", ml2 - ml1)), 
-        	Df = c("", sprintf("%.3f", ndf1 - ndf2))))
+        	Df = c("", sprintf("%.3f", ndf1 - ndf2)),
+            p.value = c("",NA),
+            Sign. = c("", ""))
     }
-    
-    cat("\n")
+
+    if(print.output){
+        if(is.null(advice)){
+            cat(sprintf("\nChi-square test of %s scores\n-----\n", type))
+        }else{
+            cat(advice)
+        }
+        if(is.na(out$p.value[2])){
+            print(out[,1:5])
+        }else{
+            print(out)
+        }
+        
+        cat("\n")
+    }
     
     if (type != "AIC") {
         if (is.null(model1$AR1.rho)) {
@@ -209,41 +254,32 @@ compareML <- function(model1, model2) {
         if (rho1 == 0 & rho2 == 0) {
             # AIC is useless for models with rho
             if (AIC(model1) == AIC(model2)) {
-              cat(sprintf("AIC difference: 0.\n\n"))
+              warning <- sprintf("AIC difference: 0.\n\n")
             } else {
-              cat(sprintf("AIC difference: %.2f, model %s has lower AIC.\n\n", 
-              	AIC(model1) - AIC(model2), 
-              	ifelse(AIC(model1) >= AIC(model2), 
-              		deparse(substitute(model2)), 
-              		deparse(substitute(model1)))))
+              warning <- sprintf("AIC difference: %.2f, model %s has lower AIC.\n\n", 
+                AIC(model1) - AIC(model2), 
+                ifelse(AIC(model1) >= AIC(model2), 
+                    deparse(substitute(model2)), 
+                    deparse(substitute(model1))))
+            }
+            if(print.output){
+                cat(warning)
             }
         } else {
-            warning(sprintf(" AIC is not reliable, because an AR1 model is included (rho1 = %f, rho2 = %f). ", 
-            	rho1, rho2))
+            warning(warning <- sprintf(" AIC is not reliable, because an AR1 model is included (rho1 = %f, rho2 = %f). ", 
+                rho1, rho2))
         }
     }
-    # } else {
-    #     cat(sprintf("CompareML is not implemented for method %s, therefore a p-value is not provided. Use (f)REML, or ML.\n", model1$method))
-    #     if( ml1 < ml2){
-    #     	print(out <- data.frame(Model = c(deparse(substitute(model2)), deparse(substitute(model1))), 
-    #         	Score = c(ml2, ml1), Edf = c(ndf2, ndf1), 
-    #         	Difference = c("", sprintf("%.3f", ml2 - ml1)), 
-    #         	Df = c("", sprintf("%.3f", ndf2 - ndf1))))
-    #     }else{
-    #     	print(out <- data.frame(Model = c(deparse(substitute(model1)), deparse(substitute(model2))), 
-    #         	Score = c(ml1, ml2), Edf = c(ndf1, ndf2), 
-    #         	Difference = c("", sprintf("%.3f", ml1 - ml2)), 
-    #         	Df = c("", sprintf("%.3f", ndf1 - ndf2))))
-    #     }
-    # }
     
     if (abs(ml1 - ml2) <= 5) {
         warning(sprintf("Only small difference in %s...\n", type))
     }
-
+    
     invisible( list(method=type,
     	m1=list(Model=model1$formula, Score=ml1, Df=ndf1),
     	m2=list(Model=model2$formula, Score=ml2, Df=ndf2),
-    	table = out) )
+    	table = out,
+        advice = ifelse(is.null(advice), NA, advice),
+        AIC = ifelse(is.null(warning), NA, warning) ) )
 }
  

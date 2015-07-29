@@ -39,8 +39,9 @@ Jacolien van Rij
 }
 \seealso{
 Other Data utility functions: \code{\link{findAbsMin}};
-  \code{\link{group_sort}}; \code{\link{move_n_point}};
-  \code{\link{print_summary}}; \code{\link{summary_data}};
-  \code{\link{timeBins}}
+  \code{\link{getDec}}; \code{\link{getRange}};
+  \code{\link{group_sort}}; \code{\link{list2str}};
+  \code{\link{move_n_point}}; \code{\link{print_summary}};
+  \code{\link{summary_data}}; \code{\link{timeBins}}
 }
 

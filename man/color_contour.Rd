@@ -88,6 +88,6 @@ Other Utility functions for plotting: \code{\link{addInterval}};
   \code{\link{fill_area}}; \code{\link{find_difference}};
   \code{\link{getCoords}}; \code{\link{getFigCoords}};
   \code{\link{gradientLegend}}; \code{\link{horiz_error}};
-  \code{\link{plot_error}}
+  \code{\link{marginDensityPlot}}; \code{\link{plot_error}}
 }
 

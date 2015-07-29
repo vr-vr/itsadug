@@ -1,5 +1,8 @@
 #' Utility function.
 #'
+#' @export
+#' @import grDevices
+#' @import graphics
 #' @description Wrapper around \code{\link[grDevices]{adjustcolor}}.
 #' 
 #' @param x A color or a vector with color values.
@@ -26,6 +29,8 @@ alpha <- function(x, f = 0.5) {
 #' Utility function.
 #'
 #' @export
+#' @import grDevices
+#' @import graphics
 #' @description Generate an color palette with changing transparency.
 #' 
 #' @param x A vector with color values. Could be a single value specifying a 
@@ -82,10 +87,11 @@ alphaPalette <- function(x, f.seq, n=NULL) {
 }
 
 
-
 #' Utility function.
 #'
 #' @export
+#' @import grDevices
+#' @import graphics
 #' @description Add a transparency Rug to a contour plot or image.
 #' 
 #' @param x Observations on x-axis.
@@ -166,6 +172,8 @@ fadeRug <- function(x, y, n.grid = 30, gradual=FALSE,
 
 #' Utility function.
 #'
+#' @export
+#' @import graphics
 #' @description Function for positioning a legend or label in or outside the 
 #' plot region based on proportion of the plot region rather than Cartesian 
 #' coordinates.
@@ -191,6 +199,9 @@ getCoords <- function(pos = 1.1, side = 1) {
 
 #' Get the figure region as coordinates of the current plot region.
 #'
+#' @export
+#' @import grDevices
+#' @import graphics
 #' @param input Text string: 'f' (figure, default), 'p' (plot region), 
 #' 'hf' (half way figure region), or 'hp' (half way plot region)
 #' @return A vector of the form c(x1, x2, y1, y2) giving the 
@@ -253,6 +264,8 @@ getFigCoords <- function(input='f'){
 #' Utility function.
 #'
 #' @export
+#' @import grDevices
+#' @import graphics
 #' @description Add a gradient legend to a contour plot (or other plot) to 
 #' indicate the range of values represented by the color palette.
 #' 
@@ -288,6 +301,8 @@ getFigCoords <- function(input='f'){
 #' @param nCol Number of colors in the color palette.
 #' @param n.seg Number of ticks and markers on the scale.
 #' @param border.col Color of the border and the ticks.
+#' @param dec Number of decimals for rounding the numbers, set to NULL on 
+#' default (no rounding). 
 #' @author Jacolien van Rij
 #' @examples
 #' data(simdat)
@@ -316,7 +331,7 @@ getFigCoords <- function(input='f'){
 
 gradientLegend <- function(valRange, color='topo', nCol=30, 
     pos=.5, side=4, length=.25, depth=.05, inside=TRUE, coords=FALSE,
-    n.seg=3, border.col = 'black'){
+    n.seg=3, border.col = 'black', dec=NULL){
 
     loc   <- c(0,0,0,0)
     sides <- c(0,0,0,0)
@@ -372,8 +387,10 @@ gradientLegend <- function(valRange, color='topo', nCol=30,
         stop('No color palette provided.')
     }
 
-
     vals <- seq(min(valRange), max(valRange), length=length(mycolors))
+    if(!is.null(dec)){
+    	vals <- round(vals, dec[1])
+    }
 
     im <- as.raster(mycolors[matrix(1:length(mycolors), ncol=1)])
 
@@ -389,18 +406,25 @@ gradientLegend <- function(valRange, color='topo', nCol=30,
         rasterImage(rev(im), loc[1],loc[2], loc[3], loc[4], col=mycolors, xpd=T)
         rect(loc[1],loc[2], loc[3], loc[4], border=border.col, xpd=T)
         ticks <- seq(loc[2],loc[4], length=n.seg)
-        text(y=ticks, x=loc[3], 
-            labels=seq(min(valRange),max(valRange), length=n.seg),
-            pos=4, cex=.8, xpd=T)
+        if(is.null(dec)){
+	        text(y=ticks, x=loc[3], 
+	            labels=seq(min(valRange),max(valRange), length=n.seg),
+	            pos=4, cex=.8, xpd=T)
+        }else{
+	        text(y=ticks, x=loc[3], 
+	            labels=round( seq(min(valRange),max(valRange), length=n.seg), dec[1]),
+	            pos=4, cex=.8, xpd=T)
+	    }
         segments(x0=rep(loc[1], n.seg), x1=rep(loc[3], n.seg), y0=ticks, y1=ticks, col=border.col, xpd=TRUE)
     }
-
 }
 
 
 #' Utility function.
 #'
 #' @export
+#' @import grDevices
+#' @import graphics
 #' @description Add vertical error bars.
 #' 
 #' @param x Vector with x-values.
@@ -444,6 +468,9 @@ errorBars <- function(x, mean, se, minmax=NULL, ...){
 
 #' Utility function.
 #'
+#' @export
+#' @import grDevices
+#' @import graphics
 #' @description Add horizontal error bars.
 #' 
 #' @param y Vector with y-values.
@@ -488,6 +515,9 @@ horiz_error <- function(y, mean, se, minmax=NULL, ...){
 
 #' Utility function.
 #'
+#' @export
+#' @import grDevices
+#' @import graphics
 #' @description Add horizontal or vertical interval indications. 
 #' This function can also be used to plot asymmetric (non-parametric)
 #' error bars or confidence intervals. Basically a wrapper around arrows.
@@ -638,9 +668,4 @@ addInterval <- function(pos, lowVals, highVals, horiz=TRUE, minmax=NULL, length=
         options(warn=0)
     }
 }
-
-
-
-
-
 

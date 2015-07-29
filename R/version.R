@@ -3,12 +3,14 @@
   	options(itsadug_print=TRUE)
   }
   if(getOption('itsadug_print')){
-  	packageStartupMessage('Loaded package itsadug 1.0 (see \'help("itsadug")\' ).')
+  	packageStartupMessage('Loaded package itsadug 1.0.2 (see \'help("itsadug")\' ).')
   }
 }
 
 #' Information on how to cite this package
 #' 
+#' @export
+#' @import utils
 #' @param input Optional parameter. Normally (NULL) the citation info is 
 #' printed. If value "version" then only the version is printed.
 #' @examples
@@ -34,6 +36,7 @@ info <- function(input=NULL){
 
 #' Turn on or off information messages.
 #' 
+#' @export
 #' @param input Input variable indicating to print info messages 
 #' ("on", or 1, or TRUE) or not ("off", 0, or FALSE).
 #' @examples

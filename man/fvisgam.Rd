@@ -10,7 +10,7 @@ fvisgam(x, view = NULL, cond = list(), n.grid = 30, too.far = 0,
   se = -1, plot.type = "contour", xlim = NULL, ylim = NULL,
   zlim = NULL, nCol = 50, rm.ranef = NULL,
   print.summary = getOption("itsadug_print"), transform = NULL,
-  hide.label = FALSE, ...)
+  hide.label = FALSE, dec = -1, ...)
 }
 \arguments{
 \item{x}{A gam object, produced by \code{\link[mgcv]{gam}} or
@@ -76,6 +76,11 @@ Default is NULL.}
 \item{hide.label}{Logical: whether or not to hide the label
 (i.e., "fitted values"). Default is FALSE.}
 
+\item{dec}{Numeric: number of decimals for rounding the color legend.
+If -1 (default), automatically determined. When NULL, no rounding.
+Note: if value = -1 (default), rounding will be applied also when
+\code{zlim} is provided.}
+
 \item{...}{other options to pass on to persp, image or contour. In
 particular ticktype="detailed" will add proper axes labeling to the plots.}
 }
@@ -99,6 +104,22 @@ vis.gam(m1, view=c("Time", "Trial"), plot.type='contour', color='topo')
 fvisgam(m1, view=c("Time", "Trial"), rm.ranef=FALSE)
 # Without random effects included:
 fvisgam(m1, view=c("Time", "Trial"), rm.ranef=TRUE)
+
+# Notes on the color legend:
+# Labels can easily fall off the plot, therefore the numbers are
+# automatically rounded.
+# To undo the rounding, set dec=NULL:
+fvisgam(m1, view=c("Time", "Trial"), rm.ranef=TRUE,
+     dec=NULL)
+# For custom rounding, set dec to a value:
+fvisgam(m1, view=c("Time", "Trial"), rm.ranef=TRUE,
+     dec=3)
+# To increase the left marging of the plot (so that the numbers fit):
+oldmar <- par()$mar
+par(mar=oldmar + c(0,0,0,1) ) # add one line to the right
+fvisgam(m1, view=c("Time", "Trial"), rm.ranef=TRUE,
+     dec=3)
+par(mar=oldmar) # restore to default settings
 }
 # see the vignette for examples:
 vignette("overview", package="itsadug")

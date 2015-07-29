@@ -1,6 +1,10 @@
 #' Plot difference curve based on model predictions.
 #' 
 #' @export
+#' @import mgcv
+#' @import stats
+#' @import grDevices
+#' @import graphics
 #' @aliases plotDiff
 #' @param model A GAMM model, resulting from the functions
 #' \code{\link[mgcv]{gam}} or \code{\link[mgcv]{bam}}.
@@ -159,6 +163,10 @@ plot_diff <- function(model, view, comp, cond=NULL, plotCI=TRUE, f=1.96,
 #' Plot difference surface based on model predictions.
 #' 
 #' @export
+#' @import mgcv
+#' @import stats
+#' @import grDevices
+#' @import graphics
 #' @aliases plotDiff2D
 #' @param model A GAMM model, resulting from the functions
 #' \code{\link[mgcv]{gam}} or \code{\link[mgcv]{bam}}.
@@ -197,6 +205,10 @@ plot_diff <- function(model, view, comp, cond=NULL, plotCI=TRUE, f=1.96,
 #' (see \code{\link{infoMessages}}).
 #' @param hide.label Logical: whether or not to hide the label 
 #' (i.e., "difference"). Default is FALSE.
+#' @param dec Numeric: number of decimals for rounding the color legend. 
+#' If -1 (default), automatically determined. When NULL, no rounding. 
+#' Note: if value = -1 (default), rounding will be applied also when 
+#' \code{zlim} is provided.
 #' @param ... Optional arguments for \code{\link{plotsurface}}.
 #' @return If the result is not being plotted, a list is 
 #' returned with the estimated difference (\code{est}) and the standard error 
@@ -224,6 +236,7 @@ plot_diff2 <- function(model, view, comp, cond=NULL,
 	main=NULL, xlab=NULL, ylab=NULL,
 	rm.ranef=NULL,
 	hide.label=FALSE,
+	dec=-1,
 	print.summary=getOption('itsadug_print'), ...) { 
 
 	dat = model$model
@@ -288,7 +301,7 @@ plot_diff2 <- function(model, view, comp, cond=NULL,
 			main=main, xlab=xlab, ylab=ylab, 
 			zlim=zlim, 
 			col=col, color=color, nCol=nCol, add.color.legend=add.color.legend,
-			nlevels=nlevels, ...)
+			nlevels=nlevels, dec=dec, ...)
         if(hide.label==FALSE){
             addlabel = "difference"
             if(!is.null(rm.ranef)){
@@ -304,7 +317,7 @@ plot_diff2 <- function(model, view, comp, cond=NULL,
 			main=main, xlab=xlab, ylab=ylab, 
 			zlim=zlim, 
 			col=col, color=color, nCol=nCol, add.color.legend=add.color.legend,
-			nlevels=nlevels, ...)	
+			nlevels=nlevels, dec=dec, ...)	
         if(hide.label==FALSE){
             addlabel = "difference"
             if(!is.null(rm.ranef)){

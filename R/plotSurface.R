@@ -1,5 +1,9 @@
 #' Creates a colored surface plot.
 #'
+#' @export
+#' @import stats
+#' @import grDevices
+#' @import graphics
 #' @description This function is a wrapper around \code{\link[graphics]{image}}
 #' and \code{\link[graphics]{contour}}. See \code{vignette("plotfunctions")} 
 #' for an example of how you could use \code{\link[graphics]{image}} and 
@@ -36,6 +40,10 @@
 #' @param add.color.legend Logical: whether or not to add a color legend. 
 #' Default is TRUE. If FALSE (omitted), one could use the function
 #' \code{\link{gradientLegend}} to add a legend manually at any position.
+#' @param dec Numeric: number of decimals for rounding the color legend. 
+#' If -1 (default), automatically determined. When NULL, no rounding. 
+#' Note: if value = -1 (default), rounding will be applied also when 
+#' \code{zlim} is provided.
 #' @param ... Optional parameters for \code{\link[graphics]{image}}
 #' and \code{\link[graphics]{contour}}.
 #' @author Jacolien van Rij
@@ -86,7 +94,7 @@ plotsurface <- function(data, view, predictor=NULL, valCI=NULL,
 	main=NULL, xlab=NULL, ylab=NULL, 
 	xlim=NULL, ylim=NULL, zlim=NULL,
 	col=NULL, color=topo.colors(50), ci.col =c('red','green'), nCol=50,
-	add.color.legend=TRUE, ...){
+	add.color.legend=TRUE, dec=-1, ...){
 
 	xval <- c()
 	yval <- c()
@@ -310,6 +318,12 @@ plotsurface <- function(data, view, predictor=NULL, valCI=NULL,
 	if(is.null(zlim)){
 		zlim=range(zval)
 	}	
+	if(add.color.legend==TRUE & !is.null(dec)){
+        if(dec == -1){
+            dec <- getDec(min(zlim))
+        }
+        zlim <- getRange(zlim, step=(.1^dec), n.seg=2)
+	}
 
 	# colors:
     if(is.null(color)){
@@ -412,7 +426,7 @@ plotsurface <- function(data, view, predictor=NULL, valCI=NULL,
 	}
 
     if(add.color.legend){
-        gradientLegend(round(zlim, 3), n.seg=3, pos=.875, 
+        gradientLegend(zlim, n.seg=3, pos=.875, dec=dec,
             color=color)
     }
 

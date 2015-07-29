@@ -1,5 +1,7 @@
 #' Utility function.
 #' 
+#' @export
+#' @import stats
 #' @param x A numeric vector.
 #' @param element Logical: whether or not to return the value (FALSE, default) 
 #' or the index (TRUE).
@@ -26,6 +28,121 @@ findAbsMin <- function(x, element = FALSE) {
 
 #' Utility function.
 #' 
+#' @export
+#' @import stats
+#' @param x A numeric vector.
+#' @param dec Number of decimal points for rounding using function 
+#' \code{\link[base]{round}}. Applied after argument 
+#' \code{step}. If NULL (default), no rounding is applied.
+#' @param step Round the 
+#' @param n.seg Numeric value, number of values in the equally spaced sequence. 
+#' Default is 2 (min, max).
+#' @return vector, range of equally spaced sequence.
+#' @examples
+#' zlim <- c(-2.5, 3.01)
+#' # does not change anything:
+#' getRange(zlim)
+#' # create a range of 5 numbers: 
+#' # (basically just using seq )
+#' getRange(zlim, n.seg=5)
+#' # rounds the numbers:
+#' getRange(zlim, dec=0)
+#' getRange(zlim, n.seg=5, dec=0)
+#' # extreme values are multiplications of 5
+#' # that contains zlim values:
+#' getRange(zlim, step=5)
+#' getRange(zlim, step=5, n.seg=5)
+#' # similar, but not the same:
+#' getRange(zlim, n.seg=5, dec=0)
+#' getRange(zlim, n.seg=5, step=1)
+#' # combining:
+#' getRange(zlim, n.seg=5, step=1, dec=0)
+#' 
+#' @author Jacolien van Rij
+#' @family Data utility functions
+getRange <- function(x, dec=NULL, step=NULL, n.seg=2){
+	vals <- seq(min(x), max(x), length=n.seg)
+    if (!is.null(step)){
+        vals <- seq(floor(min(x)/step)*step, ceiling(max(x)/step)*step, length=n.seg)
+    }
+    if (!is.null(dec)){
+        vals <- round(vals, dec)
+    }
+    return(vals)
+}
+
+
+#' Utility function.
+#' 
+#' @export
+#' @import stats
+#' @param x A numeric vector.
+#' @return Number of decimals
+#' 
+#' @author Jacolien van Rij
+#' @family Data utility functions
+getDec <- function(x){
+	dec <- 0
+
+	dec <- sapply(x, function(a){
+		numstr <- format(a, scientific=TRUE)
+		numstr <- as.numeric( tail( unlist( strsplit(numstr, split='[e\\+]', fixed=FALSE) ), 1) )
+		if(numstr < 0){
+			return( abs(numstr)+1 )
+		}else{
+			return( 0 )
+		}
+	})
+	
+	return(dec)
+}
+
+#' Utility function.
+#'
+#' @export
+#' @description Combine list values as string.
+#' 
+#' @param x A vector with the names or numbers of list elements to be combined.
+#' @param inputlist A (named) list with information, e.g., graphical parameter settings.
+#' @return String
+#' @family Data utility functions
+
+list2str <- function(x, inputlist) {
+    out <- c()
+
+    for(i in x){
+        name.i <- NULL
+        val.i  <- NULL
+
+        if(is.numeric(i)){
+            if(i > 0 & i <= length(inputlist)){
+                name.i <- sprintf("el%.0f", i)
+                val.i  <- inputlist[[i]]
+            }
+        }else if(i %in% names(inputlist)){
+            name.i <- i
+            val.i  <- inputlist[[i]]
+        }
+        if(! is.null(name.i)){
+            if(inherits(val.i, c("numeric", "logical"))){
+                out <- c(out, sprintf("%s=c(%s)", name.i, paste(val.i, collapse=",")))
+            }else if(inherits(val.i, c("character", "factor"))){
+                out <- c(out, sprintf("%s=c(%s)", name.i, paste(sprintf("'%s'",val.i), collapse=",")))
+            }else{
+                warning(sprintf("Class %s is not supported, element %s is ignored.",
+                    class(name.i)[1], name.i))
+            } 
+        }
+    }
+    return(paste(out, collapse=", "))
+}
+
+
+#' Utility function.
+#' 
+#' @export
+#' @import grDevices
+#' @import graphics
 #' @param el A numeric vector.
 #' @param n Number indicating how many points around the elements of \code{el} 
 #' need to be selected.
@@ -63,6 +180,7 @@ find_n_neighbors <- function(el, n, max) {
 
 #' Utility function.
 #' 
+#' @export
 #' @param x A vector.
 #' @param n Number indicating how many steps the vector should shift forward 
 #' (N > 0) or backward (n < 0).
@@ -102,6 +220,7 @@ move_n_point <- function(x, n = 1, na_value = NA) {
 
 #' Calculate standard error of the mean.
 #' 
+#' @export
 #' @param x A vector.
 #' @return Standard Error of the mean.
 #' @author Jacolien van Rij
@@ -118,6 +237,7 @@ se <- function(x){
 
 #' Utility function.
 #' 
+#' @export
 #' @description The function prints a summary of the data. 
 #' Similar to the function \code{\link[utils]{str}}, but easier readable.
 #' @param data A data frame.
@@ -197,6 +317,7 @@ summary_data <- function(data, print=TRUE, n=10){
 
 #' Utility function.
 #' 
+#' @export
 #' @param sumlist Named list, output of \code{\link{summary_data}}.
 #' @param title Optional, text string that will be printed as title.
 #' @author Jacolien van Rij
@@ -216,6 +337,7 @@ print_summary <- function(sumlist, title=NULL){
 
 #' Utility function.
 #' 
+#' @export
 #' @description Function uses \code{\link[base]{sort.list}} to return indices
 #' of of a vector, sorted per group.
 #' @param x A vector to be sorted.
@@ -254,6 +376,7 @@ group_sort <- function(x, group=NULL, decreasing=FALSE){
 
 #' Defining timebins.
 #' 
+#' @export
 #' @description Function for calculating timebins.
 #' @param x Numerical vector with timestamp information.
 #' @param binsize Size of the timebin, measured in the same units (often ms) 
@@ -282,6 +405,95 @@ timeBins <- function(x, binsize, pos=.5){
 
 #' Utility function.
 #' 
+#' @export
+#' @description Function to change cbind columns into separated columns.
+#' @param x A cbind-vector to be split in columns.
+#' @param data (Optional) the data frame.
+#' @param values A vector with new column names.
+#' @return A data.frame with 
+#' @author Jacolien van Rij
+#' @seealso \code{\link[base]{table}}
+#' @family Functions for binomial count data.
+#' @section Note: 
+#' Will be moved to other package.
+#' # simulate some gaze data:
+#' dat <- data.frame(
+#'  Subject = rep(1:3, 500),
+#'  Timestamp = rep(1:500, 3),
+#'  AOI = rep( rep( c('other','competitor', 'target'), 3), 
+#'  c(184, 172, 144, 51, 264, 185, 127, 2, 371)) )
+#' # add missing data:
+#' dat[sample(nrow(dat), size=15),]$AOI <- NA
+#'
+#' # add timebins:
+#' dat$Timebin <- timeBins(dat$Timestamp, 100)
+#'
+#' # calculate counts:
+#' c1 <- getCountData('AOI', data=dat, split_by=c('Subject', 'Timebin'))
+#' head(c1)
+#'
+#' # make columns:
+#' c1 <- cbindToColumn("AOI", data=c1)
+#' head(c1)
+
+cbindToColumn <- function(x, data=NULL, values=NULL){
+
+    colname <- NULL
+    if(is.vector(x)){
+        if(is.null(data)){
+            stop("If x is a column name, provide data.")
+        }else{
+            colname <- x[1]
+            if(length(x)>1){
+                warning("Only first element of x will be used.")
+            }
+            colname <- x[1]
+            x <- data[,colname]
+            data[,colname] <- NULL
+        }
+    }
+
+    if(is.matrix(x)){
+        if(!is.null(values)){
+            if(length(values)< ncol(x)){
+                warning("Length of 'values' less than number of columns in 'x'.")
+                values <- c(values, paste("NewColumn", 1:(ncol(x)-length(values)), sep='.'))
+            }else if(length(values)> ncol(x)){
+                warning(sprintf( "Length of 'values' more than number of columns in 'x'. Only %.0f columns will be used.",
+                    ncol(x)) )
+                values <- values[1:ncols(x)]
+            }
+        }else{
+            if(!is.null(colname)){
+                values <- paste(colname, colnames(x), sep=".")
+            }else{
+                values <- colnames(x)
+            }
+        }
+
+        newdat <- as.data.frame(x)
+        if(is.null(values)){
+            colnames(newdat) <- paste("count", 1:ncol(x), sep='.')
+        }else{
+            colnames(newdat) <- values
+        }
+
+        if(!is.null(data)){
+            if(nrow(data)==nrow(newdat)){
+                return(cbind(data, newdat))
+            }
+        }
+
+        return(newdat)
+    }else {
+        stop("Format of x is not matrix.")
+    }
+}
+
+
+#' Utility function.
+#' 
+#' @export
 #' @description Function uses \code{\link[base]{table}} with factors
 #' to count the occurrances of each value in the predictor.
 #' @param x A vector to be counted.
@@ -308,6 +520,8 @@ countValues <- function(x, values, incl_na=FALSE){
 
 #' Reducing fixations to count data.
 #' 
+#' @export
+#' @import stats
 #' @description Function uses \code{\link[base]{table}} with factors
 #' to count the occurrances of each value in the predictor.
 #' @param x Name of a column in \code{data} or vector with values 

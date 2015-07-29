@@ -2,6 +2,7 @@
 title: "Quick overview of plot functions"
 author: "Jacolien van Rij"
 date: "`r Sys.Date()`"
+bibliography: bibliography.bib
 output:   
   rmarkdown::html_document:
     theme: readable
@@ -43,7 +44,7 @@ infoMessages("off")
 ```
 
 <p></br></p>
-The table present the different plot functions in the packages **`mgcv`** and <span style="color:cornflowerblue">**`itsadug`**</span> for visualizing GAMM models.
+The table present the different plot functions in the packages **`mgcv`** [@Wood_2006; @Wood_2011] and <span style="color:cornflowerblue">**`itsadug`**</span> for visualizing GAMM models.
 
 <p></br></p>
 <table>
@@ -349,4 +350,6 @@ legend('bottomleft',
   col=c('black', 'red'), lty=c(1,5),
   bty='n')
 ```
+
+# References
 

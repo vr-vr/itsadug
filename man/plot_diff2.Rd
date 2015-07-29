@@ -9,7 +9,8 @@ plot_diff2(model, view, comp, cond = NULL, color = "topo", nCol = 100,
   col = NULL, add.color.legend = TRUE, plotCI = FALSE, f = 1.96,
   n.grid = 30, nlevels = 10, zlim = NULL, xlim = NULL, ylim = NULL,
   main = NULL, xlab = NULL, ylab = NULL, rm.ranef = NULL,
-  hide.label = FALSE, print.summary = getOption("itsadug_print"), ...)
+  hide.label = FALSE, dec = -1,
+  print.summary = getOption("itsadug_print"), ...)
 }
 \arguments{
 \item{model}{A GAMM model, resulting from the functions
@@ -65,6 +66,11 @@ name of the random effect(s) to remove.}
 
 \item{hide.label}{Logical: whether or not to hide the label
 (i.e., "difference"). Default is FALSE.}
+
+\item{dec}{Numeric: number of decimals for rounding the color legend.
+If -1 (default), automatically determined. When NULL, no rounding.
+Note: if value = -1 (default), rounding will be applied also when
+\code{zlim} is provided.}
 
 \item{print.summary}{Logical: whether or not to print a summary.
 Default set to the print info messages option

@@ -1,6 +1,10 @@
 #' Visualization of group estimates.
 #'
 #' @export
+#' @import mgcv
+#' @import stats
+#' @import grDevices
+#' @import graphics
 #' @description Plots a smooth from a \code{\link[mgcv]{gam}} or 
 #' \code{\link[mgcv]{bam}} model based on predictions.
 #' In contrast with the default \code{\link[mgcv]{plot.gam}}, this function 

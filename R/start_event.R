@@ -1,6 +1,8 @@
 #' Determine the starting point for each time series.
 #' 
 #' @export
+#' @import mgcv
+#' @import stats
 #' @param data A data frame.
 #' @param column Test string, name of the column that describes the order 
 #' withing the time series. Default is "Time".

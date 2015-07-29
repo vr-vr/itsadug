@@ -1,6 +1,8 @@
 #' Convert the summary  into a Latex table.
 #' 
 #' @export
+#' @import mgcv
+#' @import stats
 #' @param model A GAM(M) model build in the package \code{\link[mgcv]{mgcv}} 
 #' using \code{\link[mgcv]{gam}} or \code{\link[mgcv]{bam}}.
 #' @param caption A string with the caption for the table.

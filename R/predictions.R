@@ -1,6 +1,8 @@
 #' Get model predictions for specific conditions.
 #' 
 #' @export
+#' @import mgcv
+#' @import stats
 #' @param model A gam object, produced by \code{\link[mgcv]{gam}} or 
 #' \code{\link[mgcv]{bam}}.
 #' @param cond A named list of the values to use for the predictor terms. 
@@ -160,6 +162,8 @@ get_predictions <- function(model, cond=NULL, se=TRUE, f=1.96, rm.ranef=NULL,
 #' Get model predictions for differences between conditions.
 #' 
 #' @export
+#' @import mgcv
+#' @import stats
 #' @param model A gam object, produced by \code{\link[mgcv]{gam}} or 
 #' \code{\link[mgcv]{bam}}.
 #' @param comp A named list with the two levels to compare.
@@ -360,6 +364,8 @@ get_difference <- function(model, comp, cond=NULL,
 #' Get estimated for selected model terms.
 #' 
 #' @export
+#' @import mgcv
+#' @import stats
 #' @param model A gam object, produced by \code{\link[mgcv]{gam}} or 
 #' \code{\link[mgcv]{bam}}.
 #' @param select A number, indicating the model term to be selected. 
@@ -544,6 +550,8 @@ get_modelterm <- function(model, select, cond=NULL, n.grid=30,
 #' Get coefficients for the random intercepts and random slopes.
 #' 
 #' @export
+#' @import mgcv
+#' @import stats
 #' @param model A gam object, produced by \code{\link[mgcv]{gam}} or 
 #' \code{\link[mgcv]{bam}}.
 #' @param cond A named list of the values to restrict the estimates for the 
@@ -659,6 +667,8 @@ get_random <- function(model, cond=NULL,
 #' estimates for the smooth term table.
 #' 
 #' @export
+#' @import mgcv
+#' @import stats
 #' @param model A gam object, produced by \code{\link[mgcv]{gam}} or 
 #' \code{\link[mgcv]{bam}}.
 #' @param se Logical: whether or not to return the standard errors.

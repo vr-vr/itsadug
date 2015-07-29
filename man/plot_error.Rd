@@ -84,6 +84,7 @@ Other Utility functions for plotting: \code{\link{addInterval}};
   \code{\link{fadeRug}}; \code{\link{fill_area}};
   \code{\link{find_difference}}; \code{\link{getCoords}};
   \code{\link{getFigCoords}}; \code{\link{gradientLegend}};
-  \code{\link{horiz_error}}
+  \code{\link{horiz_error}};
+  \code{\link{marginDensityPlot}}
 }
 

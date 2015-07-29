@@ -1,6 +1,9 @@
 #' Generate N ACF plots of individual or aggregated time series.
 #' 
 #' @export
+#' @import mgcv
+#' @import stats
+#' @import graphics
 #' @param x A vector with time series data, typically residuals of a 
 #' regression model.
 #' @param n The number of plots to generate.
